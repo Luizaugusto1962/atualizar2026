@@ -25,7 +25,7 @@ _executar_limpeza_temporarios() {
     }
 
     # Excluir arquivos de lista antigos para evitar confusao
-     for lista in "atualizaj" "atualizaj2" "atualizat" "atualizat2" ".atualizac" ".atualizac.bkp" ".atualziac.bak"; do
+     for lista in "atualizal" "atualizaj" "atualizaj2" "atualizat" "atualizat2" ".atualizac" ".atualizac.bkp" ".atualizac.bak"; do
         if [[ -f "$lista" && -r "$lista" ]]; then
             rm -f "${lista}"  # Remove após processar
         fi
