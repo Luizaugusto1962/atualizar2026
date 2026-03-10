@@ -199,9 +199,16 @@ _2025() {
 # Configuracoes adicionais
 _setup_banco_de_dados() {
     echo "$tracejada"
-    read -rp "Sistema em banco de dados [S/N]: " -n1 dbmaker
-    echo
-    if [[ "${dbmaker}" =~ ^[Ss]$ ]]; then
+    while true; do
+        read -rp "Sistema em banco de dados [S/N]: " -n1 dbmaker
+        echo
+        if [[ "${dbmaker,,}" =~ ^[sn]$ ]]; then
+            break
+        else
+            echo "Entrada inválida. Digite S ou N."
+        fi
+    done
+    if [[ "${dbmaker,,}" == "s" ]]; then
         echo "dbmaker=s" >> .config
     else
         echo "dbmaker=n" >> .config
@@ -222,9 +229,16 @@ _setup_diretorios() {
 }
 _setup_acesso_remoto() {
     echo "###      ( FACILITADOR DE ACESSO REMOTO )         ###"
-    read -rp "Ativar acesso facil (SSH) [S/N]: " -n1 acessossh
-    echo
-    if [[ "${acessossh}" =~ ^[Ss]$ ]]; then
+    while true; do
+        read -rp "Ativar acesso facil (SSH) [S/N]: " -n1 acessossh
+        echo
+        if [[ "${acessossh,,}" =~ ^[sn]$ ]]; then
+            break
+        else
+            echo "Entrada inválida. Digite S ou N."
+        fi
+    done
+    if [[ "${acessossh,,}" == "s" ]]; then
         echo "acessossh=s" >> .config
     else
         echo "acessossh=n" >> .config
@@ -237,9 +251,16 @@ _setup_acesso_remoto() {
     echo ${tracejada}
 
     echo "###      ( Tipo de acesso        )         ###"
-    read -rp "Servidor OFF [S/N]: " -n1 opt 
-    echo
-    if [[ "${opt}" =~ ^[Ss]$ ]]; then
+    while true; do
+        read -rp "Servidor OFF [S/N]: " -n1 opt 
+        echo
+        if [[ "${opt,,}" =~ ^[sn]$ ]]; then
+            break
+        else
+            echo "Entrada inválida. Digite S ou N."
+        fi
+    done
+    if [[ "${opt,,}" == "s" ]]; then
         Offline="s"
         echo "Offline=s" >> .config
     else
@@ -278,8 +299,15 @@ _editar_variavel() {
     local valor_atual="${!nome}"
     local tracejada="#-------------------------------------------------------------------#"
 
-    read -rp "Deseja alterar ${nome} (valor atual: ${valor_atual})? [s/N] " alterar
-    if [[ "${alterar,,}" =~ ^s$ ]]; then
+    while true; do
+        read -rp "Deseja alterar ${nome} (valor atual: ${valor_atual})? [s/N] " alterar
+        if [[ "${alterar,,}" =~ ^[sn]$ ]]; then
+            break
+        else
+            echo "Entrada inválida. Digite S ou N."
+        fi
+    done
+    if [[ "${alterar,,}" == "s" ]]; then
         case "$nome" in
             "sistema")
                 echo "1) IsCobol"
@@ -289,14 +317,28 @@ _editar_variavel() {
                 [[ "$opt" == "2" ]] && sistema="cobol"
                 ;;
             "dbmaker"|"acessossh")
-                read -rp "Novo valor (s/n): " opt
-                [[ "$opt" == "s" ]] && declare -g "$nome"="s"
-                [[ "$opt" == "n" ]] && declare -g "$nome"="n"
+                while true; do
+                    read -rp "Novo valor (s/n): " opt
+                    if [[ "${opt,,}" =~ ^[sn]$ ]]; then
+                        [[ "${opt,,}" == "s" ]] && declare -g "$nome"="s"
+                        [[ "${opt,,}" == "n" ]] && declare -g "$nome"="n"
+                        break
+                    else
+                        echo "Entrada inválida. Digite s ou n."
+                    fi
+                done
                 ;;
             "Offline")
-                read -rp "Sistema em modo Offline? (s/n): " opt            
-                [[ "$opt" == "s" ]] && declare -g "Offline"="s"
-                [[ "$opt" == "n" ]] && declare -g "Offline"="n"
+                while true; do
+                    read -rp "Sistema em modo Offline? (s/n): " opt            
+                    if [[ "${opt,,}" =~ ^[sn]$ ]]; then
+                        [[ "${opt,,}" == "s" ]] && declare -g "Offline"="s"
+                        [[ "${opt,,}" == "n" ]] && declare -g "Offline"="n"
+                        break
+                    else
+                        echo "Entrada inválida. Digite s ou n."
+                    fi
+                done
                 ;;
 
             *)
@@ -415,7 +457,14 @@ fi
         if [[ -f "${cfg_dir}/.atualizac" ]]; then
             clear
             echo "Arquivos de configuracao ja existem."
-            read -rp "Deseja sobrescrevê-los com a configuracao inicial? [s/N]: " choice
+            while true; do
+                read -rp "Deseja sobrescrevê-los com a configuracao inicial? [s/N]: " choice
+                if [[ "${choice,,}" =~ ^[sn]$ ]]; then
+                    break
+                else
+                    echo "Entrada inválida. Digite S ou N."
+                fi
+            done
             if [[ "${choice,,}" == "s" ]]; then
                 cd cfg || exit 1
                 _initial_setup
