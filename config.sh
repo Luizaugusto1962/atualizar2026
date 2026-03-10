@@ -4,7 +4,7 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/03/2026-00
+# Versao: 10/03/2026-00
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
@@ -40,8 +40,8 @@ SAVATU2="${SAVATU2:-}"                           # Caminho do diretorio da bibli
 SAVATU3="${SAVATU3:-}"                           # Caminho do diretorio da biblioteca do servidor da SAV.
 SAVATU4="${SAVATU4:-}"                           # Caminho do diretorio da biblioteca do servidor da SAV.
 verclass="${verclass:-}"                         # Ano da versao
-dbmaker="${dbmaker:-}"                               # Variavel que define o tipo de banco de dados usado pelo sistema.
-enviabackup="${enviabackup:-}"                       # Variavel que define o caminho para onde sera enviado o backup.
+dbmaker="${dbmaker:-}"                           # Variavel que define o tipo de banco de dados usado pelo sistema.
+enviabackup="${enviabackup:-}"                   # Variavel que define o caminho para onde sera enviado o backup.
 VERSAO="${VERSAO:-}"                             # Variavel que define a versao do programa.
 INI="${INI:-}"                                   # Variavel que define o caminho do arquivo de configuracao do sistema.
 Offline="${Offline:-}"                           # Variavel que define se o sistema esta em modo offline.
@@ -284,7 +284,7 @@ _configurar_variaveis_sistema() {
 
 # Carregar arquivo de configuracao da empresa
 _carregar_config_empresa() {
-    local config_file="${cfg_dir}/.atualizac"
+    local config_file="${cfg_dir}/.config"
 
     # Verificar existência e permissoes
     
@@ -395,11 +395,11 @@ _validar_configuracao() {
     local warnings=0
     
     # Verificar arquivos de configuracao
-    if [[ ! -f "${cfg_dir}/.atualizac" ]]; then
-        _mensagec "${RED}" "ERRO: Arquivo .atualizac nao encontrado!"
+    if [[ ! -f "${cfg_dir}/.config" ]]; then
+        _mensagec "${RED}" "ERRO: Arquivo .config nao encontrado!"
         ((erros++))
     else
-        _mensagec "${GREEN}" "OK: Arquivo .atualizac encontrado"
+        _mensagec "${GREEN}" "OK: Arquivo .config encontrado"
     fi
 
     # Verificar variaveis essenciais

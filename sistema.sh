@@ -4,7 +4,7 @@
 # Responsavel por informacoes do IsCOBOL, Linux, parametros e atualizacoes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 09/03/2026-00
+# Versao: 10/03/2026-00
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"      # Caminho do diretorio de configuracao do programa.
@@ -280,7 +280,7 @@ _atualizando() {
 
     #---------- INSTALAR ARQUIVOS DE CONFIGURAÇÃO ----------#
     # Processa manual.txt e atualiza.txt com destino ${cfg_dir}
-    local -a cfg_files=("manual.txt" "avisos" "atualizaj" "atualizat" ".senhas")
+    local -a cfg_files=("manual.txt" "avisos" "indexar" "limpetmp" ".senhas")
     
     for cfg_arquivo in "${cfg_files[@]}"; do
         if [[ ! -f "$cfg_arquivo" ]]; then
@@ -409,7 +409,7 @@ fi
 }
 
 _atualizar_online() {
-    local link="https://github.com/Luizaugusto1962/Atualiza2025/archive/master/atualiza.zip"
+    local link="https://github.com/Luizaugusto1962/atualizar2026/archive/master/atualiza.zip"
        # Criar e acessar diretorio temporario
     mkdir -p "$temp_dir" || {
         _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
@@ -541,22 +541,22 @@ editar_variavel() {
 _manutencao_setup() {
 
 # Se os arquivos existem, carrega e pergunta se quer editar campo a campo
-if [[ -f ".atualizac" ]]; then
+if [[ -f ".config" ]]; then
     echo "=================================================="
-    echo "Arquivo .atualizac ja existem."
+    echo "Arquivo .config ja existem."
     echo "Carregando parametros para edicao..."
     echo "=================================================="
     echo
 
-    # Carrega os valores existentes do arquivo .atualizac
-    "." ./.atualizac || {
-        echo "Erro: Falha ao carregar .atualizac"
+    # Carrega os valores existentes do arquivo .config
+    "." ./.config || {
+        echo "Erro: Falha ao carregar .config"
         exit 1
     }
 
     # Faz backup dos arquivos
-    cp .atualizac .atualizac.bkp || {
-        echo "Erro: Falha ao criar backup de .atualizac"
+    cp .config .config.bkp || {
+        echo "Erro: Falha ao criar backup de .config"
         exit 1
     }
 fi
@@ -576,8 +576,8 @@ clear
     editar_variavel base2
     editar_variavel base3
 
-    # Recria .atualizac
-    echo "Recriando .atualizac com os novos parametros..."
+    # Recria .config
+    echo "Recriando .config com os novos parametros..."
     echo ${tracejada}
 
     {
@@ -592,10 +592,10 @@ clear
         [[ -n "$base" ]] && echo "base=${base}"
         [[ -n "$base2" ]] && echo "base2=${base2}"
         [[ -n "$base3" ]] && echo "base3=${base3}"
-    } >.atualizac
+    } >.config
 
     echo
-    echo "Arquivo .atualizac atualizado com sucesso!"
+    echo "Arquivo .config atualizado com sucesso!"
     echo
     echo ${tracejada}
     
@@ -687,7 +687,7 @@ echo
 _linha
 _press 
 else
-    echo "Acesso SSH desativado. Para configurar, defina acessossh=s no arquivo .atualizac"    
+    echo "Acesso SSH desativado. Para configurar, defina acessossh=s no arquivo .config"    
 exit 1
 fi
 }

@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao das bibliotecas do sistema (Transpc, Savatu)
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 25/02/2026-00
+# Versao: 10/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                 # Tipo de sistema (iscobol/mf)
@@ -369,12 +369,12 @@ _executar_atualizacao_biblioteca() {
     _linha
 
     # Salvar versao anterior (substituir se existir, adicionar se nao existir)
-    if grep -q "^VERSAOANT=" "${cfg_dir}/.atualizac" 2>/dev/null; then
+    if grep -q "^VERSAOANT=" "${cfg_dir}/.config" 2>/dev/null; then
         # Substituir linha existente
-        sed -i "s/^VERSAOANT=.*/VERSAOANT=${VERSAO}/" "${cfg_dir}/.atualizac"
+        sed -i "s/^VERSAOANT=.*/VERSAOANT=${VERSAO}/" "${cfg_dir}/.config"
     else
         # Adicionar nova linha
-        if ! printf "VERSAOANT=%s\n" "${VERSAO}" >> "${cfg_dir}/.atualizac"; then
+        if ! printf "VERSAOANT=%s\n" "${VERSAO}" >> "${cfg_dir}/.config"; then
             _mensagec "${RED}" "Erro ao gravar arquivo de versao atualizada"
             _press
             exit

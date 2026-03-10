@@ -559,7 +559,7 @@ OPCOES DISPONIVEIS:
     Remove arquivos temporarios de todas as bases.
     
     PROCESSO:
-    1. Le lista de padroes (arquivo atualizat)
+    1. Le lista de padroes (arquivo limpetmp)
     2. Busca arquivos correspondentes
     3. Compacta arquivos encontrados
     4. Move para backup
@@ -575,7 +575,7 @@ OPCOES DISPONIVEIS:
     Arquivos sao compactados em:
     tools/backup/Temps-[DATA].zip
 
-2 - ADICIONAR ARQUIVOS NO ATUALIZAT
+2 - ADICIONAR ARQUIVOS NO LIMPETMP
     Adiciona novo padrao a lista de limpeza.
     
     COMO USAR:
@@ -588,9 +588,9 @@ OPCOES DISPONIVEIS:
     * *.bkp = Todos arquivos .bkp
     
     ARQUIVO:
-    Padroes sao salvos em: cfg/atualizat
+    Padroes sao salvos em: cfg/limpetmp
 
-3 - LISTAR ARQUIVOS DO ATUALIZAT
+3 - LISTAR ARQUIVOS DO limpetmp
     Exibe lista de padroes configurados.
     
     VISUALIZACAO:
@@ -598,11 +598,11 @@ OPCOES DISPONIVEIS:
     * Um padrao por linha
     * Formato legivel
 
-ARQUIVO ATUALIZAT:
+ARQUIVO limpetmp:
 ---------------------------------------------------------------
 
 LOCALIZACAO:
-cfg/atualizat
+cfg/limpetmp
 
 FORMATO:
 Um padrao por linha, sem comentarios
@@ -683,10 +683,10 @@ OPCOES DISPONIVEIS:
     CRITERIOS:
     * Arquivos do ano atual (ATE[AA]*.dat)
     * Notas fiscais eletrônicas do ano (NFE?[AAAA].*.dat)
-    * Arquivos da lista atualizaj
+    * Arquivos da lista indexar
     
-    LISTA ATUALIZAJ:
-    Local: cfg/atualizaj
+    LISTA indexar:
+    Local: cfg/indexar
     Contem: Nomes de arquivos criticos do sistema
 
 O QUE E REBUILD:
@@ -1264,7 +1264,7 @@ OPCOES DISPONIVEIS:
     4. Recarrega configuracoes
     
     BACKUP AUTOMATICO:
-    Sistema cria .atualizac.bkp antes de editar
+    Sistema cria .config.bkp antes de editar
 
 3 - VALIDAR CONFIGURACAO
     Testa todas as configuracoes.
@@ -1288,7 +1288,7 @@ ARQUIVO DE CONFIGURACAO:
 -------------------------------------------------------------------
 
 LOCALIZACAO:
-cfg/.atualizac
+cfg/.config
 
 FORMATO:
 Arquivo texto com pares chave=valor
@@ -1403,14 +1403,14 @@ Para modificar instalacao existente:
 SOLUCAO DE PROBLEMAS:
 -------------------------------------------------------------------
 
-PROBLEMA: "Arquivo .atualizac nao encontrado"
+PROBLEMA: "Arquivo .config nao encontrado"
 SOLUCAO: Execute ./libs/setup.sh
 
 PROBLEMA: "Variavel nao definida"
 SOLUCAO: Execute manutencao de setup
 
 PROBLEMA: "Diretorio nao encontrado"
-SOLUCAO: Verifique paths no .atualizac
+SOLUCAO: Verifique paths no .config
 
 PROBLEMA: Alteracoes nao surtem efeito
 SOLUCAO: Saia e entre novamente no sistema
@@ -1487,7 +1487,7 @@ ARQUIVO DE NOTAS:
 -------------------------------------------------------------------
 
 LOCALIZACAO:
-cfg/atualizal
+cfg/lembrete
 
 FORMATO:
 Arquivo texto simples
@@ -1801,11 +1801,11 @@ tools/
 ARQUIVOS IMPORTANTES:
 -------------------------------------------------------------------
 
-cfg/.atualizac        - Configuracao principal
-cfg/atualizat         - Lista de temporarios
-cfg/atualizaj         - Arquivos principais para o rodar e rebuild
-cfg/atualizal         - Notas/lembretes
-cfg/avisos       - Aviso de entrada
+cfg/.config        - Configuracao principal
+cfg/limpetmp          - Lista de temporarios
+cfg/indexar           - Arquivos principais para o rodar e rebuild
+cfg/lembrete          - Notas/lembretes
+cfg/avisos            - Aviso de entrada
 logs/atualiza.log     - Log de operacoes
 logs/limpando.log     - Log de limpeza
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/03/2026-00
+# Versao: 10/03/2026-00
 # Autor: Luiz Augusto
 # Email: luizaugusto@sav.com.br
 #
@@ -23,7 +23,7 @@ aux_dirs=("${lib_dir}" "${cfg_dir}")  # Lista de diretorios obrigatorios
 for dir in "${aux_dirs[@]}"; do
     [[ -z "${dir}" ]] && { printf "ERRO: Variavel de diretorio nao definida.\n"; exit 1; }
     [[ -d "${dir}" ]] || {
-        printf "ERRO: O diretorio %s nao foi encontrado.\n" "${dir}"
+        printf '%s\n' "ERRO: O diretorio '${dir}' nao foi encontrado."
         printf "Certifique-se de que os arquivos/modulos correspondentes estao instalados corretamente.\n"
         exit 1
     }

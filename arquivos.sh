@@ -3,16 +3,17 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferência e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/03/2026-00
+# Versao: 10/03/2026-00
 #
 # Variaveis globais esperadas
-sistema="${sistema:-}"             # Tipo de sistema (ex: iscobol, outros).
-base="${base:-}"                   # Caminho do diretorio da segunda base de dados.
-base3="${base3:-}"                 # Caminho do diretorio da terceira base de dados.
-cmd_zip="${cmd_zip:-}"             # Comando para compactacao (ex: zip).
-jut="${jut:-}"                     # Caminho para o utilitario jutil.
-raiz="${raiz:-}"                   # Caminho raiz do sistema.
-cfg_dir="${cfg_dir:-}"             # Caminho do diretorio de configuracoes.
+sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
+base="${base:-}"                          # Caminho do diretorio da segunda base de dados.
+base3="${base3:-}"                        # Caminho do diretorio da terceira base de dados.
+cmd_zip="${cmd_zip:-}"                    # Comando para compactacao (ex: zip).
+jut="${jut:-}"                            # Caminho para o utilitario jutil.
+raiz="${raiz:-}"                          # Caminho raiz do sistema.
+cfg_dir="${ccfg_dir:-${TOOLS_DIR}/cfg}"   # Caminho do diretorio de configuracoes.
+LOGS="${LOGS:-${TOOLS_DIR}/logs}"         # Diretorio de logs
 
 #---------- FUNCOES DE LIMPEZA ----------#
 
@@ -23,8 +24,15 @@ _executar_limpeza_temporarios() {
         return 1
     }
 
+    # Excluir arquivos de lista antigos para evitar confusao
+     for lista in "atualizaj" "atualizaj2" "atualizat" "atualizat2" ".atualizac" ".atualizac.bkp" ".atualziac.bak"; do
+        if [[ -f "$lista" && -r "$lista" ]]; then
+            rm -f "${lista}"  # Remove após processar
+        fi
+    done
+
     # Verificar arquivo de lista de temporarios
-    local arquivo_lista="${cfg_dir}/atualizat"
+    local arquivo_lista="${cfg_dir}/limpetmp"
     if [[ ! -f "${arquivo_lista}" ]]; then
         _mensagec "${RED}" "ERRO: Arquivo ${arquivo_lista} nao existe no diretorio"
         return 1
@@ -33,7 +41,7 @@ _executar_limpeza_temporarios() {
         return 1
     fi
 
-    local arquivo_lista2="${cfg_dir}/atualizat2"
+    local arquivo_lista2="${cfg_dir}/limpetmp2"
 
     # Limpar temporarios antigos do backup
     find "${BACKUP}" -type f -name "Temps*" -mtime +10 -delete 2>/dev/null || true
@@ -44,7 +52,7 @@ _executar_limpeza_temporarios() {
             local caminho_base="${raiz}${base_dir}"
             if [[ -d "$caminho_base" ]]; then
                 _limpar_base_especifica "$caminho_base" "$arquivo_lista"
-                # Processar atualizat2 na sequencia, se existir
+                # Processar limpetmp2 na sequencia, se existir
                 if [[ -f "${arquivo_lista2}" && -r "${arquivo_lista2}" ]]; then
                     _limpar_base_especifica "$caminho_base" "$arquivo_lista2"
                 fi
@@ -87,9 +95,13 @@ _limpar_base_especifica() {
         # Compactar — $cmd_zip sem aspas para suportar flags (ex: "zip -j")
         if $cmd_zip "${BACKUP}/${zip_temporarios}" "${arquivos_zip[@]}" >>"${LOG_LIMPA}" 2>&1; then
             _log "Arquivos temporarios compactados: $padrao_arquivo (${qtd_padrao} arquivo(s))"
-            # Remover usando o mesmo array ja coletado — sem segundo find
-            rm -f "${arquivos_zip[@]}" && _log "Arquivos removidos: $padrao_arquivo" || _log "AVISO: falha ao remover arquivos do padrao: $padrao_arquivo"
-        else
+            # Remover usando o mesmo array ja coletado.
+            if printf '%s\0' "${arquivos_zip[@]}" | xargs -0 rm -f; then
+                _log "Arquivos removidos: $padrao_arquivo (${qtd_padrao} arquivo(s))"
+            else
+                _log "AVISO: falha ao remover arquivos do padrao: $padrao_arquivo"
+            fi
+         else
             _log "ERRO ao compactar arquivos do padrao: $padrao_arquivo"
             _mensagec "${RED}" "  >> ERRO ao compactar padrao: ${padrao_arquivo}"
         fi
@@ -107,7 +119,7 @@ _adicionar_arquivo_lixo() {
     
     clear
     _meiodatela
-    _mensagec "${CYAN}" "Informe o nome do arquivo a ser adicionado ao atualizat2"
+    _mensagec "${CYAN}" "Informe o nome do arquivo a ser adicionado ao limpetmp2"
     _linha
     
     local novo_arquivo
@@ -121,8 +133,8 @@ _adicionar_arquivo_lixo() {
     fi
 
     # Adicionar arquivo à lista
-    echo "$novo_arquivo" >> atualizat2
-    _mensagec "${CYAN}" "Arquivo '${novo_arquivo}' adicionado com sucesso ao 'atualizat2'"
+    echo "$novo_arquivo" >> limpetmp2
+    _mensagec "${CYAN}" "Arquivo '${novo_arquivo}' adicionado com sucesso ao 'limpetmp2'"
     _linha
     
     _press
@@ -136,23 +148,23 @@ _lista_arquivos_lixo() {
     
     clear
     _meiodatela
-    _mensagec "${CYAN}" "Lista de arquivos no atualizat:"
+    _mensagec "${CYAN}" "Lista de arquivos no limpetmp:"
     _linha
 
-    if [[ -f "atualizat" && -s "atualizat" ]]; then
-        nl -w3 -s'. ' atualizat
+    if [[ -f "limpetmp" && -s "limpetmp" ]]; then
+        nl -w3 -s'. ' limpetmp
     else
-        _mensagec "${YELLOW}" "Nenhum arquivo listado no 'atualizat'"
+        _mensagec "${YELLOW}" "Nenhum arquivo listado no 'limpetmp'"
     fi
 
     _linha
-    _mensagec "${CYAN}" "Lista de arquivos no atualizat2:"
+    _mensagec "${CYAN}" "Lista de arquivos no limpetmp2:"
     _linha
 
-    if [[ -f "atualizat2" && -s "atualizat2" ]]; then
-        nl -w3 -s'. ' atualizat2
+    if [[ -f "limpetmp2" && -s "limpetmp2" ]]; then
+        nl -w3 -s'. ' limpetmp2
     else
-        _mensagec "${YELLOW}" "Nenhum arquivo listado no 'atualizat2'"
+        _mensagec "${YELLOW}" "Nenhum arquivo listado no 'limpetmp2'"
     fi
 
     _linha
@@ -297,20 +309,20 @@ _recuperar_arquivos_principais() {
         {
             ls ATE"${var_ano}"*.dat 2>/dev/null || true
             ls NFE?"${var_ano4}".*.dat 2>/dev/null || true
-        } > "${cfg_dir}/atualizaj2"
+        } > "${cfg_dir}/indexar2"
         
         cd "${cfg_dir}" || return 1
         _read_sleep 1
         
         # Verificar arquivos de lista
-        for lista in "atualizaj2" "atualizaj"; do
+        for lista in "indexar2" "indexar"; do
             if [[ -f "$lista" && -r "$lista" ]]; then
                 _processar_lista_arquivos "$lista" "$base_trabalho"
             fi
         done
         
         # Limpar arquivo temporario
-        [[ -f "atualizaj2" ]] && rm -f "atualizaj2"
+        [[ -f "indexar2" ]] && rm -f "indexar2"
         
         _mensagec "${YELLOW}" "Arquivos principais recuperados"
     else
@@ -328,11 +340,7 @@ _processar_lista_arquivos() {
     while IFS= read -r listando || [[ -n "$listando" ]]; do
         [[ -z "$listando" ]] && continue
         local caminho_arquivo="${base_trabalho}/${listando}"
-#        if [[ -f "$caminho_arquivo" ]]; then
          _executar_jutil "$caminho_arquivo"
-#        else
-#            _mensagec "${RED}" "Arquivo nao encontrado: ${listando}"
-#        fi
     done < "$arquivo_lista"
 }
 

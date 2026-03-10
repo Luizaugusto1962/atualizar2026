@@ -2,18 +2,18 @@
 #
 # setup.sh - Gerencia a configuracao do sistema
 # Este script gerencia a criacao e a edicao dos arquivos de configuracao
-# .atualizac e .atualizac, que sao essenciais para o funcionamento do sistema.
+# .config, que e essencial para o funcionamento do sistema.
 #
 # Modos de Operacao:
 #   - ./setup.sh: Modo de configuracao inicial interativo.
 #   - ./setup.sh --edit: Modo de edicao para modificar configuracoes existentes.
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 02/03/2026-00
+# Versao: 10/03/2026-00
 
 #---------- FUNCAO DE LOGICA DE NEGOCIO ----------#
 # Variaveis globais esperadas
-VERCLASS="${VERCLASS:-}"
+verclass="${verclass:-}"
 
 # Variáveis globais
 declare -l sistema base base2 base3 dbmaker enviabackup
@@ -29,14 +29,14 @@ _initial_setup() {
 
     # Header inicial
     echo "$traco"
-    echo ${traco} >.atualizac
+    echo ${traco} >.config
     echo "###      ( Parametros para serem usados no atualiza.sh )          ###"
     echo "$traco"
-    echo ${traco} >.atualizac
+    echo ${traco} >.config
     # Criar arquivos de configuracao
-    echo "$traco" > .atualizac
-    echo "###      ( Parametros para serem usados no atualiza.sh )          ###" >> .atualizac
-    echo "$traco" >> .atualizac
+    echo "$traco" > .config
+    echo "###      ( Parametros para serem usados no atualiza.sh )          ###" >> .config
+    echo "$traco" >> .config
 
     # Selecionar sistema (IsCobol ou Microfocus)
     echo "Em qual sistema o SAV esta rodando?"
@@ -81,7 +81,7 @@ _edit_setup() {
     }
 
     # Verificar se os arquivos de configuracao existem
-    if [[ ! -f "${cfg_dir}/.atualizac" ]]; then
+    if [[ ! -f "${cfg_dir}/.config" ]]; then
         echo "Arquivos de configuracao nao encontrados. Execute o setup inicial primeiro."
         exit 1
     fi
@@ -91,10 +91,10 @@ _edit_setup() {
     echo "=================================================="
 
     # Carregar configuracoes existentes
-    "." ./.atualizac
+    "." ./.config
 
     # Fazer backup
-    cp .atualizac .atualizac.bkp
+    cp .config .config.bkp
 
     # Edicao interativa das variaveis
     _editar_variavel sistema
@@ -112,7 +112,7 @@ _edit_setup() {
     # Recriar arquivos de configuracao
     _recreate_config_files
 
-    echo "Arquivos .atualizac e .atualizac atualizados com sucesso!"
+    echo "Arquivos .config atualizado com sucesso!"
 
     # Configurar SSH se habilitado
     if [[ "${acessossh}" == "s" ]]; then
@@ -129,7 +129,7 @@ _edit_setup() {
 # Configuracao para IsCobol
 _setup_iscobol() {
     sistema="iscobol"
-    echo "sistema=iscobol" >> .atualizac
+    echo "sistema=iscobol" >> .config
     echo "$tracejada"
     echo "Escolha a versao do Iscobol:"
     echo "1) Versao 2018"
@@ -161,39 +161,39 @@ _setup_cobol() {
     sistema="cobol"
     {
         echo "sistema=cobol"
-    } >> .atualizac
+    } >> .config
 }
 # Funcoes de versao do IsCobol
 _2018() {
     {
         echo "verclass=2018"
-    } >> .atualizac
-    VERCLASS="2018"
+    } >> .config
+    verclass="2018"
 }
 _2020() {
     {
         echo "verclass=2020"
-    } >> .atualizac
-    VERCLASS="2020"
+    } >> .config
+    verclass="2020"
 }
 _2023() {
     {
         echo "verclass=2023"
-    } >> .atualizac
-    VERCLASS="2023"
+    } >> .config
+    verclass="2023"
 }
 _2024() {
     {
         echo "verclass=2024"
-    } >> .atualizac
-    VERCLASS="2024"
+    } >> .config
+    verclass="2024"
 }
 
 _2025() {
     {
         echo "verclass=2025"
-    } >> .atualizac
-    VERCLASS="2025"
+    } >> .config
+    verclass="2025"
 }
 # Configuracoes adicionais
 _setup_banco_de_dados() {
@@ -201,22 +201,22 @@ _setup_banco_de_dados() {
     read -rp "Sistema em banco de dados [S/N]: " -n1 dbmaker
     echo
     if [[ "${dbmaker}" =~ ^[Ss]$ ]]; then
-        echo "dbmaker=s" >> .atualizac
+        echo "dbmaker=s" >> .config
     else
-        echo "dbmaker=n" >> .atualizac
+        echo "dbmaker=n" >> .config
     fi
 }
 _setup_diretorios() {
     echo ${tracejada}
     echo "###     ( Nome de pasta no servidor )              ###"
     read -rp "Nome da pasta da base de dados (Ex: /dados_jisam): " base
-    echo "base=${base}" >> .atualizac
+    echo "base=${base}" >> .config
     echo ${tracejada}
     read -rp "Nome da pasta da base 2 (Opcional): " base2
-    [[ -n "$base2" ]] && echo "base2=${base2}" >> .atualizac || echo "#base2=" >> .atualizac
+    [[ -n "$base2" ]] && echo "base2=${base2}" >> .config || echo "#base2=" >> .config
     echo ${tracejada}
     read -rp "Nome da pasta da base 3 (Opcional): " base3
-    [[ -n "$base3" ]] && echo "base3=${base3}" >> .atualizac || echo "#base3=" >> .atualizac
+    [[ -n "$base3" ]] && echo "base3=${base3}" >> .config || echo "#base3=" >> .config
     echo ${tracejada}
 }
 _setup_acesso_remoto() {
@@ -224,14 +224,14 @@ _setup_acesso_remoto() {
     read -rp "Ativar acesso facil (SSH) [S/N]: " -n1 acessossh
     echo
     if [[ "${acessossh}" =~ ^[Ss]$ ]]; then
-        echo "acessossh=s" >> .atualizac
+        echo "acessossh=s" >> .config
     else
-        echo "acessossh=n" >> .atualizac
+        echo "acessossh=n" >> .config
     fi
     echo ${tracejada}
     echo "###      ( IP do servidor da SAV )         ###"
     read -rp "Informe o IP do servidor: " ipserver
-    echo "ipserver=${ipserver}" >> .atualizac
+    echo "ipserver=${ipserver}" >> .config
     echo "IP do servidor:${ipserver}"
     echo ${tracejada}
 
@@ -240,10 +240,10 @@ _setup_acesso_remoto() {
     echo
     if [[ "${opt}" =~ ^[Ss]$ ]]; then
         Offline="s"
-        echo "Offline=s" >> .atualizac
+        echo "Offline=s" >> .config
     else
         Offline="n"
-        echo "Offline=n" >> .atualizac
+        echo "Offline=n" >> .config
     fi
 }
 
@@ -253,11 +253,11 @@ _setup_backup() {
     echo "Nome de pasta no servidor da SAV, informar somento o nome do cliente"
     read -rp "(Ex: cliente/\"NOME_da_pasta_do_CLIENTE\"): " enviabackup
     if [[ -z "$enviabackup" && "${Offline}" =~ ^[Nn]$ ]]; then
-        echo "enviabackup=" >> .atualizac
+        echo "enviabackup=" >> .config
     elif [[ -n "$enviabackup" ]]; then
-        echo "enviabackup=cliente/${enviabackup}" >> .atualizac
+        echo "enviabackup=cliente/${enviabackup}" >> .config
     else
-        echo "enviabackup=${Offline}" >> .atualizac
+        echo "enviabackup=${Offline}" >> .config
     fi
 }
 _setup_empresa() {
@@ -266,7 +266,7 @@ echo "###     ( NOME DA empresa )                   ###"
 echo "###   Nao pode conter espacos entre os nomes    ###"
 echo ${tracejada}
     read -rp "Nome da Empresa (sem espacos): " empresa
-    echo "empresa=${empresa}" >> .atualizac
+    echo "empresa=${empresa}" >> .config
 }
 
 #---------- FUNcoES DE EDIcaO ----------#
@@ -324,7 +324,7 @@ _recreate_config_files() {
         echo "base=${base}"
         [[ -n "$base2" ]] && echo "base2=${base2}" || echo "#base2="
         [[ -n "$base3" ]] && echo "base3=${base3}" || echo "#base3="
-    } > .atualizac
+    } > .config
     echo "$tracejada"
 }
 
@@ -408,7 +408,7 @@ fi
         _edit_setup
     else
         # Verificar se os arquivos de configuracao ja existem
-        if [[ -f "${cfg_dir}/.atualizac" ]]; then
+        if [[ -f "${cfg_dir}/.config" ]]; then
             clear
             echo "Arquivos de configuracao ja existem."
             read -rp "Deseja sobrescrevê-los com a configuracao inicial? [s/N]: " choice

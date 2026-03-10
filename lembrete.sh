@@ -2,7 +2,7 @@
 #
 # SISTEMA SAV - Script de Atualizacao Modular
 # lembrete.sh - Modulo de Lembretes e Notas
-# Versao: 05/03/2026-00
+# Versao: 10/03/2026-00
 # Autor: Luiz Augusto
 # utils.sh - Modulo de Utilitarios e Funcoes Auxiliares  
 # Funcoes basicas para formatacao, mensagens, validacao e controle de fluxo
@@ -19,7 +19,7 @@ _escrever_nova_nota() {
     _mensagec "${YELLOW}" "Digite sua nota (pressione Ctrl+D para finalizar):"
     _linha
 
-    local arquivo_notas="${cfg_dir}/atualizal"
+    local arquivo_notas="${cfg_dir}/lembrete"
     if cat >> "$arquivo_notas"; then
         _linha
         _mensagec "${YELLOW}" "Nota gravada com sucesso!"
@@ -32,7 +32,7 @@ _escrever_nova_nota() {
 
 # Mostra notas iniciais se existirem
 _mostrar_notas_iniciais() {
-    local nota_inicial="${cfg_dir}/atualizal"
+    local nota_inicial="${cfg_dir}/lembrete"
     
     if [[ -f "$nota_inicial" && -s "$nota_inicial" ]]; then
         _visualizar_notas_arquivo "$nota_inicial"
@@ -164,7 +164,7 @@ _visualizar_notas_arquivo() {
 
 # Edita nota existente
 _editar_nota_existente() {
-    local arquivo_notas="${cfg_dir}/atualizal"
+    local arquivo_notas="${cfg_dir}/lembrete"
     
     clear
     if [[ -f "$arquivo_notas" ]]; then
@@ -180,7 +180,7 @@ _editar_nota_existente() {
 
 # Apaga nota existente
 _apagar_nota_existente() {
-    local arquivo_notas="${cfg_dir}/atualizal"
+    local arquivo_notas="${cfg_dir}/lembrete"
     
     if [[ ! -f "$arquivo_notas" ]]; then
         _mensagec "${YELLOW}" "Nenhuma nota encontrada para excluir!"

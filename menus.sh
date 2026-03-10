@@ -4,7 +4,7 @@
 # Responsavel pela apresentacao e navegacao dos menus do sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 09/03/2026-00
+# Versao: 10/03/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -369,7 +369,7 @@ _menu_temporarios() {
         printf "\n"
         _mensagec "${GREEN}" "1${NORM} -|: Limpeza dos Arquivos Temporarios "
         printf "\n"
-        _mensagec "${GREEN}" "2${NORM} -|: Adicionar Arquivos no atualizat2 "
+        _mensagec "${GREEN}" "2${NORM} -|: Adicionar Arquivos no limpetmp2 "
         printf "\n"
         _mensagec "${GREEN}" "3${NORM} -|: Listar os registros dos Arquivos "
         printf "\n"
@@ -560,8 +560,8 @@ _menu_setups() {
             2) 
                _manutencao_setup
                 # Apos a manutencao, recarregar as configuracoes
-                if [[ -f "${cfg_dir}/.atualizac" ]]; then
-                    "." "${cfg_dir}/.atualizac"
+                if [[ -f "${cfg_dir}/.config" ]]; then
+                    "." "${cfg_dir}/.config"
                     _mensagec "${GREEN}" "Configuracoes recarregadas com sucesso!"
                     _read_sleep 2
                 fi
@@ -617,8 +617,8 @@ _menu_lembretes() {
 
             1) _escrever_nova_nota ;;
             2) 
-                if [[ -f "${cfg_dir}/atualizal" ]]; then
-                    _visualizar_notas_arquivo "${cfg_dir}/atualizal"
+                if [[ -f "${cfg_dir}/lembrete" ]]; then
+                    _visualizar_notas_arquivo "${cfg_dir}/lembrete"
                 else
                     _mensagec "${YELLOW}" "Arquivo de notas nao encontrado"
                     _read_sleep 1
