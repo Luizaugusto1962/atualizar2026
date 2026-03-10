@@ -408,7 +408,10 @@ fi
         _edit_setup
     else
         # Verificar se os arquivos de configuracao ja existem
-        if [[ -f "${cfg_dir}/.config" ]]; then
+
+#        if [[ -f "${cfg_dir}/.config" ]]; then  # Comentada para converter de .atualizac para .config.
+
+        if [[ -f "${cfg_dir}/.atualizac" ]]; then
             clear
             echo "Arquivos de configuracao ja existem."
             read -rp "Deseja sobrescrevê-los com a configuracao inicial? [s/N]: " choice

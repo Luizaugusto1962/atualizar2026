@@ -1,3 +1,5 @@
-Rodar o setup.sh que este em ./tools/libs, antes de usar o programa.
+Rodar o setup.sh --edit que este em ./tools/libs, antes de usar o programa.
+
 Atualizacao de usuario e senha atualizar novamente.
+Troca de nome de arquivos de configuracao.
 
