@@ -81,8 +81,7 @@ _edit_setup() {
     }
 
     # Verificar se os arquivos de configuracao existem
-#    if [[ ! -f "${cfg_dir}/.config" ]]; then
-    if [[ ! -f "${cfg_dir}/.atualizac" ]]; then
+    if [[ ! -f "${cfg_dir}/.config" ]]; then
         echo "Arquivos de configuracao nao encontrados. Execute o setup inicial primeiro."
         exit 1
     fi
@@ -452,9 +451,7 @@ fi
     else
         # Verificar se os arquivos de configuracao ja existem
 
-#        if [[ -f "${cfg_dir}/.config" ]]; then  # Comentada para converter de .atualizac para .config.
-
-        if [[ -f "${cfg_dir}/.atualizac" ]]; then
+        if [[ -f "${cfg_dir}/.config" ]]; then  
             clear
             echo "Arquivos de configuracao ja existem."
             while true; do
