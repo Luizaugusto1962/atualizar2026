@@ -286,8 +286,16 @@ _configurar_variaveis_sistema() {
 _carregar_config_empresa() {
     local config_file="${cfg_dir}/.config"
 
-    # Verificar existência e permissoes
-    
+# Copia temporaria do arquivo de configuracao para o diretorio atual para facilitar o acesso
+    if [[ -f "${cfg_dir}/.atualizac" ]]; then
+        cp "${cfg_dir}/.atualizac" .config 2>/dev/null || {
+            printf "Erro ao copiar arquivo de configuracao para o diretorio atual.\n"
+            exit 1
+        }
+    fi
+
+
+# Verificar se o arquivo de configuracao existe e tem permissao de leitura 
     if [[ ! -e "${config_file}" ]]; then
         printf "ERRO: Arquivo nao existe no diretorio.\n" 
         printf "ATENCAO: Use o programa .setup.sh que esta na pasta /libs para criar as configuracoes.\n" 
