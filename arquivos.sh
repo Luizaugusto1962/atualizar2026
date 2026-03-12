@@ -19,10 +19,6 @@ LOGS="${LOGS:-${TOOLS_DIR}/logs}"         # Diretorio de logs
 
 # Executa limpeza de arquivos temporarios
 _executar_limpeza_temporarios() {
-    cd "${cfg_dir}" || {
-        _mensagec "${RED}" "Erro: Diretorio ${cfg_dir} nao encontrado"
-        return 1
-    }
 
     # Excluir arquivos de lista antigos para evitar confusao
      for lista in "atualizal" "atualizaj" "atualizaj2" "atualizat" "atualizat2" ".atualizac" ".atualizac.bkp" ".atualizac.bak"; do
@@ -35,9 +31,11 @@ _executar_limpeza_temporarios() {
     local arquivo_lista="${cfg_dir}/limpetmp"
     if [[ ! -f "${arquivo_lista}" ]]; then
         _mensagec "${RED}" "ERRO: Arquivo ${arquivo_lista} nao existe no diretorio"
+        _read_sleep 2
         return 1
     elif [[ ! -r "${arquivo_lista}" ]]; then
         _mensagec "${RED}" "ERRO: Arquivo ${arquivo_lista} sem permissao de leitura"
+        _read_sleep 2
         return 1
     fi
 
@@ -58,6 +56,7 @@ _executar_limpeza_temporarios() {
                 fi
             else
                 _mensagec "${YELLOW}" "Diretorio nao existe: ${caminho_base}"
+                _read_sleep 2
             fi
         fi
     done
@@ -91,7 +90,8 @@ _limpar_base_especifica() {
         fi
 
         _mensagec "${GREEN}" "Processando padrao: ${YELLOW}${padrao_arquivo}${NORM} (${qtd_padrao} arquivo(s))"
-
+        _read_sleep 1
+        
         # Compactar — $cmd_zip sem aspas para suportar flags (ex: "zip -j")
         if $cmd_zip "${BACKUP}/${zip_temporarios}" "${arquivos_zip[@]}" >>"${LOG_LIMPA}" 2>&1; then
             _log "Arquivos temporarios compactados: $padrao_arquivo (${qtd_padrao} arquivo(s))"
@@ -112,10 +112,6 @@ _limpar_base_especifica() {
 
 # Adiciona arquivo à lista de limpeza
 _adicionar_arquivo_lixo() {
-    cd "${cfg_dir}" || {
-        _mensagec "${RED}" "Erro: Diretorio ${cfg_dir} nao encontrado"
-        return 1
-    }
     
     clear
     _meiodatela
@@ -141,10 +137,6 @@ _adicionar_arquivo_lixo() {
 }
 
 _lista_arquivos_lixo() {
-    cd "${cfg_dir}" || {
-        _mensagec "${RED}" "Erro: Diretorio ${cfg_dir} nao encontrado"
-        return 1
-    }
     
     clear
     _meiodatela
@@ -637,13 +629,13 @@ _listar_logs_atualizacao() {
     if [[ -z "$opcao" ]]; then
         _mensagec "${RED}" "Nenhuma opcao selecionada."
         _press
-        return 1
+        return 0
     fi
 
     if ! [[ "$opcao" =~ ^[0-9]+$ ]] || (( opcao < 0 || opcao >= i )); then
         _mensagec "${RED}" "Opcao invalida."
         _press
-        return 1
+        return 0
     fi
 
     clear
@@ -710,13 +702,13 @@ _listar_logs_limpeza() {
     if [[ -z "$opcao" ]]; then
         _mensagec "${RED}" "Nenhuma opcao selecionada."
         _press
-        return 1
+        return 0
     fi
 
     if ! [[ "$opcao" =~ ^[0-9]+$ ]] || (( opcao < 0 || opcao >= i )); then
         _mensagec "${RED}" "Opcao invalida."
         _press
-        return 1
+        return 0
     fi
 
     clear
