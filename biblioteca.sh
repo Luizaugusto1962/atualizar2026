@@ -363,12 +363,12 @@ _executar_atualizacao_biblioteca() {
     _linha
 
     # Salvar versao anterior (substituir se existir, adicionar se nao existir)
-    if grep -q "^VERSAOANT=" "${cfg_dir}/.config" 2>/dev/null; then
+    if grep -q "^VERSAOANT=" "${cfg_dir}/.versao" 2>/dev/null; then
         # Substituir linha existente
-        sed -i "s/^VERSAOANT=.*/VERSAOANT=${VERSAO}/" "${cfg_dir}/.config"
+        sed -i "s/^VERSAOANT=.*/VERSAOANT=${VERSAO}/" "${cfg_dir}/.versao"
     else
         # Adicionar nova linha
-        if ! printf "VERSAOANT=%s\n" "${VERSAO}" >> "${cfg_dir}/.config"; then
+        if ! printf "VERSAOANT=%s\n" "${VERSAO}" >> "${cfg_dir}/.versao"; then
             _mensagec "${RED}" "Erro ao gravar arquivo de versao atualizada"
             _press
             exit

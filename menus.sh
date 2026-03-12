@@ -192,6 +192,11 @@ _menu_biblioteca() {
         _mensagec "${WHITE}" "9${RED} -|: Menu Anterior "
         printf "\n"
         
+        # Antes de usar, carregar o arquivo
+        if [[ -f "${cfg_dir}/.versao" ]]; then
+            "." "${cfg_dir}/.versao"
+        fi
+
         if [[ -n "${VERSAOANT}" ]]; then
             printf "\n"
             _mensaged "${BLUE}" "Versao Anterior - ${VERSAOANT}"

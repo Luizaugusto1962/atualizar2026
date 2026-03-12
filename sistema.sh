@@ -136,7 +136,11 @@ _mostrar_versao_linux() {
 }
 
 #---------- FUNcoES DE PARaMETROS ----------#
-
+       # Antes de usar, carregar o arquivo
+        if [[ -f "${cfg_dir}/.versao" ]]; then
+            "." "${cfg_dir}/.versao"
+        fi
+        
 # Mostra parametros do sistema
 _mostrar_parametros() {
     clear
@@ -168,7 +172,7 @@ _mostrar_parametros() {
     printf "${GREEN}Diretorio para envio de backup: ${NORM}${enviabackup}""%*s\n"
     printf "${GREEN}Servidor OFF: ${NORM}${Offline}""%*s\n"
     printf "${GREEN}Diretorio de configuracoes em OFF: ${NORM}${down_dir}""%*s\n"
-    printf "${GREEN}Versao anterior da biblioteca: ${NORM}${VERSAOANT}""%*s\n"
+    printf "${GREEN}Versao da biblioteca atual: ${NORM}${VERSAOANT}""%*s\n"
     printf "${GREEN}Variavel da classe: ${NORM}${class}""%*s\n"
     printf "${GREEN}Variavel da mclass: ${NORM}${mclass}""%*s\n"
     printf "${GREEN}Porta de conexao: ${NORM}${SERVER_PORTA}""%*s\n"
