@@ -23,10 +23,10 @@ _escrever_nova_nota() {
     if cat >> "$arquivo_notas"; then
         _linha
         _mensagec "${YELLOW}" "Nota gravada com sucesso!"
-        sleep 2
+        _read_sleep 2
     else
         _mensagec "${RED}" "Erro ao gravar nota"
-        sleep 2
+        _read_sleep 2
     fi
 }
 
@@ -52,10 +52,10 @@ _gerar_aviso_entrada() {
     if cat > "$arquivo_msg"; then
         _linha
         _mensagec "${GREEN}" "Mensagem gravada com sucesso!"
-        sleep 2
+        _read_sleep 2
     else
         _mensagec "${RED}" "Erro ao gravar mensagem"
-        sleep 2
+        _read_sleep 2
     fi
 }
 
@@ -67,11 +67,11 @@ _editar_aviso_existente() {
     if [[ -f "$arquivo_avisos" ]]; then
         if ! ${EDITOR:-nano} "$arquivo_avisos"; then
             _mensagec "${RED}" "Erro ao abrir editor!"
-            sleep 2
+            _read_sleep 2
         fi
     else
         _mensagec "${YELLOW}" "Nenhuma mensagem de aviso encontrada para editar!"
-        sleep 2
+        _read_sleep 2
     fi
 }
 
@@ -93,7 +93,7 @@ _mostrar_aviso() {
         if _confirmar "Excluir mensagem de entrada?" "N"; then
             rm -f "$arquivo_msg"
             _mensagec "${GREEN}" "Mensagem removida"
-            sleep 1
+            _read_sleep 1
         fi
     fi
 }
@@ -103,7 +103,7 @@ _apagar_aviso_entrada() {
     local arquivo_msg="${cfg_dir}/avisos"
     if [[ ! -f "$arquivo_msg" ]]; then
         _mensagec "${YELLOW}" "Nenhuma mensagem de entrada encontrada!"
-        sleep 2
+        _read_sleep 2
         return
     fi
 
@@ -113,7 +113,7 @@ _apagar_aviso_entrada() {
         else
             _mensagec "${RED}" "Erro ao excluir mensagem"
         fi
-        sleep 2
+        _read__read_sleep 2
     fi
 }
 
@@ -170,11 +170,11 @@ _editar_nota_existente() {
     if [[ -f "$arquivo_notas" ]]; then
         if ! ${EDITOR:-nano} "$arquivo_notas"; then
             _mensagec "${RED}" "Erro ao abrir editor!"
-            sleep 2
+            _read_sleep 2
         fi
     else
         _mensagec "${YELLOW}" "Nenhuma nota encontrada para editar!"
-        sleep 2
+        _read_sleep 2
     fi
 }
 
@@ -184,7 +184,7 @@ _apagar_nota_existente() {
     
     if [[ ! -f "$arquivo_notas" ]]; then
         _mensagec "${YELLOW}" "Nenhuma nota encontrada para excluir!"
-        sleep 2
+        _read_sleep 2
         return
     fi
 
@@ -194,6 +194,6 @@ _apagar_nota_existente() {
         else
             _mensagec "${RED}" "Erro ao excluir notas"
         fi
-        sleep 2
+        _read_sleep 2
     fi
 }

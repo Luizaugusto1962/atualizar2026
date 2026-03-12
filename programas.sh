@@ -290,6 +290,7 @@ _baixar_pacotes_vaievem() {
 
     cd "${down_dir}" || {
         _mensagec "${RED}" "Erro: Diretorio $down_dir nao encontrado"
+        _read_sleep 2
         return 1
     }
 
@@ -425,11 +426,13 @@ _processar_atualizacao_pacotes() {
     for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
         if [[ ! -f "${arquivo}" ]]; then
             _mensagec "${RED}" "Arquivo nao encontrado: ${arquivo}"
+            _read_sleep 2
             continue
         fi
 
         if ! "${cmd_unzip}" -o "${arquivo}" >>"${LOG_ATU}"; then
             _mensagec "${RED}" "Erro ao descompactar ${arquivo}"
+            _read_sleep 2
             continue
         fi
     done

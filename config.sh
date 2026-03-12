@@ -141,6 +141,7 @@ _configurar_comandos() {
     for cmd in "$cmd_unzip" "$cmd_zip" "$cmd_find" "$cmd_who"; do
         if ! command -v "$cmd" >/dev/null 2>&1; then
             printf "Erro: Comando %s nao encontrado.\n" "$cmd"
+            _read_sleep 2
             exit 1
         fi
     done
@@ -161,6 +162,7 @@ _configurar_diretorios() {
     if [[ ! -d "${cfg_dir}" ]]; then
         mkdir -p "${cfg_dir}" || {
             printf "Erro ao criar diretorio de configuracao %s\n" "${cfg_dir}"
+            _read_sleep 2
             return 1
         }
     fi
@@ -186,6 +188,7 @@ _configurar_diretorios() {
         if [[ ! -d "${dir}" ]]; then
             mkdir -p "${dir}" || {
                 printf "Erro ao criar diretorio %s\n" "${dir}"
+                _read_sleep 2
                 return 1
             }
         fi
@@ -290,11 +293,13 @@ _carregar_config_empresa() {
     if [[ ! -e "${config_file}" ]]; then
         printf "ERRO: Arquivo nao existe no diretorio.\n" 
         printf "ATENCAO: Use o programa .setup.sh que esta na pasta /libs para criar as configuracoes.\n" 
+        _read_sleep 2
         exit 1
     fi
     
     if [[ ! -r "${config_file}" ]]; then
         printf "ERRO: Arquivo %s sem permissao de leitura.\n" "${config_file}"
+        _read_sleep 2
         exit 1
     fi
     
@@ -310,6 +315,7 @@ _configurar_acessos() {
         if [[ ! -d "${down_dir}" ]]; then
             mkdir -p "${down_dir}" || {
                 printf "Erro ao criar diretorio offline %s\n" "${down_dir}"
+                _read_sleep 2
                 exit 1
             }
         fi

@@ -104,6 +104,7 @@ _limpar_base_especifica() {
          else
             _log "ERRO ao compactar arquivos do padrao: $padrao_arquivo"
             _mensagec "${RED}" "  >> ERRO ao compactar padrao: ${padrao_arquivo}"
+            _read_sleep 1
         fi
     done
         

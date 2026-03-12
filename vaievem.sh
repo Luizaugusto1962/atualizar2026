@@ -204,12 +204,14 @@ _baixar_programas_vaievem() {
             # Verificar se arquivo foi baixado
             if [[ ! -f "$arquivo" || ! -s "$arquivo" ]]; then
                 _mensagec "${RED}" "ERRO: Falha ao baixar '$arquivo'"
+                _read_sleep 2
                 continue
             fi
 
             if ! unzip -t "$arquivo" >/dev/null 2>&1; then
                 _mensagec "${RED}" "ERRO: Arquivo corrompido: $arquivo"
                 rm -f "$arquivo"
+                _read_sleep 2
                 continue
             fi
 
@@ -225,11 +227,13 @@ _enviar_arquivo_multi() {
     # Validar variaveis globais necessarias
     if [[ -z "$arquivo_enviar" ]]; then
         _mensagec "${RED}" "Erro: Nenhum arquivo especificado para envio"
+        _read_sleep 2
         return 1
     fi
 
     if [[ -z "${destino_remoto:-}" ]]; then
         _mensagec "${RED}" "Erro: Destino remoto nao especificado"
+        _read_sleep 2
         return 1
     fi
 

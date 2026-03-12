@@ -395,7 +395,8 @@ _exportar_manual() {
         _mensagec "${GREEN}" "Manual exportado para: $destino"
     else
         _mensagec "${RED}" "Erro ao exportar manual"
-        return 1
+        _read_sleep 2
+        return 0
     fi
     
     _press

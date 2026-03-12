@@ -229,6 +229,7 @@ _executar_backup_completo() {
     # Verificar se o backup foi criado
     if [[ ! -f "$arquivo_destino" ]]; then
         _mensagec "${RED}" "Erro: Backup nao foi criado"
+        _read_sleep 3
         return 1
     fi
     
@@ -255,6 +256,7 @@ _executar_backup_incremental() {
     # Criar arquivo temporario para lista de arquivos
     arquivos_temp=$(mktemp) || {
         _mensagec "${RED}" "Erro ao criar arquivo temporario"
+        _read_sleep 3
         return 1
     }
 
@@ -279,6 +281,7 @@ _executar_backup_incremental() {
     # Verificar se o backup foi criado
     if [[ ! -f "$arquivo_destino" ]]; then
         _mensagec "${RED}" "Erro: Backup nao foi criado"
+        _read_sleep 3
         return 1
     fi
     
@@ -291,11 +294,13 @@ _diretorio_trabalho() {
     
     if [[ ! -d "$base_trabalho" ]]; then
         _mensagec "${RED}" "Erro: Diretorio ${base_trabalho} nao encontrado"
+        _read_sleep 3
         return 1
     fi
     
     cd "$base_trabalho" || {
         _mensagec "${RED}" "Erro: Nao foi possivel acessar ${base_trabalho}"
+        _read_sleep 3
         return 1
     }
     
@@ -439,7 +444,7 @@ _restaurar_arquivo_especifico() {
             # Pergunta se deseja continuar mesmo após erro
             read -rp "${YELLOW}Deseja restaurar mais arquivos? (S/N): ${NORM}" continuar
             if [[ ! "$continuar" =~ ^[Ss]$ ]]; then
-                return 0  # Sai da funcao se ncao quiser continuar
+                return 0  # Sai da funcao se nao quiser continuar
             fi
             continue  # Volta ao loop para novo nome
         fi

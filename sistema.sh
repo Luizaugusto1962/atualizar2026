@@ -29,15 +29,18 @@ _mostrar_versao_iscobol() {
             _linha
             _mensagec "${RED}" "Erro: ${SAVISC}${ISCCLIENT} nao encontrado ou nao executavel"
             _linha
+            _read_sleep 2
         fi
     elif [[ -z "${sistema}" ]]; then
         _linha
         _mensagec "${RED}" "Erro: Variavel de sistema nao configurada"
         _linha
+        _read_sleep 2
     else
         _linha
         _mensagec "${YELLOW}" "Sistema nao e IsCOBOL"
         _linha
+        _read_sleep 2
     fi
     _press
 }
@@ -203,6 +206,7 @@ _atualizando() {
     if [[ ! -d "${BACKUP}" ]]; then
         mkdir -p "${BACKUP}" || {
             _mensagec "${RED}" "Erro: Nao foi possivel criar diretorio de backup"
+            _read_sleep 2
             return 1
         }
     fi
@@ -212,6 +216,7 @@ _atualizando() {
     local backup_erro=0
     cd "${lib_dir}" || {
         _mensagec "${RED}" "Erro: Diretorio de atualizacao nao encontrado"
+        _read_sleep 2
         return 1
     }
     # Processar todos os arquivos .sh para backup
@@ -219,6 +224,7 @@ _atualizando() {
         # Verificar se o arquivo existe
         if [[ ! -f "$arquivo" ]]; then
             _mensagec "${YELLOW}" "Aviso: Nenhum arquivo .sh encontrado para backup"
+            _read_sleep 2
             break
         fi
 
@@ -229,15 +235,18 @@ _atualizando() {
         else
             _mensagec "${RED}" "Erro ao fazer backup de $arquivo"
             ((backup_erro++))
+            _read_sleep 2
         fi
     done
 
     # Verificar se houve erros no backup
     if [[ $backup_erro -gt 0 ]]; then
         _mensagec "${RED}" "Falha no backup de $backup_erro arquivo(s)"
+        _read_sleep 2
         return 1
     elif [[ $backup_sucesso -eq 0 ]]; then
         _mensagec "${YELLOW}" "Nenhum arquivo foi copiado para backup"
+        _read_sleep 2
         return 1
     else
         _mensagec "${GREEN}" "Backup de $backup_sucesso arquivo(s) realizado com sucesso"
@@ -258,13 +267,16 @@ _atualizando() {
     # Acessar diretorio de trabalho
     cd "$ENVIA" || {
         _mensagec "${RED}" "Erro: Diretorio $ENVIA nao acessivel"
+        _read_sleep 2
         return 1
     }
     if [[ "${Offline}" == "n" ]]; then
     # Baixar arquivo
         if ! wget -q -c "$link"; then
             _mensagec "${RED}" "Erro ao baixar arquivo de atualizacao"
-        return 1
+            _mensagec "${YELLOW}" "Verifique sua conexao com a internet e tente novamente"
+            _read_sleep 2
+            return 1
         fi
     fi
 
@@ -272,6 +284,7 @@ _atualizando() {
     if ! "${cmd_unzip}" -o -j "$zipfile" >>"$LOG_ATU" 2>&1; then
         _mensagec "${RED}" "Erro ao descompactar atualizacao"
         _mensagec "${YELLOW}" "Verifique se o atualiza.zip esta no diretorio $ENVIA"
+        _read_sleep 2
         return 1
     fi
     # Verificar e instalar arquivos
@@ -372,18 +385,21 @@ _atualizando() {
 # Verificar se o diretório ENVIA existe
 if [[ ! -d "${ENVIA}" ]]; then
     _mensagec "${RED}" "ERRO: Diretorio '${ENVIA}' nao encontrado."
+    _read_sleep 2
     exit 1
 fi
 
 # Mudar para o diretório ENVIA com verificação
 if ! cd "${ENVIA}"; then
    _mensagec "${RED}" "ERRO: Nao foi possível acessar o diretorio '${ENVIA}'."
+    _read_sleep 2
     exit 1
 fi
 
 # Confirmar que estamos no diretório correto antes de deletar
 if [[ "$(pwd)" != "${ENVIA}" ]]; then
     _mensagec "${RED}" "ERRO: Falha na verificacao de seguranca do diretcrio."
+    _read_sleep 2
     exit 1
 fi
 
@@ -413,6 +429,7 @@ _atualizar_online() {
        # Criar e acessar diretorio temporario
     mkdir -p "$temp_dir" || {
         _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
+        _read_sleep 2
         return 1
     }
     _atualizando
@@ -426,23 +443,28 @@ _atualizar_offline() {
     # Criar e acessar diretorio temporario
     mkdir -p "$temp_dir" || {
         _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
+        _read_sleep 2
         return 1
     }
 
     # Verificar se o arquivo zip existe
     if [[ ! -f "${down_dir}/${zipfile}" ]]; then
         _mensagec "${RED}" "Erro: $zipfile nao encontrado em $down_dir"
+        _mensagec "${YELLOW}" "Certifique-se de que o arquivo $zipfile esteja presente no diretorio $down_dir"
+        _read_sleep 2
         return 1
     fi
 
     mv "${down_dir}/${zipfile}" "${ENVIA}" || {
         _mensagec "${RED}" "Erro: Nao foi possivel mover $zipfile para $ENVIA"
+        _read_sleep 2
         return 1
     }
 
         # Acessar diretorio offline
     cd "$temp_dir" || {
         _mensagec "${RED}" "Erro: Diretorio temporario, $temp_dir nao acessivel"
+        _read_sleep 2
         return 1
     }
     _atualizando
@@ -458,7 +480,8 @@ declare -u empresa
 # Posiciona o script no diretorio cfg_dir.
 cd "${cfg_dir}" || {
     _mensagec "${RED}" "Erro: Diretorio ${cfg_dir} nao encontrado"
-    return 1
+    _read_sleep 2
+    exit 1
 }
 
 editar_variavel() {
@@ -551,12 +574,14 @@ if [[ -f ".config" ]]; then
     # Carrega os valores existentes do arquivo .config
     "." ./.config || {
         echo "Erro: Falha ao carregar .config"
+        _read_sleep 2
         exit 1
     }
 
     # Faz backup dos arquivos
     cp .config .config.bkp || {
         echo "Erro: Falha ao criar backup de .config"
+        _read_sleep 2
         exit 1
     }
 fi

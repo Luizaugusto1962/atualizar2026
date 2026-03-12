@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/03/2026-00
+# Versao: 12/03/2026-00
 # Autor: Luiz Augusto
 # Email: luizaugusto@sav.com.br
 #
 # Versao do sistema
-readonly UPDATE="10/03/26-v.2026"
+readonly UPDATE="12/03/26-v.2026"
 export UPDATE
 
 # Diretorio do script principal
@@ -25,6 +25,7 @@ for dir in "${aux_dirs[@]}"; do
     [[ -d "${dir}" ]] || {
         printf '%s\n' "ERRO: O diretorio '${dir}' nao foi encontrado."
         printf "Certifique-se de que os arquivos/modulos correspondentes estao instalados corretamente.\n"
+        _read_sleep 2
         exit 1
     }
 done
@@ -35,17 +36,20 @@ _carregar_modulo() {
     local caminho="${lib_dir}/${modulo}"
     if [[ ! -f "${caminho}" ]]; then
         printf "%s\n" "ERRO: Modulo ${modulo} nao encontrado em ${caminho}"
+        _read_sleep 2
         exit 1
     fi
     
     if [[ ! -r "${caminho}" ]]; then
         printf "%s\n" "ERRO: Modulo ${modulo} nao pode ser lido"
+        _read_sleep 2
         exit 1
     fi
     
     # shellcheck source=/dev/null
     if ! source "${caminho}"; then
         printf "%s\n" "ERRO: Falha ao carregar modulo ${modulo}"
+        _read_sleep 2
         exit 1
     fi
 }

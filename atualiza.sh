@@ -33,4 +33,5 @@ if [[ -f "${PLIBS_DIR}/principal.sh" ]]; then
     "./principal.sh"
 else
     printf "%s\n" "ERRO: Arquivo ${PLIBS_DIR}/principal.sh nao encontrado."
+    exit 1
 fi

@@ -159,18 +159,10 @@ _processar_biblioteca_offline() {
 
 # Salva atualizacao da biblioteca
 _salvar_atualizacao_biblioteca() {
-    # Criar diretório envia se não existir
-    [[ ! -d "${RECEBE}" ]] && mkdir -p "${RECEBE}"
-    
-    # Ir para o diretório envia
-    cd "${RECEBE}" || return 1
-    
+    cd "${down_dir}" || return 1
+
     clear
     _definir_variaveis_biblioteca
-
-    _linha
-    _mensagec "${YELLOW}" "A atualizacao deve estar no diretorio ${RECEBE}"
-    _linha
 
     # Verificar arquivos de atualizacao
     local -a arquivos_verificar
@@ -327,6 +319,7 @@ _executar_atualizacao_biblioteca() {
                 ((contador++))
             else
                 _mensagec "${RED}" "Erro na descompactacao de ${arquivo} - Verifique o log ${LOG_ATU}"
+                _read_sleep 2
                 return 1
             fi
             _linha
@@ -355,6 +348,7 @@ _executar_atualizacao_biblioteca() {
     if (( ${#arquivos[@]} )); then
         mv -- "${arquivos[@]}" "${OLDS}" || {
         _mensagec "${YELLOW}" "Erro ao mover arquivos de backup."
+        _read_sleep 2
         return 1
         }
     else
@@ -417,6 +411,7 @@ _reverter_programa_especifico_biblioteca() {
 
     if ! cd "${OLDS}"; then
         _mensagec "${RED}" "Erro: Falha ao acessar o diretorio ${OLDS}"
+        _read_sleep 2
         return 1
     fi
 
