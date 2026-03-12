@@ -514,7 +514,7 @@ _receber_arquivo_avulso() {
     read -rp "${YELLOW} -> ${NORM}" destino_local
     
     if [[ -z "$destino_local" ]]; then
-        destino_local="${RECEBE}"
+        destino_local="${down_dir:-}"
     fi
     
     if [[ ! -d "$destino_local" ]]; then

@@ -280,7 +280,7 @@ _processar_atualizacao_biblioteca() {
 # Executa a atualizacao da biblioteca
 _executar_atualizacao_biblioteca() {
     # Ir para o diretório envia onde estão os arquivos
-    cd "${RECEBE}" || return 1
+    cd "${down_dir:-}" || return 1
     
     _definir_variaveis_biblioteca
      
@@ -334,7 +334,7 @@ _executar_atualizacao_biblioteca() {
     _linha
     
     # Ir para o diretório envia para renomear os arquivos
-    cd "${RECEBE}" || return 1
+    cd "${down_dir:-}" || return 1
     
     # Mover arquivos .zip para .bkp
     for arquivo_zip in *_"${VERSAO}".zip; do

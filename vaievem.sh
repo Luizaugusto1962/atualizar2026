@@ -24,6 +24,8 @@ arquivos_encontrados=()                        # Array para armazenar arquivos e
 _download_sftp_ssh() {
     local arquivo_remoto="$1"
     local destino_local="${2:-.}"
+    local nome_arquivo
+    nome_arquivo=$(basename "$arquivo_remoto")
 
     if [[ -z "$arquivo_remoto" ]]; then
         _log_erro "Erro: Arquivo remoto nao especificado para SFTP SSH"
@@ -32,19 +34,33 @@ _download_sftp_ssh() {
 
     _log "Iniciando download SFTP com chave SSH: ${arquivo_remoto}"
 
-    sftp sav_servidor <<EOF
+    # Captura stdout e stderr para inspecionar mensagens de erro do sftp
+    local sftp_output
+    sftp_output=$(sftp sav_servidor <<EOF 2>&1
 get "${arquivo_remoto}" "${destino_local}"
 quit
 EOF
+    )
+    local sftp_exit=$?
 
-    local status=$?
-    if (( status == 0 )); then
-        _log_sucesso "Download SFTP SSH concluido: ${arquivo_remoto}"
-    else
+    # 1ª verificacao: exit code do processo sftp
+    # 2ª verificacao: mensagens de erro na saida (sftp retorna 0 mesmo em falhas internas)
+    if (( sftp_exit != 0 )) || \
+       echo "$sftp_output" | grep -qiE "no such file|not found|error|failed|permission denied"; then
         _log_erro "Falha no download SFTP SSH: ${arquivo_remoto}"
+        _log_erro "Saida sftp: ${sftp_output}"
+        return 1
     fi
 
-    return $status
+    # 3ª verificacao: confirma que o arquivo existe e nao esta vazio no destino
+    local arquivo_destino="${destino_local%/}/${nome_arquivo}"
+    if [[ ! -f "$arquivo_destino" || ! -s "$arquivo_destino" ]]; then
+        _log_erro "Falha no download SFTP SSH: arquivo ausente apos transferencia: ${arquivo_destino}"
+        return 1
+    fi
+
+    _log_sucesso "Download SFTP SSH concluido: ${arquivo_remoto}"
+    return 0
 }
 
 # Download via SCP com chave SSH configurada
@@ -110,17 +126,9 @@ _upload_rsync() {
 _baixar_biblioteca_sincroniza() {
     _log "Iniciando download da biblioteca: ${SAVATU}${VERSAO}"
 
-    # Criar diretorio de recebimento se nao existir
-    if [[ ! -d "${RECEBE}" ]]; then
-        if ! mkdir -p "${RECEBE}"; then
-            _log_erro "Falha ao criar diretorio: ${RECEBE}"
-            return 1
-        fi
-    fi
-
     # Usar subshell para nao alterar o diretorio do chamador
     (
-        cd "${RECEBE}" || return 1
+        cd "${down_dir:-}" || return 1
 
         if [[ "${acessossh}" == "s" ]]; then
             local src="${USUARIO}@${ipserver}:${destino_biblioteca}${SAVATU}${VERSAO}.zip"
@@ -162,9 +170,9 @@ _baixar_biblioteca_sincroniza() {
 # Baixar programas via SFTP/SCP
 _baixar_programas_vaievem() {
     # Criar diretorio RECEBE se nao existir
-    if [[ ! -d "${RECEBE}" ]]; then
-        if ! mkdir -p "${RECEBE}"; then
-            _log_erro "Falha ao criar diretorio: ${RECEBE}"
+    if [[ ! -d "${down_dir}" ]]; then
+        if ! mkdir -p "${down_dir}"; then
+            _log_erro "Falha ao criar diretorio: ${down_dir}"
             return 1
         fi
     fi
@@ -178,7 +186,7 @@ _baixar_programas_vaievem() {
 
     # Usar subshell para nao alterar o diretorio do chamador
     (
-        cd "${RECEBE}" || return 1
+        cd "${down_dir:-}" || return 1
 
         for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
             _linha
@@ -205,14 +213,14 @@ _baixar_programas_vaievem() {
             if [[ ! -f "$arquivo" || ! -s "$arquivo" ]]; then
                 _mensagec "${RED}" "ERRO: Falha ao baixar '$arquivo'"
                 _read_sleep 2
-                continue
+                return 1
             fi
 
             if ! unzip -t "$arquivo" >/dev/null 2>&1; then
                 _mensagec "${RED}" "ERRO: Arquivo corrompido: $arquivo"
                 rm -f "$arquivo"
                 _read_sleep 2
-                continue
+                return 1
             fi
 
             _mensagec "${GREEN}" "Download concluido: $arquivo"
