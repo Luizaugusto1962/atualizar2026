@@ -46,8 +46,7 @@ _carregar_modulo() {
         exit 1
     fi
     
-    # shellcheck source=/dev/null
-    if ! source "${caminho}"; then
+     if ! "." "${caminho}"; then
         printf "%s\n" "ERRO: Falha ao carregar modulo ${modulo}"
         _read_sleep 2
         exit 1

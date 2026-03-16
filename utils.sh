@@ -301,47 +301,44 @@ _executar_expurgador_diario() {
     return 0
 }
 
-# Funcao para checar se o zip esta instalado
+# Funcao para checar se os programas necessarios estao instalados
 # Checa se os programas necessarios para o atualiza.sh estao instalados no sistema.
-# Se o programa nao for encontrado, exibe uma mensagem de erro e sai do programa.
+# Se algum programa nao for encontrado, exibe uma mensagem de erro e sai do programa.
+# Parametros: lista de programas a verificar (padrao: zip unzip rsync wget)
 _check_instalado() {
-    local app
-    local missing=()
-    # Mensagem de erro principal
-    Z1="ERRO: Programa nao encontrado"  # Definir a mensagem
+    local apps=("$@")
+    [[ ${#apps[@]} -eq 0 ]] && apps=(zip unzip rsync wget)
 
-    for app in zip unzip rsync wget; do
+    local missing=()
+
+    local install_cmd=""
+
+    # Detectar gerenciador de pacotes
+    if command -v apt >/dev/null 2>&1; then
+        install_cmd="sudo apt update && sudo apt install"
+    elif command -v yum >/dev/null 2>&1; then
+        install_cmd="sudo yum install"
+    elif command -v dnf >/dev/null 2>&1; then
+        install_cmd="sudo dnf install"
+    elif command -v pacman >/dev/null 2>&1; then
+        install_cmd="sudo pacman -S"
+    elif command -v zypper >/dev/null 2>&1; then
+        install_cmd="sudo zypper install"
+    else
+        install_cmd="Instale manualmente"
+    fi
+
+    for app in "${apps[@]}"; do
         if ! command -v "$app" >/dev/null 2>&1; then
             missing+=("$app")
-
-            # Mensagem de erro principal
-            printf "\n"
-            printf "%s" "${RED}"
-            printf "%*s\n" $(((${#Z1} + COLUMNS) / 2)) "${Z1}"
-            printf "%s" "${NORM}"
-
-            printf "${YELLOW} O programa nao foi encontrado ->> ${NORM}%s\n" "$app"
-
-            # Sugestao específica
-            case "$app" in
-                zip|unzip)
-                    printf "  ${YELLOW}Sugestao:${NORM} Instale o zip e unzip.%s\n"
-                    ;;
-                rsync)
-                    printf "  ${YELLOW}Sugestao:${NORM} Instale o rsync.%s\n"
-                    ;;
-                wget)
-                    printf "  ${YELLOW}Sugestao:${NORM} Instale o wget.%s\n"
-                    ;;
-            esac
         fi
     done
 
     if [[ ${#missing[@]} -gt 0 ]]; then
-        # Lista os programas ausentes sem espaço inicial indesejado
-        printf -v missing_list "%s" "${missing[*]}"
-
-        printf "${YELLOW}Instale os programas ausentes (%s) e tente novamente.${NORM}\n" "$missing_list"
+        printf "\n%sERRO: Programas nao encontrados%s\n" "${RED}" "${NORM}"
+        printf "%sProgramas ausentes: %s%s\n" "${YELLOW}" "${missing[*]}" "${NORM}"
+        printf "%sSugestao: %s %s%s\n" "${YELLOW}" "$install_cmd" "${missing[*]}" "${NORM}"
+        printf "%sInstale os programas ausentes e tente novamente.%s\n" "${YELLOW}" "${NORM}"
         exit 1
     fi
 }

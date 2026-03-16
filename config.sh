@@ -304,8 +304,7 @@ _carregar_config_empresa() {
     fi
     
     # Carregar configuracoes
-    # shellcheck source=/dev/null
-    . "${config_file}"
+    "." "${config_file}"
 }
 
 # Configurar acesso offline se necessario
