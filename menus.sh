@@ -4,7 +4,7 @@
 # Responsavel pela apresentacao e navegacao dos menus do sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/03/2026-00
+# Versao: 16/03/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -210,7 +210,6 @@ _menu_biblioteca() {
 
         case "${opcao}" in
             1) _atualizar_transpc ;;
-    #        2) _atualizar_savatu ;;
             2) _atualizar_biblioteca_offline ;;
             3) _reverter_biblioteca ;;
             9) return ;;

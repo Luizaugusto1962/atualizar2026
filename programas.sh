@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao, instalacao e reversao de programas
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 09/03/2026-00
+# Versao: 16/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"      # Nome do sistema (iscobol, savatu, transpc).
@@ -55,9 +55,11 @@ _atualizar_programa_online() {
 
 # Atualizacao de programas via arquivos offline
 _atualizar_programa_offline() {
+
     # Solicitar programas a serem atualizados
     _solicitar_programas_atualizacao
     
+
     if (( ${#ARQUIVOS_PROGRAMA[@]} == 0 )); then
         _mensagec "${YELLOW}" "Nenhum programa selecionado"
         _linha
@@ -66,7 +68,7 @@ _atualizar_programa_offline() {
     fi
     
     _linha
-    _mensagec "${YELLOW}" "Os programas devem estar no diretorio ${down_dir}"
+    _mensagec "${YELLOW}" "Os programas devem estar no diretorio ${WHITE}${down_dir}"
     _linha
     _read_sleep 1
     
@@ -154,7 +156,7 @@ _reverter_programa() {
     fi
 }
 
-#---------- FUNcoES DE SOLICITAcaO DE DADOS ----------#
+#---------- FUNcoES DE SOLICITACAO DE DADOS ----------#
 
 # Solicita programas para atualizacao
 _solicitar_programas_atualizacao() {

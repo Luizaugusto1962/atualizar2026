@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao das bibliotecas do sistema (Transpc, Savatu)
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/03/2026-00
+# Versao: 16/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                 # Tipo de sistema (iscobol/mf)
@@ -86,7 +86,9 @@ _atualizar_transpc() {
 # Atualizacao offline da biblioteca
 _atualizar_biblioteca_offline() {
     clear
-    _solicitar_versao_biblioteca
+       _linha
+    _mensagec "${YELLOW}" "Diretorio de download: ${WHITE}${down_dir}"
+     _solicitar_versao_biblioteca
     
     if [[ -z "${VERSAO}" ]]; then
         return 1
@@ -119,7 +121,7 @@ _reverter_biblioteca() {
     local arquivo_backup="${OLDS}/backup-${versao_reverter}.zip"
 
     if [[ ! -r "${arquivo_backup}" ]]; then
-        _mensagec "${RED}" "Backup da biblioteca nao encontrado: ${arquivo_backup}"
+        _mensagec "${RED}" "Backup da biblioteca nao encontrado: ${WHITE}${arquivo_backup}"
         _linha
         _press
         return 1
