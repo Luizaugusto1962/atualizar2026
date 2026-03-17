@@ -96,7 +96,7 @@ _atualizar_programa_pacote() {
         _press
 }
 
-#---------- FUNcoES DE REVERSaO ----------#
+#---------- FUNCOES DE REVERSaO ----------#
 
 # Reverter programas para versao anterior
 _reverter_programa() {
@@ -283,7 +283,7 @@ _solicitar_pacotes_atualizacao() {
     done
 }
 
-#---------- FUNcoES DE DOWNLOAD ----------#
+#---------- FUNCOES DE DOWNLOAD ----------#
 
 
 # Baixa pacotes para diretorio especifico
@@ -299,7 +299,7 @@ _baixar_pacotes_vaievem() {
     _baixar_programas_vaievem
 }
 
-#---------- FUNcoES DE PROCESSAMENTO ----------#
+#---------- FUNCOES DE PROCESSAMENTO ----------#
 
 # Move arquivos do servidor offline
 _mover_arquivos_offline() {
@@ -493,7 +493,7 @@ _processar_reversao_programas() {
     _processar_atualizacao_programas
 }
 
-#---------- FUNcoES AUXILIARES ----------#
+#---------- FUNCOES AUXILIARES ----------#
 
 # Obtem data de modificacao do arquivo
 _obter_data_arquivo() {
