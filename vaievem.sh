@@ -198,12 +198,12 @@ _baixar_programas_vaievem() {
 
                 if ! _download_sftp_ssh "${destino_server}${arquivo}" "."; then
                     _mensagec "${RED}" "Falha no download: $arquivo"
-                    continue
+                    return 1
                 fi
             else
                 if ! _download_scp "${destino_server}${arquivo}" "."; then
                     _mensagec "${RED}" "Falha no download: $arquivo"
-                    continue
+                    return 1
                 fi
             fi
 
