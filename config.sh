@@ -310,7 +310,7 @@ _carregar_config_empresa() {
 # Configurar acesso offline se necessario
 _configurar_acessos() {
     if [[ "${Offline}" == "s" ]]; then
-            down_dir="${raiz}${acesso_portalsav}"    #"acesso_portalsav=/sav/portalsav/Atualiza"
+            down_dir="${acesso_portalsav}"    #"acesso_portalsav=/sav/portalsav/Atualiza"
         if [[ ! -d "${down_dir}" ]]; then
             mkdir -p "${down_dir}" || {
                 printf "Erro ao criar diretorio offline %s\n" "${down_dir}"
