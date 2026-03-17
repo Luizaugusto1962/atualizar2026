@@ -156,7 +156,7 @@ _reverter_programa() {
     fi
 }
 
-#---------- FUNcoES DE SOLICITACAO DE DADOS ----------#
+#---------- FUNCOES DE SOLICITACAO DE DADOS ----------#
 
 # Solicita programas para atualizacao
 _solicitar_programas_atualizacao() {
