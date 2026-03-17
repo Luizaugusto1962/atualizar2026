@@ -4,7 +4,7 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/03/2026-00
+# Versao: 17/03/2026-00
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
@@ -326,7 +326,7 @@ _configurar_acessos() {
 # Funcao principal de carregamento de configuracoes
 _carregar_configuracoes() {
     # Mudar para diretorio do script
-    cd "$(dirname "$0")" || exit 1
+    cd "${TOOLS_DIR}" || exit 1
     
     # Definir cores
     _definir_cores
@@ -479,7 +479,7 @@ _ir_para_tools() {
 }
 
 # Funcao para resetar variaveis (cleanup)
-_resetando() {
+_limpar_estado_variaveis() {
     unset -v "${cores[@]}" 2>/dev/null || true
     unset -v "${atualizac[@]}" 2>/dev/null || true
     unset -v "${caminhos_base[@]}" 2>/dev/null || true
@@ -488,7 +488,17 @@ _resetando() {
     unset -v "${comandos[@]}" 2>/dev/null || true
     unset -v "${outros[@]}" 2>/dev/null || true
     unset -v "${logis[@]}" 2>/dev/null || true
-    
+
     tput sgr0 2>/dev/null || true
-    exit 1
+}
+
+_resetando() {
+    _limpar_estado_variaveis
+    return 0 2>/dev/null || true
+}
+
+_encerrar_programa() {
+    local status="${1:-0}"
+    _limpar_estado_variaveis
+    exit "$status"
 }

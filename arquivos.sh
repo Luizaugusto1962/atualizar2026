@@ -3,7 +3,7 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferência e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/03/2026-00
+# Versao: 17/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
@@ -12,10 +12,32 @@ base3="${base3:-}"                        # Caminho do diretorio da terceira bas
 cmd_zip="${cmd_zip:-}"                    # Comando para compactacao (ex: zip).
 jut="${jut:-}"                            # Caminho para o utilitario jutil.
 raiz="${raiz:-}"                          # Caminho raiz do sistema.
-cfg_dir="${ccfg_dir:-${TOOLS_DIR}/cfg}"   # Caminho do diretorio de configuracoes.
+cfg_dir="${cfg_dir:-${TOOLS_DIR}/cfg}"   # Caminho do diretorio de configuracoes.
 LOGS="${LOGS:-${TOOLS_DIR}/logs}"         # Diretorio de logs
 
 #---------- FUNCOES DE LIMPEZA ----------#
+
+# Resolve a base de trabalho ativa para operacoes de arquivos
+_selecionar_base_arquivos() {
+    unset -v base_trabalho 2>/dev/null || true
+
+    if [[ -n "${base2}" ]]; then
+        if ! _menu_escolha_base; then
+            return 1
+        fi
+    else
+        base_trabalho="${raiz}${base}"
+    fi
+
+    if [[ -z "${base_trabalho:-}" ]] || [[ ! -d "${base_trabalho}" ]]; then
+        _mensagec "${RED}" "Erro: Diretorio ${base_trabalho:-<nao definido>} nao encontrado"
+        _press
+        return 1
+    fi
+
+    export base_trabalho
+    return 0
+}
 
 # Executa limpeza de arquivos temporarios
 _executar_limpeza_temporarios() {
@@ -130,7 +152,7 @@ _adicionar_arquivo_lixo() {
     fi
 
     # Adicionar arquivo à lista
-    echo "$novo_arquivo" >> limpetmp2
+    echo "$novo_arquivo" >> "${cfg_dir}/limpetmp2"
     _mensagec "${CYAN}" "Arquivo '${novo_arquivo}' adicionado com sucesso ao 'limpetmp2'"
     _linha
     
@@ -144,8 +166,8 @@ _lista_arquivos_lixo() {
     _mensagec "${CYAN}" "Lista de arquivos no limpetmp:"
     _linha
 
-    if [[ -f "limpetmp" && -s "limpetmp" ]]; then
-        nl -w3 -s'. ' limpetmp
+    if [[ -f "${cfg_dir}/limpetmp" && -s "${cfg_dir}/limpetmp" ]]; then
+        nl -w3 -s'. ' "${cfg_dir}/limpetmp"
     else
         _mensagec "${YELLOW}" "Nenhum arquivo listado no 'limpetmp'"
     fi
@@ -154,8 +176,8 @@ _lista_arquivos_lixo() {
     _mensagec "${CYAN}" "Lista de arquivos no limpetmp2:"
     _linha
 
-    if [[ -f "limpetmp2" && -s "limpetmp2" ]]; then
-        nl -w3 -s'. ' limpetmp2
+    if [[ -f "${cfg_dir}/limpetmp2" && -s "${cfg_dir}/limpetmp2" ]]; then
+        nl -w3 -s'. ' "${cfg_dir}/limpetmp2"
     else
         _mensagec "${YELLOW}" "Nenhum arquivo listado no 'limpetmp2'"
     fi
@@ -169,11 +191,11 @@ _lista_arquivos_lixo() {
 _recuperar_arquivo_especifico() {
     local continuar="S"
     
-    # Escolher base se necessario
-    if [[ -n "${base2}" ]]; then
-        _menu_escolha_base || return 1
-    else
-        base_trabalho="${raiz}${base}"
+    if ! _selecionar_base_arquivos; then
+								
+        return 1
+		
+									  
     fi
 
     clear
@@ -277,12 +299,12 @@ _recuperar_arquivo_individual() {
 _recuperar_arquivos_principais() {
     cd "${cfg_dir}" || return 1
     
-    # Escolher base se necessario
-    if [[ -n "${base2}" ]]; then
-        _menu_escolha_base || return 1
-        # `_menu_escolha_base`/`_definir_base_trabalho` deve setar `base_trabalho`
-    else
-        base_trabalho="${raiz}${base}"
+    if ! _selecionar_base_arquivos; then
+								
+        return 1
+																				  
+		
+									  
     fi
     
     if [[ "${sistema}" = "iscobol" ]]; then

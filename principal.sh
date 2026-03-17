@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 12/03/2026-00
+# Versao: 17/03/2026-00
 # Autor: Luiz Augusto
 # Email: luizaugusto@sav.com.br
 #
@@ -25,7 +25,7 @@ for dir in "${aux_dirs[@]}"; do
     [[ -d "${dir}" ]] || {
         printf '%s\n' "ERRO: O diretorio '${dir}' nao foi encontrado."
         printf "Certifique-se de que os arquivos/modulos correspondentes estao instalados corretamente.\n"
-        _read_sleep 2
+        sleep 2
         exit 1
     }
 done
@@ -36,19 +36,19 @@ _carregar_modulo() {
     local caminho="${lib_dir}/${modulo}"
     if [[ ! -f "${caminho}" ]]; then
         printf "%s\n" "ERRO: Modulo ${modulo} nao encontrado em ${caminho}"
-        _read_sleep 2
+        sleep 2
         exit 1
     fi
     
     if [[ ! -r "${caminho}" ]]; then
         printf "%s\n" "ERRO: Modulo ${modulo} nao pode ser lido"
-        _read_sleep 2
+        sleep 2
         exit 1
     fi
     
      if ! "." "${caminho}"; then
         printf "%s\n" "ERRO: Falha ao carregar modulo ${modulo}"
-        _read_sleep 2
+        sleep 2
         exit 1
     fi
 }
@@ -88,7 +88,8 @@ _inicializar_sistema() {
 # Funcao principal do programa
 main() {
     # Tratamento de sinais para limpeza
-    trap '_resetando' EXIT INT TERM
+    trap '_resetando' EXIT
+    trap '_encerrar_programa 130' INT TERM
     
     # Inicializar sistema
     _inicializar_sistema

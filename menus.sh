@@ -4,7 +4,7 @@
 # Responsavel pela apresentacao e navegacao dos menus do sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 16/03/2026-00
+# Versao: 17/03/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -97,7 +97,7 @@ _principal() {
             0) _menu_ajuda_principal ;;
             9) 
                 clear
-                _resetando
+                _encerrar_programa 0
                 ;;
             *)
                 _opinvalida
@@ -813,17 +813,20 @@ _menu_escolha_base() {
 
         case "${opcao}" in
             1) 
-                _definir_base_trabalho "base"
-                return 0
+                if _definir_base_trabalho "base"; then
+                    return 0
+                fi
                 ;;
             2) 
-                _definir_base_trabalho "base2"
-                return 0
+                if _definir_base_trabalho "base2"; then
+                    return 0
+                fi
                 ;;
             3) 
                 if [[ -n "${base3}" ]]; then
-                    _definir_base_trabalho "base3"
-                    return 0
+                    if _definir_base_trabalho "base3"; then
+                        return 0
+                    fi
                 else
                     _opinvalida
                     _read_sleep 1
@@ -874,7 +877,11 @@ _menu_tipo_backup() {
                 export tipo_backup
                 return 0
                 ;;
-            9) return 1 ;;
+            9) 
+                tipo_backup=""
+                export tipo_backup
+                return 1
+                ;;
             *)
                 _opinvalida
                 _read_sleep 1

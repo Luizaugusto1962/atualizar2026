@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao, instalacao e reversao de programas
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 16/03/2026-00
+# Versao: 17/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"      # Nome do sistema (iscobol, savatu, transpc).
@@ -158,129 +158,161 @@ _reverter_programa() {
 
 #---------- FUNCOES DE SOLICITACAO DE DADOS ----------#
 
-# Solicita programas para atualizacao
-_solicitar_programas_atualizacao() {
-    local MAX_REPETICOES=6
-    local contador=0
-    local programa
+# Solicita tipo de compilacao e define o nome do artefato selecionado
+_resolver_arquivo_compilado() {
+    local nome_item="$1"
     local tipo_compilacao
+
+    _mensagec "${RED}" "Informe o tipo de compilacao (1 - Normal, 2 - Depuracao):"
+    _linha
+
+    read -rp "${YELLOW}Tipo de compilacao: ${NORM}" -n1 tipo_compilacao
+    printf "\n"
+
+    case "$tipo_compilacao" in
+        1) ARQUIVO_COMPILADO_ATUAL="${nome_item}${class}.zip" ;;
+        2) ARQUIVO_COMPILADO_ATUAL="${nome_item}${mclass}.zip" ;;
+        *) return 1 ;;
+    esac
+}
+
+_coletar_artefatos_atualizacao() {
+    local rotulo_item="$1"
+    local mensagem_item="$2"
+    local mensagem_final="$3"
+    local mensagem_lista="$4"
+    local max_repeticoes=6
+    local contador=0
+    local item
+						 
     local arquivo_compilado
-    
-    # Limpar arrays
+
+				   
     PROGRAMAS_SELECIONADOS=()
     ARQUIVOS_PROGRAMA=()
 
-    # Loop para coletar programas
-    for ((contador = 1; contador <= MAX_REPETICOES; contador++)); do
+								 
+    for ((contador = 1; contador <= max_repeticoes; contador++)); do
         _meiodatela
-        _mensagec "${RED}" "Informe o nome do programa a ser atualizado:"
-        _linha
-        
-        read -rp "${YELLOW}Nome do programa (ENTER para finalizar): ${NORM}" programa
+        _mensagec "${RED}" "$mensagem_item"
         _linha
 
-        # Verificar se foi digitado ENTER
-        if [[ -z "${programa}" ]]; then
-            _mensagec "${YELLOW}" "Finalizando selecao de programas..."
+        read -rp "${YELLOW}Nome do ${rotulo_item} (ENTER para finalizar): ${NORM}" item
+        _linha
+
+										 
+        if [[ -z "${item}" ]]; then
+            _mensagec "${YELLOW}" "$mensagem_final"
             _linha
             break
         fi
 
-        # Validar nome do programa
-        if ! _validar_nome_programa "$programa"; then
-            _mensagec "${RED}" "Erro: Nome invalido. Use apenas letras maiúsculas e números."
+								  
+        if ! _validar_nome_programa "$item"; then
+            _mensagec "${RED}" "Erro: Nome invalido. Use apenas letras maiusculas e numeros."
             continue
         fi
 
-        # Solicitar tipo de compilacao
-        _mensagec "${RED}" "Informe o tipo de compilacao (1 - Normal, 2 - Depuracao):"
-        _linha
+        if ! _resolver_arquivo_compilado "$item"; then
+            _mensagec "${RED}" "Erro: Opcao invalida. Digite 1 ou 2."
+            continue
+        fi
 
-        read -rp "${YELLOW}Tipo de compilacao: ${NORM}" -n1 tipo_compilacao
-        printf "\n"
+																		   
+				   
 
-        case "$tipo_compilacao" in
-            1)
-                arquivo_compilado="${programa}${class}.zip"
-                ;;
-            2)
-                arquivo_compilado="${programa}${mclass}.zip"
-                ;;
-            *)
-                _mensagec "${RED}" "Erro: Opcao invalida. Digite 1 ou 2."
-                continue
-                ;;
-        esac
-
-        # Armazenar resultados
-        PROGRAMAS_SELECIONADOS+=("$programa")
+								  
+			  
+        arquivo_compilado="${ARQUIVO_COMPILADO_ATUAL}"
+        PROGRAMAS_SELECIONADOS+=("$item")
         ARQUIVOS_PROGRAMA+=("$arquivo_compilado")
-        
+															
+				  
+			  
+																		 
+						
+				  
+			
+
+							  
+											 
+												 
+		
         _linha
-        _mensagec "${GREEN}" "Programa adicionado: ${arquivo_compilado}"
+        _mensagec "${GREEN}" "${rotulo_item^} adicionado: ${arquivo_compilado}"
         _linha
-        
-        # Mostrar lista atual
-        _mensagec "${YELLOW}" "Programas selecionados:"
-        for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
-            _mensagec "${GREEN}" "  - $arquivo"
-        done
+
+        if [[ -n "$mensagem_lista" ]]; then
+            _mensagec "${YELLOW}" "$mensagem_lista"
+            for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
+                _mensagec "${GREEN}" "  - $arquivo"
+            done
+        fi
     done
+}
+
+# Solicita programas para atualizacao
+_solicitar_programas_atualizacao() {
+    _coletar_artefatos_atualizacao \
+        "programa" \
+        "Informe o nome do programa a ser atualizado:" \
+        "Finalizando selecao de programas..." \
+        "Programas selecionados:"
 }
 
 # Solicita pacotes para atualizacao
 _solicitar_pacotes_atualizacao() {
-    local MAX_REPETICOES=6
-    local contador=0
-    local programa
-    local tipo_compilacao
-    local arquivo_compilado
-    
-    # Limpar arrays
-    PROGRAMAS_SELECIONADOS=()
-    ARQUIVOS_PROGRAMA=()
+    _coletar_artefatos_atualizacao \
+        "pacote" \
+				  
+						 
+						   
+	
+				   
+							 
+						
 
-    # Loop para coletar pacotes
-    for ((contador = 1; contador <= MAX_REPETICOES; contador++)); do
-        _meiodatela
-        _mensagec "${RED}" "Informe o nome do pacote:"
-        _linha
-        
-        read -rp "${YELLOW}Nome do pacote (ENTER para finalizar): ${NORM}" programa
-        _linha
+							   
+																	
+				   
+        "Informe o nome do pacote:" \
+			  
+		
+																				   
+			  
 
-        if [[ -z "${programa}" ]]; then
-            _mensagec "${YELLOW}" "Finalizando selecao de pacotes..."
-            break
-        fi
+									   
+        "Finalizando selecao de pacotes..." \
+        "Pacotes selecionados:"
+		  
 
-        if ! _validar_nome_programa "$programa"; then
-            _mensagec "${RED}" "Erro: Nome invalido. Use apenas letras maiúsculas e números."
-            continue
-        fi
+													 
+																							   
+					
+		  
 
-        # Solicitar tipo de compilacao
-        _mensagec "${RED}" "Informe o tipo de compilacao (1 - Normal, 2 - Depuracao):"
-        _linha
+									  
+																					  
+			  
 
-        read -rp "${YELLOW}Tipo de compilacao: ${NORM}" -n1 tipo_compilacao
-        printf "\n"
+																		   
+				   
 
-        case "$tipo_compilacao" in
-            1) arquivo_compilado="${programa}${class}.zip" ;;
-            2) arquivo_compilado="${programa}${mclass}.zip" ;;
-            *)
-                _mensagec "${RED}" "Erro: Opcao invalida."
-                continue
-                ;;
-        esac
+								  
+															 
+															  
+			  
+														  
+						
+				  
+			
 
-        PROGRAMAS_SELECIONADOS+=("$programa")
-        ARQUIVOS_PROGRAMA+=("$arquivo_compilado")
-        
-        _mensagec "${GREEN}" "Pacote adicionado: ${arquivo_compilado}"
-        _linha
-    done
+											 
+												 
+		
+																	  
+			  
+		
 }
 
 #---------- FUNCOES DE DOWNLOAD ----------#
