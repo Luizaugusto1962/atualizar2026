@@ -6,7 +6,7 @@
 # Email: luizaugusto@sav.com.br
 #
 # Versao do sistema
-readonly UPDATE="12/03/26-v.2026"
+readonly UPDATE="17/03/26-v.2026"
 export UPDATE
 
 # Diretorio do script principal

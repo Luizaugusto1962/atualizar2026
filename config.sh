@@ -12,7 +12,7 @@
 declare -a cores=(RED GREEN YELLOW BLUE PURPLE CYAN NORM)
 declare -a atualizac=(sistema verclass dbmaker base base2 base3 acessossh ipserver Offline enviabackup empresa VERSAOANT)
 declare -a caminhos_base=(BASE1 BASE2 BASE3 TOOLS_DIR raiz base base2 base3 backup logs olds cfg libs envia recebe)
-declare -a caminhos_base2=(INI UMADATA acessoff E_EXEC T_TELAS X_XML)
+declare -a caminhos_base2=(INI UMADATA acesso_portalsav E_EXEC T_TELAS X_XML)
 declare -a biblioteca=(SAVATU SAVATU1 SAVATU2 SAVATU3 SAVATU4)
 declare -a comandos=(cmd_unzip cmd_zip cmd_find cmd_who DEFAULT_UNZIP DEFAULT_ZIP DEFAULT_FIND DEFAULT_WHO jut JUTIL ISCCLIENT ISCCLIENTT)
 declare -a outros=(SERVER_PORTA USUARIO VERSAO SAVISC DEFAULT_VERSAO VERSAO DEFAULT_ARQUIVO DEFAULT_PEDARQ DEFAULT_PROG DEFAULT_PORTA DEFAULT_USUARIO DEFAULT_ipserver UPDATE DEFAULT_PEDARQ SAVISCC Offline base_trabalho)
@@ -46,7 +46,7 @@ VERSAO="${VERSAO:-}"                             # Variavel que define a versao 
 INI="${INI:-}"                                   # Variavel que define o caminho do arquivo de configuracao do sistema.
 Offline="${Offline:-}"                           # Variavel que define se o sistema esta em modo offline.
 down_dir="${down_dir:-}"                         # Variavel que define o caminho do diretorio do servidor off.  
-acessoff="${acessoff:-}"                     # Variavel que define o caminho do diretorio do servidor off.
+acesso_portalsav="${acesso_portalsav:-}"         # Variavel que define o caminho do diretorio do servidor off.
 acessossh="${acessossh:-}"                       # Variavel que define o caminho do diretorio do servidor off.
 VERSAOANT="${VERSAOANT:-}"                       # Variavel que define a versao do programa anterior.
 cmd_unzip="${cmd_unzip:-}"                       # Comando para descompactar arquivos.
@@ -112,7 +112,7 @@ _definir_cores() {
         NORM=""                                  # Limpar variavel Normal
         COLUMNS=80                               # Definir colunas padrao
     fi
-readonly RED GREEN YELLOW BLUE PURPLE CYAN NORM 
+export RED GREEN YELLOW BLUE PURPLE CYAN NORM 
 }
 
 # Configurar comandos do sistema
@@ -170,8 +170,8 @@ _configurar_diretorios() {
     # Diretorios de destino para diferentes tipos de biblioteca
     destino_server="${destino_server:-/u/varejo/man/}"                                      # Diretorio do servidor de atualizacao
     destino_biblioteca="${destino_biblioteca:-/u/varejo/trans_pc/}"                               # Diretorio de transporte PC
-    acessoff="${acessoff:-/portalsav/Atualiza}"                                         # Diretorio do servidor offline
-    export destino_server destino_biblioteca acessoff
+    acesso_portalsav="${acesso_portalsav:-"${raiz}"/portalsav/Atualiza}"                                         # Diretorio do servidor offline
+    export destino_server destino_biblioteca acesso_portalsav
 
     # Definir diretorios de trabalho
     OLDS="${OLDS:-${TOOLS_DIR}/olds}"         # Diretorio de arquivos antigos
@@ -310,7 +310,7 @@ _carregar_config_empresa() {
 # Configurar acesso offline se necessario
 _configurar_acessos() {
     if [[ "${Offline}" == "s" ]]; then
-            down_dir="${raiz}${acessoff}"    #"acessoff=/sav/portalsav/Atualiza"
+            down_dir="${raiz}${acesso_portalsav}"    #"acesso_portalsav=/sav/portalsav/Atualiza"
         if [[ ! -d "${down_dir}" ]]; then
             mkdir -p "${down_dir}" || {
                 printf "Erro ao criar diretorio offline %s\n" "${down_dir}"
@@ -494,7 +494,7 @@ _limpar_estado_variaveis() {
 
 _resetando() {
     _limpar_estado_variaveis
-    return 0 2>/dev/null || true
+    return 0
 }
 
 _encerrar_programa() {

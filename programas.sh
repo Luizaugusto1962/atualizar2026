@@ -184,14 +184,11 @@ _coletar_artefatos_atualizacao() {
     local max_repeticoes=6
     local contador=0
     local item
-						 
     local arquivo_compilado
 
-				   
     PROGRAMAS_SELECIONADOS=()
     ARQUIVOS_PROGRAMA=()
 
-								 
     for ((contador = 1; contador <= max_repeticoes; contador++)); do
         _meiodatela
         _mensagec "${RED}" "$mensagem_item"
@@ -200,14 +197,12 @@ _coletar_artefatos_atualizacao() {
         read -rp "${YELLOW}Nome do ${rotulo_item} (ENTER para finalizar): ${NORM}" item
         _linha
 
-										 
         if [[ -z "${item}" ]]; then
             _mensagec "${YELLOW}" "$mensagem_final"
             _linha
             break
         fi
 
-								  
         if ! _validar_nome_programa "$item"; then
             _mensagec "${RED}" "Erro: Nome invalido. Use apenas letras maiusculas e numeros."
             continue
@@ -218,26 +213,10 @@ _coletar_artefatos_atualizacao() {
             continue
         fi
 
-																		   
-				   
-
-								  
-			  
         arquivo_compilado="${ARQUIVO_COMPILADO_ATUAL}"
         PROGRAMAS_SELECIONADOS+=("$item")
         ARQUIVOS_PROGRAMA+=("$arquivo_compilado")
-															
-				  
-			  
-																		 
-						
-				  
-			
 
-							  
-											 
-												 
-		
         _linha
         _mensagec "${GREEN}" "${rotulo_item^} adicionado: ${arquivo_compilado}"
         _linha
@@ -264,55 +243,9 @@ _solicitar_programas_atualizacao() {
 _solicitar_pacotes_atualizacao() {
     _coletar_artefatos_atualizacao \
         "pacote" \
-				  
-						 
-						   
-	
-				   
-							 
-						
-
-							   
-																	
-				   
         "Informe o nome do pacote:" \
-			  
-		
-																				   
-			  
-
-									   
         "Finalizando selecao de pacotes..." \
         "Pacotes selecionados:"
-		  
-
-													 
-																							   
-					
-		  
-
-									  
-																					  
-			  
-
-																		   
-				   
-
-								  
-															 
-															  
-			  
-														  
-						
-				  
-			
-
-											 
-												 
-		
-																	  
-			  
-		
 }
 
 #---------- FUNCOES DE DOWNLOAD ----------#
