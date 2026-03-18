@@ -4,7 +4,7 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 17/03/2026-00
+# Versao: 18/03/2026-00
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
@@ -12,7 +12,7 @@
 declare -a cores=(RED GREEN YELLOW BLUE PURPLE CYAN NORM)
 declare -a atualizac=(sistema verclass dbmaker base base2 base3 acessossh ipserver Offline enviabackup empresa VERSAOANT)
 declare -a caminhos_base=(BASE1 BASE2 BASE3 TOOLS_DIR raiz base base2 base3 backup logs olds cfg libs envia recebe)
-declare -a caminhos_base2=(INI UMADATA acesso_portalsav E_EXEC T_TELAS X_XML)
+declare -a caminhos_base2=(INI UMADATA acessoff E_EXEC T_TELAS X_XML)
 declare -a biblioteca=(SAVATU SAVATU1 SAVATU2 SAVATU3 SAVATU4)
 declare -a comandos=(cmd_unzip cmd_zip cmd_find cmd_who DEFAULT_UNZIP DEFAULT_ZIP DEFAULT_FIND DEFAULT_WHO jut JUTIL ISCCLIENT ISCCLIENTT)
 declare -a outros=(SERVER_PORTA USUARIO VERSAO SAVISC DEFAULT_VERSAO VERSAO DEFAULT_ARQUIVO DEFAULT_PEDARQ DEFAULT_PROG DEFAULT_PORTA DEFAULT_USUARIO DEFAULT_ipserver UPDATE DEFAULT_PEDARQ SAVISCC Offline base_trabalho)
@@ -46,7 +46,7 @@ VERSAO="${VERSAO:-}"                             # Variavel que define a versao 
 INI="${INI:-}"                                   # Variavel que define o caminho do arquivo de configuracao do sistema.
 Offline="${Offline:-}"                           # Variavel que define se o sistema esta em modo offline.
 down_dir="${down_dir:-}"                         # Variavel que define o caminho do diretorio do servidor off.  
-acesso_portalsav="${acesso_portalsav:-}"         # Variavel que define o caminho do diretorio do servidor off.
+acesssoff="${acesssoff:-}"                       # Variavel que define o caminho do diretorio do servidor off.
 acessossh="${acessossh:-}"                       # Variavel que define o caminho do diretorio do servidor off.
 VERSAOANT="${VERSAOANT:-}"                       # Variavel que define a versao do programa anterior.
 cmd_unzip="${cmd_unzip:-}"                       # Comando para descompactar arquivos.
@@ -72,6 +72,7 @@ LOG_TMP="${LOG_TMP:-}"                           # Variavel que define o caminho
 UMADATA="${UMADATA:-}"                           # Variavel que define o caminho do arquivo de dados da UMA.
 ISCCLIENT="${ISCCLIENT:-}"                       # Variavel que define o caminho do cliente ISC.
 base_trabalho="${base_trabalho:-}"               # Variavel que define o caminho do diretorio de trabalho.
+SSH_CONFIG_DIR="${SSH_CONFIG_DIR:-}"             # Variavel que define o caminho do diretorio de configuracao SSH
 
 # Configuracoes padrao
 DEFAULT_UNZIP="${DEFAULT_UNZIP:-unzip}"          # Comando padrao para descompactar
@@ -165,13 +166,14 @@ _configurar_diretorios() {
             _read_sleep 2
             return 1
         }
+        chmod 0777 "${cfg_dir}"
     fi
 
     # Diretorios de destino para diferentes tipos de biblioteca
-    destino_server="${destino_server:-/u/varejo/man/}"                                      # Diretorio do servidor de atualizacao
-    destino_biblioteca="${destino_biblioteca:-/u/varejo/trans_pc/}"                               # Diretorio de transporte PC
-    acesso_portalsav="${acesso_portalsav:-"${raiz}"/portalsav/Atualiza}"                                         # Diretorio do servidor offline
-    export destino_server destino_biblioteca acesso_portalsav
+    destino_server="${destino_server:-/u/varejo/man/}"                          # Diretorio do servidor de atualizacao
+    destino_biblioteca="${destino_biblioteca:-/u/varejo/trans_pc/}"             # Diretorio de transporte PC
+    export destino_server destino_biblioteca 
+   
 
     # Definir diretorios de trabalho
     OLDS="${OLDS:-${TOOLS_DIR}/olds}"         # Diretorio de arquivos antigos
@@ -181,9 +183,12 @@ _configurar_diretorios() {
     RECEBE="${RECEBE:-${TOOLS_DIR}/recebe}"   # Diretorio de recebimento
     LIBS="${LIBS:-${TOOLS_DIR}/libs}"         # Diretorio de bibliotecas
     BACKUP="${BACKUP:-${TOOLS_DIR}/backup}"   # Diretorio de backup
+    SSH_CONFIG_DIR="${SSH_CONFIG_DIR:-${TOOLS_DIR}/.ssh}" # Diretorio de configuracao SSH
+    # Exportar variaveis de diretorio para uso global
+    export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP SSH_CONFIG_DIR
 
     # Criar diretorios se nao existirem
-    local dirs=("${OLDS}" "${PROGS}" "${LOGS}" "${ENVIA}" "${RECEBE}" "${LIBS}" "${BACKUP}")
+    local dirs=("${OLDS}" "${PROGS}" "${LOGS}" "${ENVIA}" "${RECEBE}" "${LIBS}" "${BACKUP}" "${SSH_CONFIG_DIR}")
     for dir in "${dirs[@]}"; do
         if [[ ! -d "${dir}" ]]; then
             mkdir -p "${dir}" || {
@@ -191,32 +196,32 @@ _configurar_diretorios() {
                 _read_sleep 2
                 return 1
             }
+            chmod 0777 "${dir}"       
         fi
     done
-    
-    # Exportar variaveis de diretorio
-    export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP raiz
 }
 
 # Configurar variaveis do sistema
 _configurar_variaveis_sistema() {
+        acessoff="${acessoff:-${raiz}/portalsav/Atualiza}"                                 # Diretorio do servidor offline
+    
     if [[ "${sistema}" == "iscobol" ]]; then
    
         # Caminhos dos executaveis e dados
-        E_EXEC="${E_EXEC:-${raiz}/classes}"
-        T_TELAS="${T_TELAS:-${raiz}/tel_isc}"
-        X_XML="${X_XML:-${raiz}/xml}"
-        BASE1="${BASE1:-${raiz}${base}}"
-        BASE2="${BASE2:-${raiz}${base2}}"
-        BASE3="${BASE3:-${raiz}${base3}}"
-        export E_EXEC T_TELAS X_XML BASE1 BASE2 BASE3
+        E_EXEC="${E_EXEC:-${raiz}/classes}"      # Diretorio de executaveis para Iscobol
+        T_TELAS="${T_TELAS:-${raiz}/tel_isc}"    # Diretorio de telas para Iscobol 
+        X_XML="${X_XML:-${raiz}/xml}"            # Diretorio de telas para Iscobol
+        BASE1="${BASE1:-${raiz}${base}}"         # Base de dados principal para Iscobol
+        BASE2="${BASE2:-${raiz}${base2}}"        # Segunda base de dados para Iscobol
+        BASE3="${BASE3:-${raiz}${base3}}"        # Terceira base de dados para Iscobol
+        export E_EXEC T_TELAS X_XML BASE1 BASE2 BASE3 acessoff
     else
         E_EXEC="${E_EXEC:-${raiz}/int}"
         T_TELAS="${T_TELAS:-${raiz}/tel}"
         BASE1="${BASE1:-${raiz}${base}}"
         BASE2="${BASE2:-${raiz}${base2}}"
         BASE3="${BASE3:-${raiz}${base3}}"
-        export E_EXEC T_TELAS BASE1 BASE2 BASE3
+        export E_EXEC T_TELAS BASE1 BASE2 BASE3 acessoff
     fi
     # Configuracao do SAVISC
     readonly SAVISCC="${raiz}/savisc/iscobol/bin/"
@@ -310,7 +315,7 @@ _carregar_config_empresa() {
 # Configurar acesso offline se necessario
 _configurar_acessos() {
     if [[ "${Offline}" == "s" ]]; then
-            down_dir="${acesso_portalsav}"    #"acesso_portalsav=/sav/portalsav/Atualiza"
+            down_dir="${acessoff}"    #"acessoff=/sav/portalsav/Atualiza"
         if [[ ! -d "${down_dir}" ]]; then
             mkdir -p "${down_dir}" || {
                 printf "Erro ao criar diretorio offline %s\n" "${down_dir}"

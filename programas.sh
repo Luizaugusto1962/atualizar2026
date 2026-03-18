@@ -4,11 +4,10 @@
 # Responsavel pela atualizacao, instalacao e reversao de programas
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 17/03/2026-00
+# Versao: 18/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"      # Nome do sistema (iscobol, savatu, transpc).
-acessossh="${acessossh:-}"  # Uso de acesso SSH (s/n)
 cmd_zip="${cmd_zip:-}"      # Comando de compactacao (zip)
 cmd_unzip="${cmd_unzip:-}"  # Comando de descompactacao (unzip)
 Offline="${Offline:-}"      # Modo offline (s/n)

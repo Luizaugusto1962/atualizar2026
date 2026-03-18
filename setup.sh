@@ -18,7 +18,7 @@ verclass="${verclass:-}"
 # Variáveis globais
 declare -l sistema base base2 base3 dbmaker enviabackup
 declare -u empresa
-
+                              # Diretorio do servidor offline
 # Configuracao inicial do sistema
 _initial_setup() {
     clear
@@ -269,16 +269,20 @@ _setup_acesso_remoto() {
 }
 
 _setup_backup() {
+    if [[ "${Offline}" == "s" ]]; then
+        echo ${tracejada}
+        echo "###     ( Modo Offline Ativado )                ###"
+        echo "###     Backup local sera criado na pasta do script ###"
+        echo "###     O backup deve ser enviado manualmente para a SAV ###"
+        echo ${tracejada}
+        echo "enviabackup=${acessoff}" >> .config
+        return
+    else
     echo ${tracejada}
     echo "###     ( Nome de pasta no servidor da SAV )                ###"
     echo "Nome de pasta no servidor da SAV, informar somento o nome do cliente"
     read -rp "(Ex: cliente/\"NOME_da_pasta_do_CLIENTE\"): " enviabackup
-    if [[ -z "$enviabackup" && "${Offline}" =~ ^[Nn]$ ]]; then
-        echo "enviabackup=" >> .config
-    elif [[ -n "$enviabackup" ]]; then
-        echo "enviabackup=cliente/${enviabackup}" >> .config
-    else
-        echo "enviabackup=${Offline}" >> .config
+    echo "enviabackup=cliente/${enviabackup}_jisam" >> .config
     fi
 }
 _setup_empresa() {
@@ -370,13 +374,14 @@ _recreate_config_files() {
     echo "$tracejada"
 }
 
-#---------- FUNcoES AUXILIARES ----------#
+#---------- FUNCOES AUXILIARES ----------#
 # Configura acesso SSH facilitado
 _configure_ssh_access() {
+
     local SERVER_IP="${ipserver}"
     local SERVER_PORTA="${SERVER_PORTA:-41122}"
     local SERVER_USER="${USUARIO:-atualiza}"
-    local CONTROL_PATH_BASE="/${TOOLS_DIR}/.ssh/control"
+    local CONTROL_PATH_BASE="${TOOLS_DIR}/.ssh/control"
 
     if [[ -z "$SERVER_IP" || -z "$SERVER_PORTA" || -z "$SERVER_USER" ]]; then
         echo "Erro: Variaveis de servidor nao definidas para configuracao SSH."
@@ -385,37 +390,50 @@ _configure_ssh_access() {
 
     local SSH_CONFIG_DIR
     SSH_CONFIG_DIR=$(dirname "$CONTROL_PATH_BASE")
+    if [[ -z "$SSH_CONFIG_DIR" ]]; then
+        echo "Erro: Nao foi possivel determinar o diretorio de configuracao SSH."
+        return 1
+    fi
+    if [[ ! -d "$SSH_CONFIG_DIR" ]]; then
+        echo "Criando diretorio de configuracao SSH em $SSH_CONFIG_DIR..."  
     mkdir -p "$SSH_CONFIG_DIR" && chmod 700 "$SSH_CONFIG_DIR"
+    fi
 
-    local CONTROL_PATH="$CONTROL_PATH_BASE"
-    mkdir -p "$CONTROL_PATH" && chmod 700 "$CONTROL_PATH"
+    if [[ ! -d "$CONTROL_PATH_BASE" ]]; then
+        echo "Criando diretorio de controle SSH em $CONTROL_PATH_BASE..."
+        local CONTROL_PATH="$CONTROL_PATH_BASE"
+        mkdir -p "$CONTROL_PATH" && chmod 700 "$CONTROL_PATH"
+    fi
+# CONFIGURACAO SSH
+    if [[ ! -f "${SSH_CONFIG_DIR}/config" ]]; then
+    mkdir -p "${SSH_CONFIG_DIR}"
+    chmod 0700 "${SSH_CONFIG_DIR}"
 
-    if [[ ! -f "/root/.ssh/config" ]]; then
-        mkdir -p "/root/.ssh" && chmod 700 "/root/.ssh"
-        cat << EOF > "/root/.ssh/config"
+        cat << EOF > "${SSH_CONFIG_DIR}/config"
 Host sav_servidor
     HostName $SERVER_IP
     Port $SERVER_PORTA
     User $SERVER_USER
     ControlMaster auto
-    ControlPath $CONTROL_PATH/%r@%h:%p
+    ControlPath $CONTROL_PATH_BASE/%r@%h:%p
     ControlPersist 10m
 EOF
-        chmod 600 "/root/.ssh/config"
+        chmod 600 "${SSH_CONFIG_DIR}/config"
         echo "Configuracao SSH criada."
-    elif ! grep -q "Host sav_servidor" "/root/.ssh/config"; then
-        echo "Adicionando configuracao 'sav_servidor' ao seu ~/.ssh/config..."
-        cat << EOF >> "/root/.ssh/config"
+    elif ! grep -q "Host sav_servidor" "${SSH_CONFIG_DIR}/config"; then
+        echo "Adicionando configuracao 'sav_servidor' ao seu ${SSH_CONFIG_DIR}/config..."
+        cat << EOF >> "${SSH_CONFIG_DIR}/config"
 
 Host sav_servidor
     HostName $SERVER_IP
     Port $SERVER_PORTA
     User $SERVER_USER
     ControlMaster auto
-    ControlPath $CONTROL_PATH/%r@%h:%p
+    ControlPath $CONTROL_PATH_BASE/%r@%h:%p
     ControlPersist 10m
 EOF
     fi
+    echo "Iniciando configuracao $CONTROL_PATH_BASE"
 }
 
 #---------- PONTO DE ENTRADA PRINCIPAL ----------#
@@ -425,13 +443,16 @@ main() {
 
 cd .. || exit 1
 
+ 
 # Diretorio do script
 TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+raiz="${TOOLS_DIR%/*}"
+acessoff="${acessoff:-${raiz}/portalsav/Atualiza}"  
 
 # Diretorios dos modulos e configuracoes
 lib_dir="${TOOLS_DIR}/libs"
 cfg_dir="${TOOLS_DIR}/cfg"
-readonly TOOLS_DIR lib_dir cfg_dir
+readonly TOOLS_DIR raiz acessoff lib_dir cfg_dir
 
 # Verifica se o diretorio libs existe
 if [[ ! -d "${lib_dir}" ]]; then

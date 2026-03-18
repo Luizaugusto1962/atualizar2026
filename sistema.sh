@@ -4,7 +4,7 @@
 # Responsavel por informacoes do IsCOBOL, Linux, parametros e atualizacoes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/03/2026-00
+# Versao: 18/03/2026-00
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"      # Caminho do diretorio de configuracao do programa.
@@ -213,6 +213,7 @@ _atualizando() {
             _read_sleep 2
             return 1
         }
+        chmod 0700 "${BACKUP}"
     fi
 
     # Fazer backup dos arquivos atuais
@@ -314,6 +315,7 @@ _atualizando() {
         if ! mkdir -p "$cfg_target" 2>/dev/null; then
             _mensagec "${RED}" "Erro ao criar diretório de destino: $cfg_target"
             ((arquivos_erro++))
+            chmod 0700 "$cfg_target" 2>/dev/null || true
             continue
         fi
 
@@ -354,7 +356,9 @@ _atualizando() {
         if ! mkdir -p "$sh_target" 2>/dev/null; then
             _mensagec "${RED}" "Erro ao criar diretório: $sh_target"
             ((arquivos_erro++))
+            chmod 0700 "$sh_target" 2>/dev/null || true
             continue
+
         fi
 
         # Mover arquivo para destino
@@ -434,6 +438,7 @@ _atualizar_online() {
     mkdir -p "$temp_dir" || {
         _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
         _read_sleep 2
+        chmod 0777 "$temp_dir" 2>/dev/null || true
         return 1
     }
     _atualizando
@@ -448,6 +453,7 @@ _atualizar_offline() {
     mkdir -p "$temp_dir" || {
         _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
         _read_sleep 2
+        chmod 0777 "$temp_dir" 2>/dev/null || true
         return 1
     }
 
@@ -568,7 +574,8 @@ editar_variavel() {
 _manutencao_setup() {
 
 # Se os arquivos existem, carrega e pergunta se quer editar campo a campo
-if [[ -f ".config" ]]; then
+
+    if [[ -f "${cfg_dir}/.config" ]]; then
     echo "=================================================="
     echo "Arquivo .config ja existem."
     echo "Carregando parametros para edicao..."
@@ -576,13 +583,19 @@ if [[ -f ".config" ]]; then
     echo
 
     # Carrega os valores existentes do arquivo .config
-    "." ./.config || {
+        "." "${cfg_dir}/.config" || {
         echo "Erro: Falha ao carregar .config"
         _read_sleep 2
         exit 1
     }
 
     # Faz backup dos arquivos
+    cd "${cfg_dir}" || {
+        echo "Erro: Diretorio ${cfg_dir} nao encontrado"
+        _read_sleep 2
+        exit 1
+    }
+
     cp .config .config.bkp || {
         echo "Erro: Falha ao criar backup de .config"
         _read_sleep 2
@@ -630,23 +643,20 @@ clear
     
 if [[ "${acessossh}" = "s" ]]; then
 
-# CONFIGURAcoES PERSONALIZAVEIS (ALTERE AQUI OU VIA VARIAVEIS DE AMBIENTE)
-SERVER_IP="${ipserver}"                        # IP do servidor 
-SERVER_PORTA="${SERVER_PORTA:-41122}"            # Porta SFTP (padrao: 41122)
-SERVER_USER="${SERVER_USER:-atualiza}"         # Usuario SSH (padrao: atualiza)
-CONTROL_PATH_BASE="${CONTROL_PATH_BASE:-${TOOLS_DIR}/.ssh/control}"
-# VALIDAcaO DAS VARIaVEIS OBRIGAToRIAS
-    if [[ -z "$SERVER_IP" || -z "$SERVER_PORTA" || -z "$SERVER_USER" ]]; then
+# CONFIGURACOES PERSONALIZAVEIS (ALTERE AQUI OU VIA VARIAVEIS DE AMBIENTE)
+
+CONTROL_PATH_BASE="${CONTROL_PATH_BASE:-${SSH_CONFIG_DIR}/control}"
+# VALIDACAO DAS VARIAVEIS OBRIGATORIAS
+    if [[ -z "$ipserver" || -z "$DEFAULT_PORTA" || -z "$DEFAULT_USUARIO" ]]; then
         echo "Erro: Variaveis obrigatorias nao definidas!"
         echo "Defina via ambiente ou edite as configuracoes no inicio do script:"
-        echo "  export SERVER_IP='seu.ip.aqui'"
-        echo "  export SERVER_PORTA='porta'"
-        echo "  export SERVER_USER='usuario'"
+        echo "  export ipserver='seu.ip.aqui'"
+        echo "  export DEFAULT_PORTA='porta'"
+        echo "  export DEFAULT_USUARIO='usuario'"
         exit 1
     fi
 
-# PREPARAcaO DOS DIREToRIOS
-SSH_CONFIG_DIR="$(dirname "$CONTROL_PATH_BASE")"
+# PREPARACAO DOS DIRETORIOS
 CONTROL_PATH="$CONTROL_PATH_BASE"
 
 # Verifica/cria diretorio base
@@ -656,7 +666,7 @@ CONTROL_PATH="$CONTROL_PATH_BASE"
             echo "Falha: Permissao negada para criar $SSH_CONFIG_DIR. Use sudo se necessario."
             exit 1
         }
-        chmod 700 "$SSH_CONFIG_DIR"
+        chmod 0700 "$SSH_CONFIG_DIR"
     fi
 
 # Verifica/cria diretorio de controle
@@ -666,48 +676,48 @@ CONTROL_PATH="$CONTROL_PATH_BASE"
             echo "Falha: Permissao negada para criar $SSH_CONFIG_DIR."
             exit 1
         }
-        chmod 700 "$CONTROL_PATH"
+        chmod 0700 "$CONTROL_PATH"
     fi
 
-# CONFIGURAcaO SSH
-    if [[ ! -f "/root/.ssh/config" ]]; then
-    mkdir -p "/root/.ssh"
-    chmod 700 "/root/.ssh"
+# CONFIGURACAO SSH
+    if [[ ! -f "${SSH_CONFIG_DIR}/config" ]]; then
+    mkdir -p "${SSH_CONFIG_DIR}"
+    chmod 0700 "${SSH_CONFIG_DIR}"
     
     # Injeta as variaveis diretamente na configuracao (sem aspas em EOF para expansao)
-    cat << EOF >> "/root/.ssh/config"
+    cat << EOF >> "${SSH_CONFIG_DIR}/config"
 Host sav_servidor
-    HostName $SERVER_IP
-    Port $SERVER_PORTA
-    User $SERVER_USER
+    HostName $ipserver
+    Port $DEFAULT_PORTA
+    User $DEFAULT_USUARIO
     ControlMaster auto
     ControlPath $CONTROL_PATH/%r@%h:%p
     ControlPersist 10m
 EOF
-    chmod 600 "/root/.ssh/config"
+    chmod 0600 "${SSH_CONFIG_DIR}/config"
     echo "Configuracao SSH criada com parametros:"
     else
-    echo "Arquivo de configuracao ja existe regravando: /root/.ssh/config"
+    echo "Arquivo de configuracao ja existe regravando: ${SSH_CONFIG_DIR}/config"
     
-    # Verifica se a configuracao especifica ja esta presente
-        cat << EOF >> "/root/.ssh/config"
-# Configuracao adicionada automaticamente
-Host sav_servidor
-    HostName $SERVER_IP
-    Port $SERVER_PORTA
-    User $SERVER_USER
-    ControlMaster auto
-    ControlPath $CONTROL_PATH/%r@%h:%p
-    ControlPersist 10m
-EOF
+#    # Verifica se a configuracao especifica ja esta presente
+#        cat << EOF >> "${SSH_CONFIG_DIR}/config"
+## Configuracao adicionada automaticamente
+#Host sav_servidor
+#    HostName $ipserver
+#    Port $DEFAULT_PORTA
+#    User $DEFAULT_USUARIO
+#    ControlMaster auto
+#    ControlPath $CONTROL_PATH/%r@%h:%p
+#    ControlPersist 10m
+#EOF
         echo "Configuracao 'sav_servidor' adicionada com parametros:"
     fi
 
 _linha
-# EXIBE OS PARaMETROS UTILIZADOS
-echo -e "\n   IP do Servidor:   ${SERVER_IP}"
-echo "   Porta:            ${SERVER_PORTA}"
-echo "   Usuario:          ${SERVER_USER}"
+# EXIBE OS PARAMETROS UTILIZADOS
+echo -e "\n   IP do Servidor:   ${ipserver}"
+echo "   Porta:            ${DEFAULT_PORTA}"
+echo "   Usuario:          ${DEFAULT_USUARIO}"
 echo "   ControlPath:      ${CONTROL_PATH}/%r@%h:%p"
 echo -e "\n Validacao concluida! Teste com:"
 echo "   sftp sav_servidor"
@@ -719,4 +729,5 @@ else
     echo "Acesso SSH desativado. Para configurar, defina acessossh=s no arquivo .config"    
 exit 1
 fi
+
 }
