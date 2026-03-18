@@ -12,8 +12,8 @@ cmd_zip="${cmd_zip:-}"      # Comando de compactacao (zip)
 cmd_unzip="${cmd_unzip:-}"  # Comando de descompactacao (unzip)
 Offline="${Offline:-}"      # Modo offline (s/n)
 down_dir="${down_dir:-}"    # Diretorio de download de arquivos
-class="${class:-}"                    # Sufixo para arquivos de classe
-mclass="${mclass:-}"                   # Sufixo para arquivos de classe de depuracao
+class="${class:-}"          # Sufixo para arquivos de classe
+mclass="${mclass:-}"        # Sufixo para arquivos de classe de depuracao
 
 #---------- VARIaVEIS GLOBAIS DO MODULO ----------#
 # Arrays para armazenar programas e arquivos
