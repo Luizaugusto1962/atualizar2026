@@ -337,6 +337,12 @@ _processar_atualizacao_programas() {
     local backup_file     # Nome do arquivo de backup
     local programa_idx=0  # indice do programa no array
 
+    # SEGURANCA: Validar diretorio de backups antes de qualquer operacao
+    if ! _validar_diretorio_backups; then
+        _mensagec "${RED}" "OPERACAO ABORTADA: Impossivel garantir integridade de backups"
+        return 1
+    fi
+
     # Verificar se arquivos existem
     for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
         if [[ ! -f "${arquivo}" ]]; then
@@ -349,27 +355,55 @@ _processar_atualizacao_programas() {
     for programa_idx in "${!PROGRAMAS_SELECIONADOS[@]}"; do
         local programa="${PROGRAMAS_SELECIONADOS[$programa_idx]}"
         local arquivo_backup="${OLDS}/${programa}-anterior.zip"
+        local backup_criado=0
         
-        # Verificar se ja existe backup
+        # Verificar se ja existe backup e fazer rotacao com data
         if [[ -f "$arquivo_backup" ]]; then
-            mv -f "$arquivo_backup" "${OLDS}/${UMADATA}-${programa}-anterior.zip"
+            if ! mv -f "$arquivo_backup" "${OLDS}/${UMADATA}-${programa}-anterior.zip"; then
+                _mensagec "${RED}" "ERRO: Falha ao arquivar backup anterior de ${programa}"
+                return 1
+            fi
         fi
         
         _mensagec "${YELLOW}" "Salvando programa antigo: ${programa}"
         
         # Backup de arquivos .class
         if [[ -f "${E_EXEC}/${programa}.class" ]]; then
-            "${cmd_zip}" -j "$arquivo_backup" "${E_EXEC}/${programa}"*.class
+            if "${cmd_zip}" -j "$arquivo_backup" "${E_EXEC}/${programa}"*.class >> "${LOG_ATU}" 2>&1; then
+                backup_criado=1
+            else
+                _mensagec "${RED}" "ERRO: Falha ao fazer backup dos arquivos .class de ${programa}"
+                return 1
+            fi
         fi
         
         # Backup de arquivos .int
         if [[ -f "${E_EXEC}/${programa}.int" ]]; then
-            "${cmd_zip}" -j "$arquivo_backup" "${E_EXEC}/${programa}.int"
+            if "${cmd_zip}" -j "$arquivo_backup" "${E_EXEC}/${programa}.int" >> "${LOG_ATU}" 2>&1; then
+                backup_criado=1
+            else
+                _mensagec "${RED}" "ERRO: Falha ao fazer backup dos arquivos .int de ${programa}"
+                return 1
+            fi
         fi
         
         # Backup de arquivos .TEL
         if [[ -f "${T_TELAS}/${programa}.TEL" ]]; then
-            "${cmd_zip}" -j "$arquivo_backup" "${T_TELAS}/${programa}.TEL"
+            if "${cmd_zip}" -j "$arquivo_backup" "${T_TELAS}/${programa}.TEL" >> "${LOG_ATU}" 2>&1; then
+                backup_criado=1
+            else
+                _mensagec "${RED}" "ERRO: Falha ao fazer backup dos arquivos .TEL de ${programa}"
+                return 1
+            fi
+        fi
+
+        # SEGURANCA: Validar integridade do backup criado
+        if (( backup_criado )); then
+            if ! _validar_integridade_backup "$arquivo_backup"; then
+                _mensagec "${RED}" "ERRO CRITICO: Backup criado mas invalido para ${programa}"
+                return 1
+            fi
+            _mensagec "${GREEN}" "Backup validado com sucesso: ${programa}"
         fi
     done
 
@@ -432,19 +466,25 @@ _processar_atualizacao_pacotes() {
     # Ir para o diretório onde estão os pacotes baixados
     cd "${down_dir}" || return 1
     
+    # SEGURANCA: Validar diretorio de backups
+    if ! _validar_diretorio_backups; then
+        _mensagec "${RED}" "OPERACAO ABORTADA: Impossivel garantir integridade de backups"
+        return 1
+    fi
+
     _configurar_acessos
     # Descompactar pacotes
     for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
         if [[ ! -f "${arquivo}" ]]; then
             _mensagec "${RED}" "Arquivo nao encontrado: ${arquivo}"
             _read_sleep 2
-            continue
+            return 1
         fi
 
-        if ! "${cmd_unzip}" -o "${arquivo}" >>"${LOG_ATU}"; then
+        if ! "${cmd_unzip}" -o "${arquivo}" >>"${LOG_ATU}" 2>&1; then
             _mensagec "${RED}" "Erro ao descompactar ${arquivo}"
             _read_sleep 2
-            continue
+            return 1
         fi
     done
 
@@ -452,7 +492,10 @@ _processar_atualizacao_pacotes() {
     for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
         if [[ -f "${arquivo}" ]]; then
             local backup_file="${arquivo%.zip}.bkp"
-            mv -f "${arquivo}" "${PROGS}/${backup_file}"
+            if ! mv -f "${arquivo}" "${PROGS}/${backup_file}"; then
+                _mensagec "${RED}" "ERRO: Falha ao arquivar pacote ${arquivo}"
+                return 1
+            fi
         fi
     done
 
@@ -460,23 +503,46 @@ _processar_atualizacao_pacotes() {
     find . -type f -name "*.class" | while read -r classfile; do
         local progname="${classfile##*/}" # Extrair nome do arquivo
         progname="${progname%%.class}"    # Remover extensao
+        local arquivo_backup="${OLDS}/${progname}-anterior.zip"
 
         # Backup dos arquivos antigos
         if [[ "${sistema}" == "iscobol" ]]; then
-            find "${E_EXEC}" -name "${progname}*.class" -exec "${cmd_zip}" -j "${OLDS}/${progname}-anterior.zip" {} + 2>/dev/null
+            if ! find "${E_EXEC}" -name "${progname}*.class" -exec "${cmd_zip}" -j "${arquivo_backup}" {} + 2>>"${LOG_ATU}"; then
+                echo "ERRO: Falha ao fazer backup de ${progname}*.class" >> "${LOG_ATU}"
+                return 1
+            fi
         else
-            find "${E_EXEC}" -name "${progname}*.int" -exec "${cmd_zip}" -j "${OLDS}/${progname}-anterior.zip" {} + 2>/dev/null
+            if ! find "${E_EXEC}" -name "${progname}*.int" -exec "${cmd_zip}" -j "${arquivo_backup}" {} + 2>>"${LOG_ATU}"; then
+                echo "ERRO: Falha ao fazer backup de ${progname}*.int" >> "${LOG_ATU}"
+                return 1
+            fi
         fi
 
         # Backup de arquivos .TEL se existirem
         if [[ -f "${progname}.TEL" ]]; then
-            find "${T_TELAS}" -name "${progname}*.TEL" -exec "${cmd_zip}" -j "${OLDS}/${progname}-anterior.zip" {} + 2>/dev/null
+            if ! find "${T_TELAS}" -name "${progname}*.TEL" -exec "${cmd_zip}" -j "${arquivo_backup}" {} + 2>>"${LOG_ATU}"; then
+                echo "ERRO: Falha ao fazer backup de ${progname}*.TEL" >> "${LOG_ATU}"
+                return 1
+            fi
+        fi
+
+        # SEGURANCA: Validar integridade do backup antes de continuar
+        if [[ -f "${arquivo_backup}" ]]; then
+            if ! _validar_integridade_backup "${arquivo_backup}"; then
+                return 1
+            fi
         fi
 
         # Mover novos arquivos
-        mv -f "${progname}"*.class "${E_EXEC}/" >>"${LOG_ATU}" 2>&1
+        if ! mv -f "${progname}"*.class "${E_EXEC}/" >>"${LOG_ATU}" 2>&1; then
+            echo "ERRO: Falha ao mover ${progname}*.class para ${E_EXEC}" >> "${LOG_ATU}"
+            return 1
+        fi
         if [[ -f "${progname}.TEL" ]]; then
-            mv -f "${progname}"*.TEL "${T_TELAS}/" >>"${LOG_ATU}" 2>&1
+            if ! mv -f "${progname}"*.TEL "${T_TELAS}/" >>"${LOG_ATU}" 2>&1; then
+                echo "ERRO: Falha ao mover ${progname}*.TEL para ${T_TELAS}" >> "${LOG_ATU}"
+                return 1
+            fi
         fi
     done
 }
@@ -491,10 +557,20 @@ _processar_reversao_programas() {
         local arquivo_anterior="${OLDS}/${programa}-anterior.zip"
         
         if [[ -f "$arquivo_anterior" ]]; then
-            mv -f "$arquivo_anterior" "${down_dir}/${programa}${class}.zip"
-            _mensagec "${GREEN}" "Programa revertido: ${programa}"
+            # SEGURANCA: Validar integridade do backup antes de reverter
+            if ! _validar_integridade_backup "$arquivo_anterior"; then
+                _mensagec "${RED}" "ERRO: Backup invalido ou corrompido para ${programa}. Reversao abortada."
+                return 1
+            fi
+
+            if ! mv -f "$arquivo_anterior" "${down_dir}/${programa}${class}.zip"; then
+                _mensagec "${RED}" "ERRO: Falha ao preparar backup para reversao de ${programa}"
+                return 1
+            fi
+            _mensagec "${GREEN}" "Backup validado e preparado para reversao: ${programa}"
         else
             _mensagec "${RED}" "Backup nao encontrado para: ${programa}"
+            return 1
         fi
     done
 
@@ -503,6 +579,52 @@ _processar_reversao_programas() {
 }
 
 #---------- FUNCOES AUXILIARES ----------#
+
+# Valida e cria diretorio de backups se nao existir
+_validar_diretorio_backups() {
+    if [[ ! -d "${OLDS}" ]]; then
+        _mensagec "${YELLOW}" "Criando diretorio de backups: ${OLDS}"
+        if ! mkdir -p "${OLDS}"; then
+            _mensagec "${RED}" "ERRO CRITICO: Falha ao criar diretorio de backups ${OLDS}"
+            return 1
+        fi
+    fi
+
+    # Validar permissoes de escrita
+    if [[ ! -w "${OLDS}" ]]; then
+        _mensagec "${RED}" "ERRO CRITICO: Sem permissao de escrita em ${OLDS}"
+        return 1
+    fi
+
+    return 0
+}
+
+# Valida integridade de arquivo de backup
+_validar_integridade_backup() {
+    local arquivo_backup="$1"
+
+    # Verificar se arquivo existe
+    if [[ ! -f "${arquivo_backup}" ]]; then
+        _mensagec "${RED}" "ERRO: Arquivo de backup nao encontrado: ${arquivo_backup}"
+        return 1
+    fi
+
+    # Verificar tamanho minimo (arquivo zip deve ter pelo menos 22 bytes)
+    local tamanho
+    tamanho=$(stat -c%s "${arquivo_backup}" 2>/dev/null)
+    if (( tamanho < 22 )); then
+        _mensagec "${RED}" "ERRO: Arquivo de backup corrompido (tamanho: ${tamanho} bytes): ${arquivo_backup}"
+        return 1
+    fi
+
+    # Testar integridade do arquivo zip
+    if ! "${cmd_unzip}" -t "${arquivo_backup}" >/dev/null 2>&1; then
+        _mensagec "${RED}" "ERRO: Arquivo de backup invalido ou corrompido: ${arquivo_backup}"
+        return 1
+    fi
+
+    return 0
+}
 
 # Obtem data de modificacao do arquivo
 _obter_data_arquivo() {

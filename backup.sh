@@ -169,6 +169,9 @@ _executar_backup() {
 
     if [[ $resultado -eq 0 ]] && [[ -f "$caminho_backup" ]]; then
         _finalizar_backup_sucesso "$nome_backup"
+        
+        # Limpeza automática de backups antigos
+        _limpar_backups_antigos
     else
         _mensagec "$RED" "Erro ao criar backup"
         _read_sleep 3
@@ -223,8 +226,11 @@ _executar_backup_completo() {
         return 1
     fi
     
-    "$cmd_zip" "$arquivo_destino" ./*.* -x ./*.zip ./*.tar ./*.gz ./*.log ./*.tmp ./*.old >/dev/null 2>&1
-    local resultado=$?
+    if ! "$cmd_zip" "$arquivo_destino" ./*.* -x ./*.zip ./*.tar ./*.gz ./*.log ./*.tmp ./*.old >>"${LOG_ATU}" 2>&1; then
+        _mensagec "${RED}" "Erro ao criar backup completo"
+        [[ -f "$arquivo_destino" ]] && rm -f "$arquivo_destino"
+        return 1
+    fi
     
     # Verificar se o backup foi criado
     if [[ ! -f "$arquivo_destino" ]]; then
@@ -232,8 +238,15 @@ _executar_backup_completo() {
         _read_sleep 3
         return 1
     fi
+
+    # SEGURANCA: Validar integridade imediatamente apos criacao
+    if ! _validar_integridade_backup "$arquivo_destino"; then
+        _mensagec "${RED}" "ERRO CRITICO: Backup criado mas invalido (corrompido)"
+        rm -f "$arquivo_destino"
+        return 1
+    fi
     
-    return $resultado
+    return 0
 }
 
 # Executa backup incremental (recebe data como parametro)
@@ -272,8 +285,11 @@ _executar_backup_incremental() {
     fi
 
     # Executar compactacao
-    xargs -0 "$cmd_zip" "$arquivo_destino" < "$arquivos_temp" >/dev/null 2>&1
-    resultado=$?
+    if ! xargs -0 "$cmd_zip" "$arquivo_destino" < "$arquivos_temp" >>"${LOG_ATU}" 2>&1; then
+        _mensagec "${RED}" "Erro ao criar backup incremental"
+        rm -f "$arquivos_temp" "$arquivo_destino"
+        return 1
+    fi
     
     # Limpar arquivo temporario
     rm -f "$arquivos_temp"
@@ -284,10 +300,17 @@ _executar_backup_incremental() {
         _read_sleep 3
         return 1
     fi
-    
-    return $resultado
-}
 
+    # SEGURANCA: Validar integridade imediatamente apos criacao
+    if ! _validar_integridade_backup "$arquivo_destino"; then
+        _mensagec "${RED}" "ERRO CRITICO: Backup criado mas invalido (corrompido)"
+        rm -f "$arquivo_destino"
+        return 1
+    fi
+    
+    return 0
+
+}
 # Muda para o diretorio de trabalho
 _diretorio_trabalho() {
     local base_trabalho="${BASE_TRABALHO:-${raiz}${base}}"
@@ -391,6 +414,15 @@ _restaurar_backup_completo() {
     
     if [[ ! -f "$arquivo_backup" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
+        _auditar_restauracao "$arquivo_backup" "completa" "erro_arquivo_nao_existe"
+        _press
+        return 1
+    fi
+    
+    # SEGURANCA: Validar integridade ANTES de restaurar
+    if ! _validar_integridade_backup "$arquivo_backup"; then
+        _auditar_restauracao "$arquivo_backup" "completa" "erro_integridade"
+        _mensagec "${RED}" "OPERACAO ABORTADA: Backup invalido ou corrompido"
         _press
         return 1
     fi
@@ -401,11 +433,13 @@ _restaurar_backup_completo() {
     
     if ! "${cmd_unzip:-unzip}" -o "$arquivo_backup" -d "${base_trabalho}" >>"${LOG_ATU}" 2>&1; then
         _mensagec "${RED}" "Erro na restauracao completa"
+        _auditar_restauracao "$arquivo_backup" "completa" "erro_descompactacao"
         _press
         return 1
     fi
     
     _mensagec "${GREEN}" "Restauracao completa concluida"
+    _auditar_restauracao "$arquivo_backup" "completa" "sucesso"
     _press
 }
 
@@ -418,6 +452,15 @@ _restaurar_arquivo_especifico() {
    
     if [[ ! -f "$arquivo_backup" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
+        _auditar_restauracao "$arquivo_backup" "parcial" "erro_arquivo_nao_existe"
+        _press
+        return 1
+    fi
+
+    # SEGURANCA: Validar integridade ANTES de restaurar
+    if ! _validar_integridade_backup "$arquivo_backup"; then
+        _auditar_restauracao "$arquivo_backup" "parcial" "erro_integridade"
+        _mensagec "${RED}" "OPERACAO ABORTADA: Backup invalido ou corrompido"
         _press
         return 1
     fi
@@ -455,12 +498,15 @@ _restaurar_arquivo_especifico() {
        
         if ! "${cmd_unzip:-unzip}" -o "$arquivo_backup" "${nome_arquivo}*.*" -d "${base_trabalho}" >>"${LOG_ATU}" 2>&1; then
             _mensagec "${RED}" "Erro ao extrair ${nome_arquivo}"
+            _auditar_restauracao "${arquivo_backup}:${nome_arquivo}" "parcial" "erro_descompactacao"
             _press
         else
             if ls "${base_trabalho}/${nome_arquivo}"*.* >/dev/null 2>&1; then
                 _mensagec "${GREEN}" "Arquivo ${nome_arquivo} restaurado com sucesso"
+                _auditar_restauracao "${arquivo_backup}:${nome_arquivo}" "parcial" "sucesso"
             else
                 _mensagec "${YELLOW}" "Arquivo ${nome_arquivo} nao encontrado apos restauracao"
+                _auditar_restauracao "${arquivo_backup}:${nome_arquivo}" "parcial" "arquivo_nao_existe_no_backup"
             fi
             _press
         fi
@@ -489,6 +535,13 @@ _enviar_backup_servidor() {
         return 1
     fi
 
+    # SEGURANCA: Validar integridade ANTES de enviar
+    if ! _validar_integridade_backup "${BACKUP}/${nome_backup}"; then
+        _mensagec "${RED}" "OPERACAO ABORTADA: Backup invalido para envio"
+        _read_sleep 3
+        return 1
+    fi
+
     # Determinar destino
     if [[ -n "${enviabackup}" ]]; then
         destino_remoto="${enviabackup}"
@@ -508,6 +561,7 @@ _enviar_backup_servidor() {
         _linha
         _mensagec "${GREEN}" "Backup enviado com sucesso para \"${destino_remoto}\""
         _linha
+        _auditar_restauracao "${nome_backup}" "envio_servidor" "sucesso"
         
         # Perguntar sobre manter backup local
         if _confirmar "Manter backup local?" "S"; then
@@ -525,6 +579,7 @@ _enviar_backup_servidor() {
     else
         _linha
         _mensagec "${RED}" "Erro ao enviar backup"
+        _auditar_restauracao "${nome_backup}" "envio_servidor" "erro"
         _read_sleep 3
         return 1
     fi
@@ -537,6 +592,15 @@ _mover_backup_offline() {
     # Validar se arquivo existe
     if [[ ! -f "${BACKUP}/${nome_backup}" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
+        _auditar_restauracao "${nome_backup}" "mover_offline" "erro_arquivo_nao_existe"
+        _press
+        return 1
+    fi
+
+    # SEGURANCA: Validar integridade ANTES de mover
+    if ! _validar_integridade_backup "${BACKUP}/${nome_backup}"; then
+        _mensagec "${RED}" "OPERACAO ABORTADA: Backup invalido para mover"
+        _auditar_restauracao "${nome_backup}" "mover_offline" "erro_integridade"
         _press
         return 1
     fi
@@ -547,6 +611,7 @@ _mover_backup_offline() {
     
     if [[ -z "${down_dir}" ]]; then
         _mensagec "${RED}" "Diretorio offline nao configurado"
+        _auditar_restauracao "${nome_backup}" "mover_offline" "erro_diretorio_nao_config"
         _press
         return 1
     fi
@@ -555,6 +620,7 @@ _mover_backup_offline() {
     if [[ ! -d "${down_dir}" ]]; then
         if ! mkdir -p "${down_dir}"; then
             _mensagec "${RED}" "Erro ao criar diretorio offline"
+            _auditar_restauracao "${nome_backup}" "mover_offline" "erro_criar_diretorio"
             _press
             return 1
         fi
@@ -562,9 +628,11 @@ _mover_backup_offline() {
     
     if mv -f "${BACKUP}/${nome_backup}" "$down_dir"; then
         _mensagec "${GREEN}" "Backup movido para: ${down_dir}"
+        _auditar_restauracao "${nome_backup}" "mover_offline" "sucesso"
         _press
     else
         _mensagec "${RED}" "Erro ao mover backup"
+        _auditar_restauracao "${nome_backup}" "mover_offline" "erro_mover"
         _press
         return 1
     fi
@@ -610,6 +678,47 @@ _enviar_backup_rede() {
 
 #---------- FUNCOES AUXILIARES ----------#
 
+# Valida integridade de arquivo de backup
+_validar_integridade_backup() {
+    local arquivo_backup="$1"
+
+    # Verificar se arquivo existe
+    if [[ ! -f "${arquivo_backup}" ]]; then
+        _mensagec "${RED}" "ERRO: Arquivo de backup nao encontrado: ${arquivo_backup}"
+        return 1
+    fi
+
+    # Verificar tamanho minimo (arquivo zip deve ter pelo menos 22 bytes)
+    local tamanho
+    tamanho=$(stat -c%s "${arquivo_backup}" 2>/dev/null)
+    if (( tamanho < 22 )); then
+        _mensagec "${RED}" "ERRO: Arquivo de backup corrompido (tamanho: ${tamanho} bytes): ${arquivo_backup}"
+        return 1
+    fi
+
+    # Testar integridade do arquivo zip
+    if ! "${cmd_unzip:-unzip}" -t "${arquivo_backup}" >/dev/null 2>&1; then
+        _mensagec "${RED}" "ERRO: Arquivo de backup invalido ou corrompido: ${arquivo_backup}"
+        return 1
+    fi
+
+    return 0
+}
+
+# Registra auditoria de restauracao
+_auditar_restauracao() {
+    timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    local usuario="${LOGNAME:-usuario_desconhecido}"
+#    local timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    local arquivo="$1"
+    local tipo="$2"  # completa ou parcial
+    local resultado="$3"  # sucesso ou erro
+    local log_auditoria="${LOG_ATU%.log}_audit.log"
+
+    printf "[%s] Usuario: %s | Tipo: %s | Resultado: %s | Arquivo: %s\n" \
+        "${timestamp}" "${usuario}" "${tipo}" "${resultado}" "${arquivo}" >> "${log_auditoria}"
+}
+
 # Verifica espaco em disco
 _verificar_espaco_disco() {
     local diretorio="$1"
@@ -636,6 +745,38 @@ _verificar_backups_recentes() {
         return 0
     fi
     return 1
+}
+
+# Limpa backups antigos (mantém últimos 10)
+_limpar_backups_antigos() {
+    local max_backups=10
+    local backups_para_limpar
+    
+    if [[ ! -d "${BACKUP}" ]]; then
+        return 0
+    fi
+    
+    # Contar backups existentes
+    local total_backups
+    total_backups=$(find "${BACKUP}" -maxdepth 1 -name "${empresa}_*.zip" -type f | wc -l)
+    
+    if (( total_backups <= max_backups )); then
+        return 0
+    fi
+    
+    # Remover backups antigos, mantendo apenas os últimos max_backups
+    backups_para_limpar=$(find "${BACKUP}" -maxdepth 1 -name "${empresa}_*.zip" -type f -printf '%T+ %p\n' | \
+        sort -r | tail -n +$((max_backups + 1)) | cut -d' ' -f2-)
+    
+    while IFS= read -r arquivo; do
+        [[ -z "$arquivo" ]] && continue
+        
+        if rm -f "$arquivo"; then
+            _mensagec "${YELLOW}" "Backup antigo removido: $(basename "$arquivo")"
+        else
+            _mensagec "${RED}" "Erro ao remover backup antigo: $(basename "$arquivo")"
+        fi
+    done <<< "$backups_para_limpar"
 }
 
 # Finaliza backup com sucesso
