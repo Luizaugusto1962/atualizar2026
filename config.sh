@@ -176,13 +176,13 @@ _configurar_diretorios() {
    
 
     # Definir diretorios de trabalho
-    OLDS="${OLDS:-${TOOLS_DIR}/olds}"         # Diretorio de arquivos antigos
-    PROGS="${PROGS:-${TOOLS_DIR}/progs}"      # Diretorio de programas
-    LOGS="${LOGS:-${TOOLS_DIR}/logs}"         # Diretorio de logs
-    ENVIA="${ENVIA:-${TOOLS_DIR}/envia}"      # Diretorio de envio
-    RECEBE="${RECEBE:-${TOOLS_DIR}/recebe}"   # Diretorio de recebimento
-    LIBS="${LIBS:-${TOOLS_DIR}/libs}"         # Diretorio de bibliotecas
-    BACKUP="${BACKUP:-${TOOLS_DIR}/backup}"   # Diretorio de backup
+    OLDS="${OLDS:-${TOOLS_DIR}/olds}"                     # Diretorio de arquivos antigos
+    PROGS="${PROGS:-${TOOLS_DIR}/progs}"                  # Diretorio de programas
+    LOGS="${LOGS:-${TOOLS_DIR}/logs}"                     # Diretorio de logs
+    ENVIA="${ENVIA:-${TOOLS_DIR}/envia}"                  # Diretorio de envio
+    RECEBE="${RECEBE:-${TOOLS_DIR}/recebe}"               # Diretorio de recebimento
+    LIBS="${LIBS:-${TOOLS_DIR}/libs}"                     # Diretorio de bibliotecas
+    BACKUP="${BACKUP:-${TOOLS_DIR}/backup}"               # Diretorio de backup
     SSH_CONFIG_DIR="${SSH_CONFIG_DIR:-${TOOLS_DIR}/.ssh}" # Diretorio de configuracao SSH
     # Exportar variaveis de diretorio para uso global
     export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP SSH_CONFIG_DIR

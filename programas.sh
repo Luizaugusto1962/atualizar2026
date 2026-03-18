@@ -97,55 +97,100 @@ _atualizar_programa_pacote() {
 
 #---------- FUNCOES DE REVERSaO ----------#
 
-# Reverter programas para versao anterior
-_reverter_programa() {
-    local MAX_REPETICOES=6
-    local contador=0
-    local programa
+# Seleciona programas disponiveis para reversao (backups *-anterior.zip)
+# Popula as variaveis globais PROGRAMAS_SELECIONADOS e ARQUIVOS_PROGRAMA
+_selecionar_programas_reversao() {
     PROGRAMAS_SELECIONADOS=()
     ARQUIVOS_PROGRAMA=()
 
-    # Solicitar programas a reverter
-    for ((contador = 1; contador <= MAX_REPETICOES; contador++)); do
-        _meiodatela
-        _mensagec "${RED}" "Informe o nome do programa a ser revertido:"
-        _linha
-        
-        read -rp "${YELLOW}Nome do programa (ENTER para sair): ${NORM}" programa
+    if [[ ! -d "${OLDS}" ]]; then
+        _mensagec "${RED}" "Diretorio de backups nao encontrado: ${OLDS}"
+        _press
+        return 1
+    fi
+
+    shopt -s nullglob
+    local backups=("${OLDS}"/*-anterior.zip)
+    shopt -u nullglob
+
+    if (( ${#backups[@]} == 0 )); then
+        _mensagec "${YELLOW}" "Nenhum backup de programa encontrado em ${OLDS}"
+        _press
+        return 1
+    fi
+
+    local programas=()
+    for arquivo in "${backups[@]}"; do
+        programas+=("$(basename "${arquivo}" "-anterior.zip")")
+    done
+
+    _linha
+    _mensagec "${CYAN}" "Backups disponiveis para reversao:"
+    _linha
+
+    local idx=1
+    for programa in "${programas[@]}"; do
+        _mensagec "${GREEN}" "${idx}) ${programa}"
+        ((idx++))
+    done
+
+    _linha
+    _mensagec "${YELLOW}" "Digite o(s) numero(s) do(s) programa(s) a reverter (ex: 1 2 3) ou 0 para sair:"
+
+    local escolha
+    while true; do
+        read -rp "${YELLOW}Opcao -> ${NORM}" escolha
         _linha
 
-        # Verificar se foi digitado ENTER
-        if [[ -z "${programa}" ]]; then
-            _mensagec "${RED}" "Nenhum programa informado OU Fim de selecao. Saindo..."
-            _linha
-            break
+        # Tratar cancelamento
+        if [[ -z "${escolha}" || "${escolha}" == "0" ]]; then
+            _mensagec "${YELLOW}" "Operacao cancelada."
+            return 1
         fi
 
-        # Validar nome do programa
-        if ! _validar_nome_programa "$programa"; then
-            _mensagec "${RED}" "Erro: Nome invalido. Use apenas letras maiúsculas e números."
+        # Permitir lista separada por espacos e virgulas
+        escolha="${escolha//,/ }"
+
+        local -a indices=()
+        local invalido=0
+        for token in ${escolha}; do
+            if ! [[ "${token}" =~ ^[0-9]+$ ]]; then
+                invalido=1
+                break
+            fi
+            if (( token < 1 || token > ${#programas[@]} )); then
+                invalido=1
+                break
+            fi
+            indices+=("${token}")
+        done
+
+        if (( invalido )); then
+            _mensagec "${RED}" "Opcao invalida. Informe numero(s) entre 1 e ${#programas[@]}."
             continue
         fi
 
-        # Armazenar programa
-        PROGRAMAS_SELECIONADOS+=("$programa")
-        local arquivo_zip="${programa}${class}.zip"
-        ARQUIVOS_PROGRAMA+=("$arquivo_zip")
-        
-        _mensagec "${GREEN}" "Programa adicionado: ${programa}"
-        _linha
-        sleep 1  
-              
-        # Mostrar lista atual
-        _mensagec "${YELLOW}" "Programas a serem revertidos:"
-        for lista in "${PROGRAMAS_SELECIONADOS[@]}"; do
-            _mensagec "${GREEN}" "Programa - $lista"
-        sleep 1
+        # Remover duplicatas mantendo a ordem
+        declare -A seen=()
+        for token in "${indices[@]}"; do
+            if [[ -n "${seen[$token]:-}" ]]; then
+                continue
+            fi
+            seen[$token]=1
+            local programa_selecionado="${programas[$((token-1))]}"
+            PROGRAMAS_SELECIONADOS+=("${programa_selecionado}")
+            ARQUIVOS_PROGRAMA+=("${programa_selecionado}${class}.zip")
         done
+
+        break
     done
 
-    # Processar reversao
-    if (( ${#PROGRAMAS_SELECIONADOS[@]} > 0 )); then
+    return 0
+}
+
+# Reverter programas para versao anterior
+_reverter_programa() {
+    if _selecionar_programas_reversao; then
         _processar_reversao_programas
         _mensagem_conclusao_reversao
     else
