@@ -78,7 +78,7 @@ _editar_aviso_existente() {
 # Exibe a mensagem de entrada e oferece opcao para excluir apos leitura
 _mostrar_aviso() {
     local arquivo_msg="${cfg_dir}/avisos"
-    if [[ -f "$arquivo_msg" && -s "$arquivo_msg" ]]; then
+    if [[ -f "$arquivo_msg" ]] && grep -q '[^[:space:]]' "$arquivo_msg"; then
         clear
         _linha "=" "${CYAN}"
         _mensagec "${YELLOW}" "MENSAGEM DE ENTRADA"
