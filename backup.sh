@@ -4,7 +4,7 @@
 # Responsavel por backup completo, incremental e restauracao
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 02/03/2026-00
+# Versao: 23/03/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
