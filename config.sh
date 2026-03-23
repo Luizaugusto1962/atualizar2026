@@ -4,7 +4,7 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 18/03/2026-00
+# Versao: 23/03/2026-00
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
@@ -113,7 +113,7 @@ _definir_cores() {
         NORM=""                                  # Limpar variavel Normal
         COLUMNS=80                               # Definir colunas padrao
     fi
-export RED GREEN YELLOW BLUE PURPLE CYAN NORM 
+export RED GREEN YELLOW BLUE PURPLE CYAN WHITE NORM COLUMNS 
 }
 
 # Configurar comandos do sistema
