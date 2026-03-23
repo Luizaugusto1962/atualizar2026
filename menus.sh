@@ -4,7 +4,7 @@
 # Responsavel pela apresentacao e navegacao dos menus do sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 17/03/2026-00
+# Versao: 23/03/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -240,12 +240,12 @@ _menu_arquivos() {
         
         # Verificar se sistema tem banco de dados
         if [[ "${dbmaker}" != "s" ]]; then
-            _mensagec "${GREEN}" "1${NORM} -|: Recuperar Arquivos        "
+            _mensagec "${GREEN}" "1${NORM} -|: Rotinas de Backup         "
             printf "\n" 
-            _mensagec "${GREEN}" "2${NORM} -|: Rotinas de Backup         "
+            _mensagec "${GREEN}" "2${NORM} -|: Recuperar Arquivos        "
             printf "\n"
         fi
-        _mensagec "${GREEN}" "3${NORM} -|: Enviar e Receber Arquivos "
+        _mensagec "${GREEN}" "3${NORM} -|: Enviar & Receber Arquivos "
         printf "\n"
         _meia_linha "-" "${YELLOW}"
         printf "\n"
@@ -270,7 +270,8 @@ _menu_arquivos() {
                     _opinvalida
                     _read_sleep 1
                 else
-                    _menu_recuperar_arquivos
+                    _menu_backup
+                    
                 fi
                 ;;
             2) 
@@ -278,7 +279,7 @@ _menu_arquivos() {
                     _opinvalida
                     _read_sleep 1
                 else
-                    _menu_backup
+                    _menu_recuperar_arquivos
                 fi
                 ;;
             3) _menu_transferencia_arquivos ;;
