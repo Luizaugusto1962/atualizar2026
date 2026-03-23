@@ -86,7 +86,7 @@ _inicializar_sistema() {
 }
 
 # Funcao principal do programa
-main() {
+_main() {
     # Tratamento de sinais para limpeza
     trap '_resetando' EXIT
     trap '_encerrar_programa 130' INT TERM
@@ -112,5 +112,5 @@ main() {
 
 # Verificar se esta sendo executado diretamente
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
+    _main "$@"
 fi
