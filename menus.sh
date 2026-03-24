@@ -457,11 +457,13 @@ _menu_backup() {
         _mensagec "${PURPLE}" " Escolha a opcao:"
         _meia_linha "-" "${YELLOW}"
         printf "\n"
-        _mensagec "${GREEN}" "1${NORM} -|: Backup da base de dados  "
+        _mensagec "${GREEN}" "1${NORM} -|: Backup da base de dados       "
         printf "\n"
-        _mensagec "${GREEN}" "2${NORM} -|: Restaurar base de dados  "
+        _mensagec "${GREEN}" "2${NORM} -|: Restaurar base de dados       "
         printf "\n"
-        _mensagec "${GREEN}" "3${NORM} -|: Enviar Backup            "
+        _mensagec "${GREEN}" "3${NORM} -|: Backup com Multiplos Padroes  "
+        printf "\n"
+        _mensagec "${GREEN}" "4${NORM} -|: Enviar Backup                 "
         printf "\n"
         _meia_linha "-" "${YELLOW}"
         printf "\n"
@@ -477,7 +479,8 @@ _menu_backup() {
         case "${opcao}" in
             1) _executar_backup ;;
             2) _restaurar_backup ;;
-            3) _enviar_backup_avulso ;;
+            3) _executar_backup_multiplos_padroes;;
+            4) _enviar_backup_avulso ;;
             9) return ;;
             *)
                 _opinvalida
