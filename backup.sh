@@ -4,7 +4,7 @@
 # Responsavel por backup completo, incremental e restauracao
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 23/03/2026-00
+# Versao: 24/03/2026-01
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -78,10 +78,10 @@ _executar_backup() {
         return 1
     fi
 
-    # Gerar nome do arquivo
+    # Variavel para armazenar PID do processo em background
+    local backup_pid
     local nome_backup
-    nome_backup="${empresa}_${tipo_backup}_$(date +%Y%m%d%H%M).zip"
-    local caminho_backup="${BACKUP}/$nome_backup"
+    local caminho_backup
 
     # Verificar backups recentes
     if _verificar_backups_recentes; then
@@ -103,9 +103,6 @@ _executar_backup() {
 
     _linha
     _mensagec "$YELLOW" "Criando Backup da pasta: ${base_trabalho}..."
-    
-    # Variavel para armazenar PID do processo em background
-    local backup_pid
 
     # === LOGICA ESPECIAL PARA backup INCREMENTAL: PEDIR ENTRADA ANTES DO & ===
     if [[ "$tipo_backup" == "incremental" ]]; then
@@ -150,11 +147,20 @@ _executar_backup() {
             return 1
         fi
 
-        # Agora sim, executar o backup incremental em background
+        # Gerar nome do arquivo incremental incluindo o periodo de referencia
+        # Formato: empresa_incremental_refAAAAMM_YYYYMMDDHHmm.zip
+        nome_backup="${empresa}_${tipo_backup}_ref${ano}${mes}_$(date +%Y%m%d%H%M).zip"
+        caminho_backup="${BACKUP}/${nome_backup}"
+
+        # Executar o backup incremental em background
         _executar_backup_incremental "$caminho_backup" "$data_referencia" &
         backup_pid=$!
 
     else
+        # Gerar nome do arquivo para backup completo
+        nome_backup="${empresa}_${tipo_backup}_$(date +%Y%m%d%H%M).zip"
+        caminho_backup="${BACKUP}/${nome_backup}"
+
         # Backup completo: executa diretamente em background
         _executar_backup_completo "$caminho_backup" &
         backup_pid=$!
@@ -736,7 +742,7 @@ _verificar_espaco_disco() {
 
 # Verifica backups recentes (ultimos 2 dias)
 _verificar_backups_recentes() {
-    if find "${BACKUP}" -maxdepth 1 -ctime -2 -name "${empresa}*zip" -print -quit | grep -q .; then
+    if find "${BACKUP}" -maxdepth 1 -ctime -2 -name "${empresa}_*.zip" -print -quit | grep -q .; then
         _linha
         _mensagec "$CYAN" "Ja existe backup recente em $BACKUP:"
         _linha
