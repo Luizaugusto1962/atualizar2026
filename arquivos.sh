@@ -44,8 +44,8 @@ _executar_limpeza_temporarios() {
 
     # Excluir arquivos de lista antigos para evitar confusao
      for lista in "atualizal" "atualizaj" "atualizaj2" "atualizat" "atualizat2" ".atualizac" ".atualizac.bkp" ".atualizac.bak"; do
-        if [[ -f "$lista" && -r "$lista" ]]; then
-            rm -f "${lista}"  # Remove após processar
+        if [[ -f "${cfg_dir}/${lista}" && -r "${cfg_dir}/${lista}" ]]; then
+            rm -f "${cfg_dir}/${lista}"  # Remove após processar
         fi
     done
 

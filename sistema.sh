@@ -24,7 +24,7 @@ _mostrar_versao_iscobol() {
             _linha "=" "${GREEN}"
             "${SAVISC}${ISCCLIENT}" -v
             _linha "=" "${GREEN}"
-            printf "\n\n"
+            printf "\n"
         else
             _linha
             _mensagec "${RED}" "Erro: ${SAVISC}${ISCCLIENT} nao encontrado ou nao executavel"
@@ -48,50 +48,50 @@ _mostrar_versao_iscobol() {
 # Mostra informacoes do Linux
 _mostrar_versao_linux() {
     clear
-    printf "\n\n"
+    printf "\n"
     _mensagec "${GREEN}" "Vamos descobrir qual S.O. / Distro voce esta executando"
     _linha
-    printf "\n\n"
-    _mensagec "${YELLOW}" "A partir de algumas informacoes basicas o seu sistema, parece estar executando:"
+    printf "\n"
+    _mensagec "${YELLOW}" "A partir de algumas informacoes basicas do seu sistema, parece estar executando:"
     _linha
 
     # Checando se conecta com a internet ou nao
     if ping -c 1 google.com &>/dev/null; then
-        printf "${GREEN}""Internet: ""${NORM}""Conectada""%*s\n"
+        printf "${GREEN}Internet: ${NORM}Conectada${NORM}%*s\n"
     else
-        printf "${GREEN}""Internet: ""${NORM}""Desconectada""%*s\n"
+        printf "${GREEN}Internet: ${NORM}Desconectada${NORM}%*s\n"
     fi
 
     # Checando tipo de OS
     os=$(uname -o)
-    printf "${GREEN}""Sistema Operacional :""${NORM}""${os}""%*s\n"
+    printf "${GREEN}Sistema Operacional :${NORM}${os}${NORM}%*s\n"
 
     # Checando OS Versao e nome
     if [[ -f /etc/os-release ]]; then
         grep 'NAME\|VERSION' /etc/os-release | grep -v 'VERSION_ID\|PRETTY_NAME' >"${LOG_TMP}osrelease"
-        printf "${GREEN}""OS Nome :""${NORM}""%*s\n"
+        printf "${GREEN}OS Nome :${NORM}%*s\n"
         grep -v "VERSION" "${LOG_TMP}osrelease" | cut -f2 -d\"
-        printf "${GREEN}""OS Versao :""${NORM}""%*s\n"
+        printf "${GREEN}OS Versao: ${NORM}%*s\n"
         grep -v "NAME" "${LOG_TMP}osrelease" | cut -f2 -d\"
     else
-        printf "${RED}""Arquivo /etc/os-release nao encontrado.""%*s\n"
+        printf "${RED}""Arquivo /etc/os-release nao encontrado.${NORM}%*s\n"
     fi
     printf "\n"
 
     # Checando hostname
     nameservers=$(hostname)
-    printf "${GREEN}""Nome do Servidor :""${NORM}""${nameservers}""%*s\n"
+    printf "${GREEN}Nome do Servidor: ${NORM}${nameservers}${NORM}%*s\n"
     printf "\n"
 
     # Checando Interno IP
     internalip=$(ip route get 1 | awk '{print $7;exit}')
-    printf "${GREEN}""IP Interno :""${NORM}""${internalip}""%*s\n"
+    printf "${GREEN}IP Interno: ${NORM}${internalip}${NORM}%*s\n"
     printf "\n"
 
     # Checando Externo IP
     if [[ "${Offline}" == "n" ]]; then
         externalip=$(curl -s ipecho.net/plain || printf "Nao disponivel")
-        printf "${GREEN}""IP Externo :""${NORM}""${externalip}""%*s\n"
+        printf "${GREEN}IP Externo: ${NORM}${externalip}${NORM}%*s\n"
     fi
 
     _linha
@@ -104,27 +104,27 @@ _mostrar_versao_linux() {
         who >"${LOG_TMP}who"
     }
     _run_who
-    printf "${GREEN}""Usuario Logado :""${NORM}""%*s\n"
+    printf "${GREEN}Usuario Logado: ${NORM}%*s\n"
     cat "${LOG_TMP}who"
     printf "\n"
 
     # Checando uso de memoria RAM e SWAP
     free | grep -v + >"${LOG_TMP}ramcache"
-    printf "${GREEN}""Uso de Memoria Ram :""${NORM}""%*s\n"
+    printf "${GREEN}Uso de Memoria Ram: ${NORM}%*s\n"
     grep -v "Swap" "${LOG_TMP}ramcache"
-    printf "${GREEN}""Uso de Swap :""${NORM}""%*s\n"
+    printf "${GREEN}Uso de Swap: ${NORM}%*s\n"
     grep -v "Mem" "${LOG_TMP}ramcache"
     printf "\n"
 
     # Checando uso de disco
     df -h | grep 'Filesystem\|/dev/sda*' >"${LOG_TMP}diskusage"
-    printf "${GREEN}""Espaco em Disco :""${NORM}""%*s\n"
+    printf "${GREEN}Espaco em Disco: ${NORM}%*s\n"
     cat "${LOG_TMP}diskusage"
     printf "\n"
 
     # Checando o Sistema Uptime
     tecuptime=$(uptime -p | cut -d " " -f2-)
-    printf "${GREEN}""Sistema em uso Dias/(HH:MM) : ""${NORM}""${tecuptime}""%*s\n"
+    printf "${GREEN}Sistema em uso Dias/(HH:MM): ${NORM}""${tecuptime}${NORM}%*s\n"
 
     # Unset Variables
     unset os internalip externalip nameservers tecuptime
@@ -135,7 +135,7 @@ _mostrar_versao_linux() {
     _press
 }
 
-#---------- FUNcoES DE PARaMETROS ----------#
+#---------- FUNCOES DE PARAMETROS ----------#
        # Antes de usar, carregar o arquivo
         if [[ -f "${cfg_dir}/.versao" ]]; then
             "." "${cfg_dir}/.versao"
@@ -145,44 +145,44 @@ _mostrar_versao_linux() {
 _mostrar_parametros() {
     clear
     _linha "=" "${GREEN}"
-    printf "${GREEN}Sistema e banco de dados: ${NORM}${dbmaker}""%*s\n"
-    printf "${GREEN}Diretorio raiz: ${NORM}${raiz}""%*s\n"
-    printf "${GREEN}Diretorio do atualiza.sh: ${NORM}${TOOLS_DIR}""%*s\n"
-    printf "${GREEN}Diretorio da base principal: ${NORM}${raiz}${base}""%*s\n"
-    printf "${GREEN}Diretorio da segunda base: ${NORM}${raiz}${base2}""%*s\n"
-    printf "${GREEN}Diretorio da terceira base: ${NORM}${raiz}${base3}""%*s\n"
-    printf "${GREEN}Diretorio dos executaveis: ${NORM}${E_EXEC}""%*s\n"
-    printf "${GREEN}Diretorio das telas: ${NORM}${T_TELAS}""%*s\n"
-    printf "${GREEN}Diretorio dos xmls: ${NORM}${X_XML}""%*s\n"
-    printf "${GREEN}Diretorio dos logs: ${NORM}${LOGS}""%*s\n"
-    printf "${GREEN}Diretorio dos olds: ${NORM}${OLDS}""%*s\n"
-    printf "${GREEN}Diretorio dos progs: ${NORM}${PROGS}""%*s\n"
-    printf "${GREEN}Diretorio do backup: ${NORM}${BACKUP}""%*s\n"
-    printf "${GREEN}Diretorio de configuracoes: ${NORM}${cfg_dir}""%*s\n"
-    printf "${GREEN}Sistema em uso: ${NORM}${sistema}""%*s\n"
-    printf "${GREEN}Versao em uso: ${NORM}${verclass}""%*s\n"
-    printf "${GREEN}Biblioteca 1: ${NORM}${SAVATU1}""%*s\n"
-    printf "${GREEN}Biblioteca 2: ${NORM}${SAVATU2}""%*s\n"
-    printf "${GREEN}Biblioteca 3: ${NORM}${SAVATU3}""%*s\n"
-    printf "${GREEN}Biblioteca 4: ${NORM}${SAVATU4}""%*s\n"
+    printf "${GREEN}Sistema e banco de dados: ${NORM}${dbmaker}${NORM}%*s\n"
+    printf "${GREEN}Diretorio raiz: ${NORM}${raiz}${NORM}%*s\n"
+    printf "${GREEN}Diretorio do atualiza.sh: ${NORM}${TOOLS_DIR}${NORM}%*s\n"
+    printf "${GREEN}Diretorio da base principal: ${NORM}${raiz}${base}${NORM}%*s\n"
+    printf "${GREEN}Diretorio da segunda base: ${NORM}${raiz}${base2}${NORM}%*s\n"
+    printf "${GREEN}Diretorio da terceira base: ${NORM}${raiz}${base3}${NORM}%*s\n"
+    printf "${GREEN}Diretorio dos executaveis: ${NORM}${E_EXEC}${NORM}%*s\n"
+    printf "${GREEN}Diretorio das telas: ${NORM}${T_TELAS}${NORM}%*s\n"
+    printf "${GREEN}Diretorio dos xmls: ${NORM}${X_XML}${NORM}%*s\n"
+    printf "${GREEN}Diretorio dos logs: ${NORM}${LOGS}${NORM}%*s\n"
+    printf "${GREEN}Diretorio dos olds: ${NORM}${OLDS}${NORM}%*s\n"
+    printf "${GREEN}Diretorio dos progs: ${NORM}${PROGS}${NORM}%*s\n"
+    printf "${GREEN}Diretorio do backup: ${NORM}${BACKUP}${NORM}%*s\n"
+    printf "${GREEN}Diretorio de configuracoes: ${NORM}${cfg_dir}${NORM}%*s\n"
+    printf "${GREEN}Sistema em uso: ${NORM}${sistema}${NORM}%*s\n"
+    printf "${GREEN}Versao em uso: ${NORM}${verclass}${NORM}%*s\n"
+    printf "${GREEN}Biblioteca 1: ${NORM}${SAVATU1}${NORM}%*s\n"
+    printf "${GREEN}Biblioteca 2: ${NORM}${SAVATU2}${NORM}%*s\n"
+    printf "${GREEN}Biblioteca 3: ${NORM}${SAVATU3}${NORM}%*s\n"
+    printf "${GREEN}Biblioteca 4: ${NORM}${SAVATU4}${NORM}%*s\n"
     _linha "=" "${GREEN}"
     _press
     clear
     _linha "=" "${GREEN}"
-    printf "${GREEN}Diretorio para envio de backup: ${NORM}${enviabackup}""%*s\n"
-    printf "${GREEN}Servidor OFF: ${NORM}${Offline}""%*s\n"
-    printf "${GREEN}Diretorio de configuracoes em OFF: ${NORM}${down_dir}""%*s\n"
-    printf "${GREEN}Versao da biblioteca atual: ${NORM}${VERSAOANT}""%*s\n"
-    printf "${GREEN}Variavel da classe: ${NORM}${class}""%*s\n"
-    printf "${GREEN}Variavel da mclass: ${NORM}${mclass}""%*s\n"
-    printf "${GREEN}Porta de conexao: ${NORM}${SERVER_PORTA}""%*s\n"
-    printf "${GREEN}Usuario de conexao: ${NORM}${USUARIO}""%*s\n"
-    printf "${GREEN}Servidor IP: ${NORM}${ipserver}""%*s\n"
+    printf "${GREEN}Diretorio para envio de backup: ${NORM}${enviabackup}${NORM}%*s\n"
+    printf "${GREEN}Servidor OFF: ${NORM}${Offline}${NORM}%*s\n"
+    printf "${GREEN}Diretorio de configuracoes em OFF: ${NORM}${down_dir}${NORM}%*s\n"
+    printf "${GREEN}Versao da biblioteca atual: ${NORM}${VERSAOANT}${NORM}%*s\n"
+    printf "${GREEN}Variavel da classe: ${NORM}${class}${NORM}%*s\n"
+    printf "${GREEN}Variavel da mclass: ${NORM}${mclass}${NORM}%*s\n"
+    printf "${GREEN}Porta de conexao: ${NORM}${SERVER_PORTA}${NORM}%*s\n"
+    printf "${GREEN}Usuario de conexao: ${NORM}${USUARIO}${NORM}%*s\n"
+    printf "${GREEN}Servidor IP: ${NORM}${ipserver}${NORM}%*s\n"
     _linha "=" "${GREEN}"
     _press
 }
 
-#---------- FUNcoES DE ATUALIZAcaO ----------#
+#---------- FUNCOES DE ATUALIZACAO ----------#
 
 # Executa atualizacao do script
 _executar_update() {
@@ -193,7 +193,7 @@ _executar_update() {
     
     if [[ "${Offline}" == "n" ]]; then
         _atualizar_online
-        export tipo_online 
+        export tipo_online
     else
         _atualizar_offline
         export tipo_offline
@@ -255,6 +255,7 @@ _atualizando() {
         return 1
     else
         _mensagec "${GREEN}" "Backup de $backup_sucesso arquivo(s) realizado com sucesso"
+         
          # Compactar arquivos .bkp com nome baseado na data atual (DDMM_backup.zip)
         local data_zip
         data_zip=$(date +"%d%m")
@@ -297,12 +298,12 @@ _atualizando() {
     local arquivos_erro=0
 
     #---------- INSTALAR ARQUIVOS DE CONFIGURAÇÃO ----------#
-    # Processa manual.txt e atualiza.txt com destino ${cfg_dir}
+    # Processa arquivos de parametros para o destino ${cfg_dir}
     local -a cfg_files=("manual.txt" "avisos" "indexar" "limpetmp" ".senhas")
     
     for cfg_arquivo in "${cfg_files[@]}"; do
         if [[ ! -f "$cfg_arquivo" ]]; then
-            continue  # Arquivo não encontrado, pula para próximo
+            continue 
         fi
 
         # Definir permissões executáveis
@@ -313,7 +314,7 @@ _atualizando() {
         
         # Criar destino se não existir
         if ! mkdir -p "$cfg_target" 2>/dev/null; then
-            _mensagec "${RED}" "Erro ao criar diretório de destino: $cfg_target"
+            _mensagec "${RED}" "Erro ao criar diretorio de destino: $cfg_target"
             ((arquivos_erro++))
             chmod 0700 "$cfg_target" 2>/dev/null || true
             continue
@@ -325,7 +326,7 @@ _atualizando() {
             ((arquivos_instalados++))
              
         else
-            _mensagec "${RED}" "✗ Erro ao instalar $cfg_arquivo"
+            _mensagec "${RED}" "ERRO:Falha ao instalar $cfg_arquivo"
             ((arquivos_erro++))
         fi
     done
@@ -333,15 +334,16 @@ _atualizando() {
     #---------- INSTALAR ARQUIVOS .SH ----------#
     # Processa todos os arquivos .sh encontrados
     local sh_instalados=0
+
     for arquivo in *.sh; do
         # Verificar se o arquivo existe
         if [[ ! -f "$arquivo" ]]; then
-            continue  # Arquivo não encontrado, pula para próximo
+            continue  
         fi
 
         # Definir permissões executáveis
         chmod +x "$arquivo" || {
-            _mensagec "${RED}" "Aviso: falha ao definir permissão em $arquivo"
+            _mensagec "${RED}" "Aviso: falha ao definir permissao em $arquivo"
         }
 
         # Determinar destino baseado no nome do arquivo
@@ -354,7 +356,7 @@ _atualizando() {
 
         # Criar destino se não existir
         if ! mkdir -p "$sh_target" 2>/dev/null; then
-            _mensagec "${RED}" "Erro ao criar diretório: $sh_target"
+            _mensagec "${RED}" "Erro ao criar diretorio: $sh_target"
             ((arquivos_erro++))
             chmod 0700 "$sh_target" 2>/dev/null || true
             continue
@@ -367,7 +369,7 @@ _atualizando() {
             ((arquivos_instalados++))
             ((sh_instalados++))
         else
-            _mensagec "${RED}" "✗ Erro ao instalar $arquivo"
+            _mensagec "${RED}" "ERRO: Falha ao instalar $arquivo"
             ((arquivos_erro++))
         fi
     done
@@ -377,16 +379,16 @@ _atualizando() {
         _mensagec "${YELLOW}" "Aviso: Nenhum arquivo .sh foi instalado"
     fi
 
-    #---------- VALIDAÇÃO FINAL ----------#
+    #---------- VALIDACAO FINAL ----------#
     # Verificar resultado da instalação
     if [[ $arquivos_erro -gt 0 ]]; then
-        _mensagec "${RED}" "Falha na instalação de $arquivos_erro arquivo(s)"
+        _mensagec "${RED}" "Falha na instalacao de $arquivos_erro arquivo(s)"
         return 1
     elif [[ $arquivos_instalados -eq 0 ]]; then
         _mensagec "${YELLOW}" "Nenhum arquivo foi instalado - verifique os arquivos no ZIP"
         return 1
     else
-        _mensagec "${GREEN}" "Sucesso: $arquivos_instalados arquivo(s) instalado(s)"
+        _mensagec "${GREEN}" "SUCESSO: $arquivos_instalados arquivo(s) instalado(s)"
     fi
 
 # Limpar diretorio de trabalho
@@ -399,14 +401,14 @@ fi
 
 # Mudar para o diretório ENVIA com verificação
 if ! cd "${ENVIA}"; then
-   _mensagec "${RED}" "ERRO: Nao foi possível acessar o diretorio '${ENVIA}'."
+   _mensagec "${RED}" "ERRO: Nao foi possivel acessar o diretorio '${ENVIA}'."
     _read_sleep 2
     exit 1
 fi
 
 # Confirmar que estamos no diretório correto antes de deletar
 if [[ "$(pwd)" != "${ENVIA}" ]]; then
-    _mensagec "${RED}" "ERRO: Falha na verificacao de seguranca do diretcrio."
+    _mensagec "${RED}" "ERRO: Falha na verificacao de seguranca do diretorio."
     _read_sleep 2
     exit 1
 fi
@@ -621,7 +623,7 @@ _manutencao_setup() {
     editar_variavel base
     editar_variavel base2
     editar_variavel base3
-
+    _manutencao_setup
     # Recria o arquivo .config
     {
         echo "sistema=${sistema}"
@@ -670,7 +672,6 @@ Host sav_servidor
     HostName ${SERVER_IP}
     Port ${SERVER_PORTA}
     User ${SERVER_USER}
-#    StrictHostKeyChecking accept-new
     ControlMaster auto
     ControlPath ${CONTROL_PATH_BASE}/%r@%h:%p
     ControlPersist 10m
