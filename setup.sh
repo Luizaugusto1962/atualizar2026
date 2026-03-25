@@ -408,7 +408,7 @@ Host sav_servidor
     HostName ${SERVER_IP}
     Port ${SERVER_PORTA}
     User ${SERVER_USER}
-    StrictHostKeyChecking accept-new      # Aceita fingerprint na primeira conexão
+#   StrictHostKeyChecking accept-new
     ControlMaster auto
     ControlPath ${CONTROL_PATH_BASE}/%r@%h:%p
     ControlPersist 10m
