@@ -623,7 +623,7 @@ _manutencao_setup() {
     editar_variavel base
     editar_variavel base2
     editar_variavel base3
-    _manutencao_setup
+
     # Recria o arquivo .config
     {
         echo "sistema=${sistema}"
@@ -642,7 +642,7 @@ _manutencao_setup() {
     _mensagec "${GREEN}" "Arquivo .config atualizado com sucesso!"
     echo "${tracejada}"
 
-    # ====================== CONFIGURAÇÃO SSH (padrão ~/.ssh) ======================
+        # ====================== CONFIGURAÇÃO SSH (padrão ~/.ssh) ======================
     if [[ "${acessossh}" == "s" ]]; then
         echo
         _mensagec "${GREEN}" "Configurando acesso SSH facilitado (sav_servidor)..."
