@@ -72,7 +72,6 @@ LOG_TMP="${LOG_TMP:-}"                           # Variavel que define o caminho
 UMADATA="${UMADATA:-}"                           # Variavel que define o caminho do arquivo de dados da UMA.
 ISCCLIENT="${ISCCLIENT:-}"                       # Variavel que define o caminho do cliente ISC.
 base_trabalho="${base_trabalho:-}"               # Variavel que define o caminho do diretorio de trabalho.
-SSH_CONFIG_DIR="${SSH_CONFIG_DIR:-}"             # Variavel que define o caminho do diretorio de configuracao SSH
 
 # Configuracoes padrao
 DEFAULT_UNZIP="${DEFAULT_UNZIP:-unzip}"          # Comando padrao para descompactar
@@ -183,12 +182,12 @@ _configurar_diretorios() {
     RECEBE="${RECEBE:-${TOOLS_DIR}/recebe}"               # Diretorio de recebimento
     LIBS="${LIBS:-${TOOLS_DIR}/libs}"                     # Diretorio de bibliotecas
     BACKUP="${BACKUP:-${TOOLS_DIR}/backup}"               # Diretorio de backup
-    SSH_CONFIG_DIR="${SSH_CONFIG_DIR:-${TOOLS_DIR}/.ssh}" # Diretorio de configuracao SSH
+
     # Exportar variaveis de diretorio para uso global
-    export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP SSH_CONFIG_DIR
+    export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP 
 
     # Criar diretorios se nao existirem
-    local dirs=("${OLDS}" "${PROGS}" "${LOGS}" "${ENVIA}" "${RECEBE}" "${LIBS}" "${BACKUP}" "${SSH_CONFIG_DIR}")
+    local dirs=("${OLDS}" "${PROGS}" "${LOGS}" "${ENVIA}" "${RECEBE}" "${LIBS}" "${BACKUP}")
     for dir in "${dirs[@]}"; do
         if [[ ! -d "${dir}" ]]; then
             mkdir -p "${dir}" || {
