@@ -646,7 +646,7 @@ _manutencao_setup() {
         _mensagec "${GREEN}" "Configurando acesso SSH facilitado (sav_servidor)..."
 
         local SERVER_IP="${ipserver}"
-        local SERVER_PORTA="${SERVER_P#ORTA:-41122}"
+        local SERVER_PORTA="${SERVER_PORTA:-41122}"
         local SERVER_USER="${USUARIO:-atualiza}"
 
         if [[ -z "${SERVER_IP}" ]]; then
