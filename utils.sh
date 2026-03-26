@@ -4,7 +4,7 @@
 # Funcoes basicas para formatacao, mensagens, validacao e controle de fluxo
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 09/03/2026-00
+# Versao: 26/03/2026-00
 
 #---------- FUNCOES DE FORMATACAO DE TELA ----------#
 # Variaveis globais esperadas
@@ -17,9 +17,18 @@ _meiodatela() {
 
 # Exibe mensagem centralizada colorida
 _mensagec() {
-    local color="${1}"      # Cor da mensagem
-    local message="${2}"    # Mensagem a ser exibida
-    printf "%s%*s%s\n" "${color}" $(((${#message} + $(tput cols)) / 2)) "${message}" "${NORM}"
+    local color="${1}"
+    local message="${2}"
+    local cols
+
+    cols=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
+
+    if [[ "$cols" -lt "${#message}" ]]; then
+        # Terminal muito estreito — exibir sem centralizar
+        printf "%s%s%s\n" "${color}" "${message}" "${NORM}"
+    else
+        printf "%s%*s%s\n" "${color}" $(((${#message} + cols) / 2)) "${message}" "${NORM}"
+    fi
 }
 
 # Exibe mensagem alinhada à direita
@@ -43,17 +52,26 @@ _mensaged() {
 _linha() {
     local Traco="${1:--}"
     local CCC="${2:-}"
-    local Espacos
-    local linhas
-    
-    printf -v Espacos "%$(tput cols)s" ""
-    linhas=${Espacos// /$Traco}
+    local cols
+
+    cols=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
+
+    if [[ "$cols" -lt 10 ]]; then
+        cols=10
+    fi
+
     printf "%s" "${CCC}"
-    printf "%*s\n" $(((${#linhas} + COLUMNS) / 2)) "$linhas"
+    printf '%*s\n' "$cols" '' | tr ' ' "$Traco"
     printf "%s" "${NORM}"
 }
+
 # Cria meia linha horizontal com caractere especificado
 # Parametros: $1=caractere (opcional, padrao='-') $2=cor (opcional)
+# Exibe linha horizontal centralizada com largura delimitada
+# Parametros:
+#   $1 = caractere (opcional, padrao='-')
+#   $2 = cor (opcional)
+#   $3 = largura em caracteres (opcional, padrao=45)
 _meia_linha() {
     local Traco="${1:--}"
     local CCC="${2:-}"
@@ -127,6 +145,51 @@ _validar_diretorio() {
 # Parametros: $1=mensagem $2=padrao(S/N)
 # Retorna: 0=sim 1=nao
 _confirmar() {
+    local mensagem="$1"
+    local padrao="${2:-N}"
+    local opcoes
+    local resposta
+    local tentativas=0
+    local max_tentativas=3
+
+    case "$padrao" in
+        [Ss]) opcoes="[S/n]" ;;
+        [Nn]) opcoes="[N/s]" ;;
+        *) opcoes="[S/N]" ;;
+    esac
+
+    while (( tentativas < max_tentativas )); do
+        if ! read -r -t 30 -p "${YELLOW}${mensagem} ${opcoes}: ${NORM}" resposta; then
+            # Timeout ou erro de leitura — usar padrao
+            _mensagec "${YELLOW}" "Entrada expirada. Usando padrao: ${padrao}"
+            resposta="$padrao"
+        fi
+
+        # Se resposta vazia, usar padrao
+        if [[ -z "$resposta" ]]; then
+            resposta="$padrao"
+        fi
+
+        case "${resposta,,}" in
+            s|sim) return 0 ;;
+            n|nao) return 1 ;;
+            *)
+                _mensagec "${RED}" "Resposta invalida. Use S ou N."
+                ((tentativas++))
+                ;;
+        esac
+    done
+
+    _mensagec "${RED}" "Maximo de tentativas excedido. Usando padrao: ${padrao}"
+    case "${padrao,,}" in
+        s|sim) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+
+#############
+_confirmar2() {
     local mensagem="$1"
     local padrao="${2:-N}"
     local opcoes

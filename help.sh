@@ -4,7 +4,7 @@
 # Fornece documentacao completa e help contextual para o sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/03/2026-01
+# Versao: 26/03/2026-01
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"     # Diretorio de configuracoes
@@ -88,7 +88,12 @@ _ler_secao_manual() {
         _mensagec "${RED}" "Arquivo manual.txt nao encontrado!"
         return 1
     fi
-    
+
+    if [[ ! -r "$MANUAL_FILE" ]]; then
+        _mensagec "${RED}" "Arquivo manual.txt sem permissao de leitura!"
+        return 1
+    fi
+
     # Encontra linha de início da seçao
     linha_inicio=$(grep -n "^\[${secao}\]$" "$MANUAL_FILE" | cut -d: -f1)
     

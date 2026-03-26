@@ -4,7 +4,7 @@
 # Responsavel pela autenticacao de usuarios
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 09/03/2026-01
+# Versao: 26/03/2026-01
 # Autor: Luiz Augusto
 #
 #
@@ -13,6 +13,11 @@ cfg_dir="${cfg_dir:-}"                 # Diretorio de configuracao
 
 # Arquivo de senhas oculto
 SENHA_FILE="${cfg_dir}/.senhas"
+
+# Garantir que o arquivo de senhas tenha permissoes restritas
+if [[ -f "$SENHA_FILE" ]]; then
+    chmod 0600 "$SENHA_FILE" 2>/dev/null || true
+fi
 
 # Variavel global para armazenar o nome do usuario autenticado
 declare -u usuario           # Variavel global para armazenar o nome do usuario autenticado
@@ -60,7 +65,18 @@ _cadastrar_usuario() {
 
     hash_senha=$(_hash_senha "$senha")
     echo "${usuario}:${hash_senha}" >> "$SENHA_FILE"
+
+    # Restringir permissoes do arquivo de senhas
+    chmod 0600 "$SENHA_FILE" 2>/dev/null || {
+        _mensagec "${YELLOW}" "AVISO: Nao foi possivel restringir permissoes de ${SENHA_FILE}"
+        _log "AVISO: Permissoes de ${SENHA_FILE} nao alteradas"
+    }
+
     _mensagec "${GREEN}" "Usuario cadastrado com sucesso."
+
+#    hash_senha=$(_hash_senha "$senha")
+#    echo "${usuario}:${hash_senha}" >> "$SENHA_FILE"
+#    _mensagec "${GREEN}" "Usuario cadastrado com sucesso."
 }
 
 # Funcao para login
@@ -71,10 +87,26 @@ _login() {
     _mensagec "${RED}" "Login no Sistema"
     _linha "=" "${GREEN}"
 
+ #   read -rp "${YELLOW}Usuario: ${NORM}" usuario
+ #   usuario=$(echo "$usuario" | tr '[:lower:]' '[:upper:]')
+ #   read -rsp "${YELLOW}Senha: ${NORM}" senha
+ #   printf "\n"
+ 
     read -rp "${YELLOW}Usuario: ${NORM}" usuario
-    usuario=$(echo "$usuario" | tr '[:lower:]' '[:upper:]')
+    usuario=$(echo "$usuario" | tr '[:lower:]' '[:upper:]' | xargs)
+
+    if [[ -z "$usuario" ]]; then
+        _mensagec "${RED}" "Nome de usuario nao pode ser vazio."
+        return 1
+    fi
+
     read -rsp "${YELLOW}Senha: ${NORM}" senha
     printf "\n"
+
+    if [[ -z "$senha" ]]; then
+        _mensagec "${RED}" "Senha nao pode ser vazia."
+        return 1
+    fi
 
     if [[ ! -f "$SENHA_FILE" ]]; then
         _mensagec "${RED}" "Nenhum usuario cadastrado. Execute o programa de cadastro primeiro."

@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao das bibliotecas do sistema (Transpc, Savatu)
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 16/03/2026-00
+# Versao: 26/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                 # Tipo de sistema (iscobol/mf)
@@ -41,10 +41,10 @@ _limpar_interrupcao() {
             _log "Arquivo temporario removido: $temp_file"
         fi
     done
-    
+        
     # Verificar se backup parcial existe e sugerir rollback
     local ultimo_backup="${OLDS}/backup-*.zip"
-    if [[ -n "$(ls -A "$ultimo_backup" 2>/dev/null)" ]]; then
+    if [[ -n "$(ls -A "${ultimo_backup}" 2>/dev/null)" ]]; then
         _mensagec "${YELLOW}" "Backup parcial encontrado. Considere reverter manualmente com '_reverter_biblioteca'"
     fi
     

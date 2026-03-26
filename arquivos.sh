@@ -3,7 +3,7 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferência e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 17/03/2026-00
+# Versao: 26/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
@@ -19,7 +19,8 @@ LOGS="${LOGS:-${TOOLS_DIR}/logs}"         # Diretorio de logs
 
 # Resolve a base de trabalho ativa para operacoes de arquivos
 _selecionar_base_arquivos() {
-    unset -v base_trabalho 2>/dev/null || true
+#    unset -v base_trabalho 2>/dev/null || true
+    base_trabalho=""
 
     if [[ -n "${base2}" ]]; then
         if ! _menu_escolha_base; then
@@ -28,13 +29,25 @@ _selecionar_base_arquivos() {
     else
         base_trabalho="${raiz}${base}"
     fi
-
-    if [[ -z "${base_trabalho:-}" ]] || [[ ! -d "${base_trabalho}" ]]; then
-        _mensagec "${RED}" "Erro: Diretorio ${base_trabalho:-<nao definido>} nao encontrado"
+    # Validar antes de prosseguir
+    if [[ -z "${base_trabalho}" ]]; then
+        _mensagec "${RED}" "Erro: Diretorio de trabalho nao foi definido"
         _press
         return 1
     fi
 
+    if [[ ! -d "${base_trabalho}" ]]; then
+        _mensagec "${RED}" "Erro: Diretorio ${base_trabalho} nao encontrado"
+        _press
+        return 1
+    fi
+
+    if [[ ! -r "${base_trabalho}" ]]; then
+        _mensagec "${RED}" "Erro: Sem permissao de leitura em ${base_trabalho}"
+        _press
+        return 1
+    fi
+    
     export base_trabalho
     return 0
 }
@@ -43,9 +56,14 @@ _selecionar_base_arquivos() {
 _executar_limpeza_temporarios() {
 
     # Excluir arquivos de lista antigos para evitar confusao
-     for lista in "atualizal" "atualizaj" "atualizaj2" "atualizat" "atualizat2" ".atualizac" ".atualizac.bkp" ".atualizac.bak"; do
-        if [[ -f "${cfg_dir}/${lista}" && -r "${cfg_dir}/${lista}" ]]; then
-            rm -f "${cfg_dir}/${lista}"  # Remove após processar
+    for lista in "atualizal" "atualizaj" "atualizaj2" "atualizat" "atualizat2" ".atualizac" ".atualizac.bkp" ".atualizac.bak"; do
+        local caminho_lista="${cfg_dir}/${lista}"
+        if [[ -f "${caminho_lista}" ]]; then
+            if rm -f "${caminho_lista}"; then
+                _log "Lista temporaria removida: ${lista}"
+            else
+                _log "AVISO: Falha ao remover lista temporaria: ${lista}"
+            fi
         fi
     done
 
@@ -192,10 +210,7 @@ _recuperar_arquivo_especifico() {
     local continuar="S"
     
     if ! _selecionar_base_arquivos; then
-								
         return 1
-		
-									  
     fi
 
     clear
@@ -274,8 +289,16 @@ _recuperar_arquivo_individual() {
     local base_trabalho="$2"
     
     # Validar nome do arquivo
-    if [[ ! "$nome_arquivo" =~ ^[A-Z0-9]+$ ]]; then
-        _mensagec "${RED}" "Nome de arquivo invalido. Use apenas letras maiusculas e numeros."
+    # Converter para maiusculo e remover espacos
+    nome_arquivo=$(echo "$nome_arquivo" | tr '[:lower:]' '[:upper:]' | tr -d '[:space:]')
+
+    if [[ -z "$nome_arquivo" ]]; then
+        _mensagec "${RED}" "Nome de arquivo vazio apos normalizacao."
+        return 1
+    fi
+
+    if [[ ! "$nome_arquivo" =~ ^[A-Z0-9._-]+$ ]]; then
+        _mensagec "${RED}" "Nome de arquivo invalido. Use apenas letras, numeros, pontos e hifens."
         return 1
     fi
     

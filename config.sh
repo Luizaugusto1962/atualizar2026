@@ -4,7 +4,7 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 23/03/2026-00
+# Versao: 26/03/2026-00
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
@@ -287,6 +287,7 @@ _configurar_variaveis_sistema() {
         SAVATU3="tempSAVtel_"
         SAVATU="tempSAV????_"
     fi
+    export SAVATU1 SAVATU2 SAVATU3 SAVATU4 SAVATU
 }
 
 # Carregar arquivo de configuracao da empresa

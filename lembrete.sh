@@ -2,7 +2,7 @@
 #
 # SISTEMA SAV - Script de Atualizacao Modular
 # lembrete.sh - Modulo de Lembretes e Notas
-# Versao: 10/03/2026-00
+# Versao: 26/03/2026-00
 # Autor: Luiz Augusto
 # utils.sh - Modulo de Utilitarios e Funcoes Auxiliares  
 # Funcoes basicas para formatacao, mensagens, validacao e controle de fluxo
@@ -14,6 +14,39 @@ cfg_dir="${cfg_dir:-}"          # Caminho do diretorio de configuracao do progra
 # Mostra menu de lembretes
 # Escreve nova nota
 _escrever_nova_nota() {
+    clear
+    _linha
+    _mensagec "${YELLOW}" "Digite sua nota (pressione Ctrl+D para finalizar):"
+    _linha
+
+    local arquivo_notas="${cfg_dir}/lembrete"
+    local tamanho_antes=0
+    local tamanho_depois=0
+
+    # Capturar tamanho atual do arquivo
+    if [[ -f "$arquivo_notas" ]]; then
+        tamanho_antes=$(wc -c < "$arquivo_notas")
+    fi
+
+    if cat >> "$arquivo_notas"; then
+        # Verificar se algo foi realmente escrito
+        tamanho_depois=$(wc -c < "$arquivo_notas")
+
+        if [[ "$tamanho_depois" -gt "$tamanho_antes" ]]; then
+            _linha
+            _mensagec "${GREEN}" "Nota gravada com sucesso!"
+        else
+            _linha
+            _mensagec "${YELLOW}" "Nenhum conteudo foi digitado."
+        fi
+        _read_sleep 2
+    else
+        _mensagec "${RED}" "Erro ao gravar nota"
+        _read_sleep 2
+    fi
+}
+################
+_escrever_nova_nota2() {
     clear
     _linha
     _mensagec "${YELLOW}" "Digite sua nota (pressione Ctrl+D para finalizar):"
@@ -42,6 +75,35 @@ _mostrar_notas_iniciais() {
 # ---------- MENSAGEM DE ENTRADA ----------
 # Gera ou edita a mensagem que sera exibida ao iniciar o programa
 _gerar_aviso_entrada() {
+    clear
+    _linha
+    _mensagec "${YELLOW}" "Digite a mensagem de entrada (Ctrl+D para finalizar):"
+    _linha
+
+    local arquivo_msg="${cfg_dir}/avisos"
+    local arquivo_tmp="${cfg_dir}/.avisos.tmp"
+
+    # Gravar em arquivo temporario primeiro
+    if cat > "$arquivo_tmp"; then
+        if [[ -s "$arquivo_tmp" ]]; then
+            mv -f "$arquivo_tmp" "$arquivo_msg"
+            _linha
+            _mensagec "${GREEN}" "Mensagem gravada com sucesso!"
+        else
+            rm -f "$arquivo_tmp"
+            _linha
+            _mensagec "${YELLOW}" "Nenhum conteudo foi digitado. Mensagem nao alterada."
+        fi
+        _read_sleep 2
+    else
+        rm -f "$arquivo_tmp"
+        _mensagec "${RED}" "Erro ao gravar mensagem"
+        _read_sleep 2
+    fi
+}
+
+###########
+_gerar_aviso_entrada2() {
     clear
     _linha
     _mensagec "${YELLOW}" "Digite a mensagem de entrada (Ctrl+D para finalizar):"
