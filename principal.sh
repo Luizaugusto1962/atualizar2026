@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 17/03/2026-00
+# Versao: 26/03/2026-00
 # Autor: Luiz Augusto
 # Email: luizaugusto@sav.com.br
 #
@@ -46,7 +46,7 @@ _carregar_modulo() {
         exit 1
     fi
     
-     if ! "." "${caminho}"; then
+    if ! "." "${caminho}"; then
         printf "%s\n" "ERRO: Falha ao carregar modulo ${modulo}"
         sleep 2
         exit 1

@@ -4,7 +4,7 @@
 # Responsavel pela apresentacao e navegacao dos menus do sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 23/03/2026-00
+# Versao: 26/03/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -126,7 +126,7 @@ _menu_programas() {
         _mensagec "${GREEN}" "2${NORM} -|: Programa(s) OFF-Line      "
         printf "\n"
         _mensagec "${GREEN}" "3${NORM} -|: Programa(s) em Pacote     "
-        printf "\n\n"
+        printf "\n"
         _mensagec "${PURPLE}" "Escolha Desatualizar:         "
         _meia_linha "-" "${YELLOW}"
         printf "\n"
@@ -178,10 +178,8 @@ _menu_biblioteca() {
         printf "\n" 
         _mensagec "${GREEN}" "1${NORM} -|: Atualizacao do Transpc      "
         printf "\n" 
-#        _mensagec "${GREEN}" "2${NORM} -|: Atualizacao do Savatu       "
-#        printf "\n"
         _mensagec "${GREEN}" "2${NORM} -|: Atualizacao OFF-Line        "
-        printf "\n\n"
+        printf "\n"
         _mensagec "${PURPLE}" "Escolha Desatualizar:               "
         _meia_linha "-" "${YELLOW}"
         printf "\n"
@@ -862,7 +860,7 @@ _menu_tipo_backup() {
         _mensagec "${GREEN}" "1${NORM} -|: Backup Completo      "
         printf "\n"
         _mensagec "${GREEN}" "2${NORM} -|: Backup Incremental   "
-        printf "\n\n"
+        printf "\n"
         _mensagec "${WHITE}" "9${NORM} -|: ${RED}Menu Anterior"
         printf "\n"
         _linha "=" "${GREEN}"

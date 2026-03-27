@@ -415,7 +415,7 @@ _executar_jutil() {
     else
         _mensagec "${RED}" "Erro: jutil nao encontrado em ${jut}"
         return 1
-fi    
+    fi    
 }
 
 #---------- FUNCOES DE TRANSFERENCIA ----------#
@@ -592,7 +592,7 @@ _executar_expurgador() {
     _linha
     _mensagec "${RED}" "Verificando e excluindo arquivos com mais de 30 dias"
     _linha
-    printf "\n\n"
+    printf "\n"
     
     # Definir diretorios para limpeza
     local diretorios_limpeza=(
@@ -632,7 +632,7 @@ _executar_expurgador() {
         fi
     done
     
-    printf "\n\n"
+    printf "\n"
     _linha
     _press
     _ir_para_tools
