@@ -150,7 +150,7 @@ _configurar_comandos() {
 _configurar_diretorios() {
     
     # Verificar diretorio principal
-    if [[ ! -n "${TOOLS_DIR}" ]] || [[ ! -d "${TOOLS_DIR}" ]]; then
+    if [[ -z "${TOOLS_DIR}" ]] || [[ ! -d "${TOOLS_DIR}" ]]; then
         _mensagec "${CYAN}" "Diretorio principal nao encontrado: ${TOOLS_DIR}"
         exit 1
     fi
@@ -223,18 +223,18 @@ _configurar_variaveis_sistema() {
         export E_EXEC T_TELAS BASE1 BASE2 BASE3 acessoff
     fi
     # Configuracao do SAVISC
-    readonly SAVISCC="${raiz}/savisc/iscobol/bin/"
+    SAVISCC="${raiz}/savisc/iscobol/bin/"
     if [[ -n "${SAVISCC}" ]]; then
         SAVISC="${SAVISCC}"
     fi
     
     # Utilitarios
-    readonly JUTILL="jutil"
+    JUTILL="jutil"
     if [[ -n "${JUTILL}" ]]; then
         JUTIL="${JUTILL}"
     fi
     
-    readonly ISCCLIENTT="iscclient"
+    ISCCLIENTT="iscclient"
     if [[ -n "${ISCCLIENTT}" ]]; then
         ISCCLIENT="${ISCCLIENTT}"
     fi

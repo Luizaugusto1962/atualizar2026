@@ -53,18 +53,18 @@ _cadastrar_usuario() {
     read -rsp "${YELLOW}Confirme a senha: ${NORM}" senha_confirm
     printf "\n"
 
-    if [[ "$senha" != "$senha_confirm" ]]; then
-        _mensagec "${RED}" "Senhas nao coincidem."
-        return 1
-    fi
-
     if [[ -z "$senha" ]]; then
         _mensagec "${RED}" "Senha nao pode ser vazia."
         return 1
     fi
 
-    hash_senha=$(_hash_senha "$senha")
-    echo "${usuario}:${hash_senha}" >> "$SENHA_FILE"
+    if [[ "$senha" != "$senha_confirm" ]]; then
+        _mensagec "${RED}" "Senhas nao coincidem."
+        return 1
+    fi
+
+#    hash_senha=$(_hash_senha "$senha")
+#    echo "${usuario}:${hash_senha}" >> "$SENHA_FILE"
 
     # Restringir permissoes do arquivo de senhas
     chmod 0600 "$SENHA_FILE" 2>/dev/null || {

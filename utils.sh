@@ -187,44 +187,6 @@ _confirmar() {
     esac
 }
 
-
-#############
-_confirmar2() {
-    local mensagem="$1"
-    local padrao="${2:-N}"
-    local opcoes
-    local resposta
-    local tentativas=0
-    local max_tentativas=3
-    
-    case "$padrao" in
-        [Ss]) opcoes="[S/n]" ;;
-        [Nn]) opcoes="[N/s]" ;;
-        *) opcoes="[S/N]" ;;
-    esac
-    
-    while (( tentativas < max_tentativas )); do
-        read -rp "${YELLOW}${mensagem} ${opcoes}: ${NORM}" resposta
-        
-        # Se resposta vazia, usar padrao
-        if [[ -z "$resposta" ]]; then
-            resposta="$padrao"
-        fi
-        
-        case "${resposta,,}" in
-            s|sim) return 0 ;;
-            n|nao) return 1 ;;
-            *)
-                _mensagec "${RED}" "Resposta invalida"
-                ((tentativas++))
-                ;;
-        esac
-    done
-
-    _mensagec "${RED}" "Maximo de tentativas excedido"
-    return 1
-}
-
 #---------- FUNcoES DE PROGRESSO ----------#
 
 # Mostra progresso do backup com spinner animado e tempo decorrido

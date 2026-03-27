@@ -20,7 +20,7 @@ LOGS="${LOGS:-${TOOLS_DIR}/logs}"         # Diretorio de logs
 # Resolve a base de trabalho ativa para operacoes de arquivos
 _selecionar_base_arquivos() {
 #    unset -v base_trabalho 2>/dev/null || true
-    base_trabalho=""
+#   base_trabalho=""
 
     if [[ -n "${base2}" ]]; then
         if ! _menu_escolha_base; then

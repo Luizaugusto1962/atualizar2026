@@ -64,7 +64,7 @@ _principal() {
         _linha
         printf "\n"
         _mensagec "${PURPLE}" " Escolha a opcao:"
-        _meia_linha "-" "${YELLOW}" "-" "${YELLOW}"
+        _meia_linha "-" "${YELLOW}"
         printf "\n"
         # Opcoes do menu
         _mensagec "${GREEN}" "1${NORM} -|: Atualizar Programa(s) "
@@ -77,7 +77,7 @@ _principal() {
         printf "\n"        
         _mensagec "${GREEN}" "0${NORM} -|: Sistema de Ajuda      "
         printf "\n"
-        _meia_linha "-" "${YELLOW}" "-" "${YELLOW}"
+        _meia_linha "-" "${YELLOW}"
         printf "\n"
         _mensagec "${WHITE}" "9${RED} -|: Sair do Sistema "
         printf "\n"
