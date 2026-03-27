@@ -4,7 +4,7 @@
 # Responsavel por informacoes do IsCOBOL, Linux, parametros e atualizacoes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 18/03/2026-00
+# Versao: 27/03/2026-00
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"      # Caminho do diretorio de configuracao do programa.
@@ -182,13 +182,14 @@ _mostrar_parametros() {
     _press
 }
 
-#---------- FUNCOES DE ATUALIZACAO ----------#
+#---------- FUNCOES DE ATUALIZACAO DOS PROGRAMAS----------#
 
 # Executa atualizacao do script
 _executar_update() {
-    local temp_dir="${ENVIA}/temp_update/"
+    local temp_dir="${RECEBE}/temp_update/"
     local zipfile="atualiza.zip"
     local down_dir="${down_dir}"
+ 
     _configurar_acessos
     
     if [[ "${Offline}" == "n" ]]; then
@@ -204,7 +205,6 @@ _executar_update() {
 # Atualizacao online via GitHub
 _atualizando() {
     _configurar_diretorios
-    _mensagec "${GREEN}" "Atualizando script via GitHub..."
 
     # Criar backup do arquivo atual
     if [[ ! -d "${BACKUP}" ]]; then
@@ -266,31 +266,20 @@ _atualizando() {
         else
             _mensagec "${YELLOW}" "Aviso: Nao foi possivel compactar os arquivos de backup"
         fi
-        cd "${lib_dir}" || return 1
-
     fi
 
     # Acessar diretorio de trabalho
-    cd "$ENVIA" || {
-        _mensagec "${RED}" "Erro: Diretorio $ENVIA nao acessivel"
+    cd "$RECEBE" || {
+        _mensagec "${RED}" "Erro: Diretorio $RECEBE nao acessivel"
         _read_sleep 2
         return 1
     }
-    if [[ "${Offline}" == "n" ]]; then
-    # Baixar arquivo
-        if ! wget -q -c "$link"; then
-            _mensagec "${RED}" "Erro ao baixar arquivo de atualizacao"
-            _mensagec "${YELLOW}" "Verifique sua conexao com a internet e tente novamente"
-            _read_sleep 2
-            return 1
-        fi
-    fi
 
     # Descompactar
     if ! "${cmd_unzip}" -o -j "$zipfile" >>"$LOG_ATU" 2>&1; then
         _mensagec "${RED}" "Erro ao descompactar atualizacao"
         _mensagec "${YELLOW}" "Verifique se o atualiza.zip esta no diretorio $ENVIA"
-        _read_sleep 2
+        _read_sleep 2 
         return 1
     fi
     # Verificar e instalar arquivos
@@ -392,22 +381,22 @@ _atualizando() {
     fi
 
 # Limpar diretorio de trabalho
-# Verificar se o diretório ENVIA existe
-if [[ ! -d "${ENVIA}" ]]; then
-    _mensagec "${RED}" "ERRO: Diretorio '${ENVIA}' nao encontrado."
+# Verificar se o diretório RECEBE existe
+if [[ ! -d "${RECEBE}" ]]; then
+    _mensagec "${RED}" "ERRO: Diretorio '${RECEBE}' nao encontrado."
     _read_sleep 2
     exit 1
 fi
 
-# Mudar para o diretório ENVIA com verificação
-if ! cd "${ENVIA}"; then
-   _mensagec "${RED}" "ERRO: Nao foi possivel acessar o diretorio '${ENVIA}'."
+# Mudar para o diretório RECEBE com verificação
+if ! cd "${RECEBE}"; then
+   _mensagec "${RED}" "ERRO: Nao foi possivel acessar o diretorio '${RECEBE}'."
     _read_sleep 2
     exit 1
 fi
 
 # Confirmar que estamos no diretório correto antes de deletar
-if [[ "$(pwd)" != "${ENVIA}" ]]; then
+if [[ "$(pwd)" != "${RECEBE}" ]]; then
     _mensagec "${RED}" "ERRO: Falha na verificacao de seguranca do diretorio."
     _read_sleep 2
     exit 1
@@ -415,7 +404,7 @@ fi
 
 # Verificar se há arquivos para remover
 if [[ -n "$(ls -A 2>/dev/null)" ]]; then
-    _mensagec "${YELLOW}" "Limpando conteudo do diretorio: ${ENVIA}"
+    _mensagec "${YELLOW}" "Limpando conteudo do diretorio: ${RECEBE}"
     
     # Remover apenas o conteúdo, não o próprio diretório
     if rm -rf ./* ./.[!.]* 2>/dev/null; then
@@ -435,22 +424,15 @@ fi
 }
 
 _atualizar_online() {
+# URL do arquivo zip de atualizacao no GitHub
     local link="https://github.com/Luizaugusto1962/atualizar2026/archive/master/atualiza.zip"
-       # Criar e acessar diretorio temporario
-    mkdir -p "$temp_dir" || {
-        _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
-        _read_sleep 2
-        chmod 0777 "$temp_dir" 2>/dev/null || true
-        return 1
-    }
-    _atualizando
-}
 
-# Atualizacao offline via arquivo local
-_atualizar_offline() {
-    local temp_dir="${ENVIA}/temp_update/"
-    local zipfile="atualiza.zip"
-
+    _mensagec "${GREEN}" "Atualizando script via GitHub..."
+if ! cd "${RECEBE}"; then
+   _mensagec "${RED}" "ERRO: Nao foi possivel acessar o diretorio '${RECEBE}'."
+    _read_sleep 2
+    exit 1
+fi
     # Criar e acessar diretorio temporario
     mkdir -p "$temp_dir" || {
         _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
@@ -459,6 +441,21 @@ _atualizar_offline() {
         return 1
     }
 
+    # Baixar arquivo
+    if ! wget -q -c "$link"; then
+        _mensagec "${RED}" "Erro ao baixar arquivo de atualizacao"
+        _mensagec "${YELLOW}" "Verifique sua conexao com a internet e tente novamente"
+        _read_sleep 2
+        return 1
+    fi
+    _atualizando
+}
+
+# Atualizacao offline via arquivo local
+_atualizar_offline() {
+    local temp_dir="${RECEBE}/temp_update/"
+    local zipfile="atualiza.zip"
+
     # Verificar se o arquivo zip existe
     if [[ ! -f "${down_dir}/${zipfile}" ]]; then
         _mensagec "${RED}" "Erro: $zipfile nao encontrado em $down_dir"
@@ -466,9 +463,16 @@ _atualizar_offline() {
         _read_sleep 2
         return 1
     fi
+    # Criar e acessar diretorio temporario
+    mkdir -p "$temp_dir" || {
+        _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
+        _read_sleep 2
+        chmod 0777 "$temp_dir" 2>/dev/null || true
+        return 1
+    }
 
-    mv "${down_dir}/${zipfile}" "${ENVIA}" || {
-        _mensagec "${RED}" "Erro: Nao foi possivel mover $zipfile para $ENVIA"
+    mv "${down_dir}/${zipfile}" "${RECEBE}" || {
+        _mensagec "${RED}" "Erro: Nao foi possivel mover $zipfile para $RECEBE"
         _read_sleep 2
         return 1
     }
@@ -482,7 +486,11 @@ _atualizar_offline() {
     _atualizando
 }
 
-#---------- FUNcoES DE MANUTENcaO DO SETUP ----------#
+
+######################################################
+#---------- FUNCOES DE MANUTENCAO DO SETUP ----------#
+######################################################
+
 # Constantes
 readonly tracejada="#-------------------------------------------------------------------#"
 
