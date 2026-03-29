@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao, instalacao e reversao de programas
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 18/03/2026-00
+# Versao: 30/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"      # Nome do sistema (iscobol, savatu, transpc).
@@ -244,6 +244,13 @@ _coletar_artefatos_atualizacao() {
         if [[ -z "${item}" ]]; then
             _mensagec "${YELLOW}" "$mensagem_final"
             _linha
+            if (( ${#PROGRAMAS_SELECIONADOS[@]} > 0 )); then
+                _mensagec "${CYAN}" "Programas informados:"
+                for prog in "${PROGRAMAS_SELECIONADOS[@]}"; do
+                    _mensagec "${GREEN}" "  -> ${prog}"
+                done
+                _linha
+            fi
             break
         fi
 
@@ -267,8 +274,8 @@ _coletar_artefatos_atualizacao() {
 
         if [[ -n "$mensagem_lista" ]]; then
             _mensagec "${YELLOW}" "$mensagem_lista"
-            for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
-                _mensagec "${GREEN}" "  - $arquivo"
+            for prog in "${PROGRAMAS_SELECIONADOS[@]}"; do
+                _mensagec "${GREEN}" "  - $prog"
             done
         fi
     done
