@@ -4,7 +4,7 @@
 # Responsavel por backup completo, incremental e restauracao
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 24/02/2026-00
+# Versao: 30/02/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -158,12 +158,9 @@ _executar_backup() {
         backup_pid=$!
     fi
 
-    # Mostrar barra de progresso
-    _mostrar_progresso_backup "$backup_pid"
-
-    # Verificar resultado - aguardar processo terminar
+    # Mostrar barra de progresso e capturar resultado (wait ja feito internamente)
     local resultado=0
-    wait "$backup_pid" 2>/dev/null || resultado=$?
+    _mostrar_progresso_backup "$backup_pid" || resultado=$?
 
     if [[ $resultado -eq 0 ]] && [[ -f "$caminho_backup" ]]; then
         _finalizar_backup_sucesso "$nome_backup"

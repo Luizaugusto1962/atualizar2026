@@ -4,7 +4,7 @@
 # Funcoes basicas para formatacao, mensagens, validacao e controle de fluxo
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 26/03/2026-00
+# Versao: 30/03/2026-00
 
 #---------- FUNCOES DE FORMATACAO DE TELA ----------#
 # Variaveis globais esperadas
@@ -225,12 +225,16 @@ _mostrar_progresso_backup() {
     # Mostra o cursor novamente
     tput cnorm
 
-    # Mensagem final
-    if wait "$pid" 2>/dev/null; then
+    # Mensagem final — captura o status do processo (único wait)
+    local status_proc=0
+    wait "$pid" 2>/dev/null || status_proc=$?
+
+    if [[ $status_proc -eq 0 ]]; then
         printf "\r${GREEN}%s... [Concluido] ${NORM}\n" "$msg"
     else
         printf "\r${RED}%s... [Falhou] ${NORM}\n" "$msg"
     fi
+    return $status_proc
 }
 
 #---------- FUNcoES DE LOG ----------#

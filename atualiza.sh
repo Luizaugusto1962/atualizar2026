@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Atualiza.sh - Script de Atualizacao Modular do SISTEMA SAV
-# Versao: 20/02/2026-00
+# Versao: 30/02/2026-00
 # Autor: Luiz Augusto
 # Os programas usados por este script devem estar na pasts /libs.
 

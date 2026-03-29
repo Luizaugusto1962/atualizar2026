@@ -4,7 +4,7 @@
 # Responsavel pela autenticacao de usuarios
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 26/03/2026-01
+# Versao: 30/03/2026-01
 # Autor: Luiz Augusto
 #
 #
@@ -63,8 +63,8 @@ _cadastrar_usuario() {
         return 1
     fi
 
-#    hash_senha=$(_hash_senha "$senha")
-#    echo "${usuario}:${hash_senha}" >> "$SENHA_FILE"
+    hash_senha=$(_hash_senha "$senha")
+    echo "${usuario}:${hash_senha}" >> "$SENHA_FILE"
 
     # Restringir permissoes do arquivo de senhas
     chmod 0600 "$SENHA_FILE" 2>/dev/null || {
@@ -73,10 +73,6 @@ _cadastrar_usuario() {
     }
 
     _mensagec "${GREEN}" "Usuario cadastrado com sucesso."
-
-#    hash_senha=$(_hash_senha "$senha")
-#    echo "${usuario}:${hash_senha}" >> "$SENHA_FILE"
-#    _mensagec "${GREEN}" "Usuario cadastrado com sucesso."
 }
 
 # Funcao para login
@@ -147,8 +143,8 @@ _login() {
 # Funcao para alterar senha
 _alterar_senha() {
     local senha_atual nova_senha confirm_senha hash_atual hash_nova stored_hash
-    read -rp "Usuario: " usuario
-    usuario=$(echo "$usuario" | tr '[:lower:]' '[:upper:]')
+
+    # Usar o usuario ja autenticado globalmente
     if [[ -z "$usuario" ]]; then
         _mensagec "${RED}" "Voce precisa estar logado para alterar a senha."
         return 1
@@ -180,13 +176,13 @@ _alterar_senha() {
     read -rsp "${YELLOW}Confirme a nova senha: ${NORM}" confirm_senha
     printf "\n"
 
-    if [[ "$nova_senha" != "$confirm_senha" ]]; then
-        _mensagec "${RED}" "Novas senhas nao coincidem."
+    if [[ -z "$nova_senha" ]]; then
+        _mensagec "${RED}" "Nova senha nao pode ser vazia."
         return 1
     fi
 
-    if [[ -z "$nova_senha" ]]; then
-        _mensagec "${RED}" "Nova senha nao pode ser vazia."
+    if [[ "$nova_senha" != "$confirm_senha" ]]; then
+        _mensagec "${RED}" "Novas senhas nao coincidem."
         return 1
     fi
 

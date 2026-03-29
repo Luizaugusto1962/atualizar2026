@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 26/03/2026-00
+# Versao: 30/03/2026-00
 # Autor: Luiz Augusto
 # Email: luizaugusto@sav.com.br
 #
@@ -10,9 +10,9 @@ readonly UPDATE="18/03/26-v.2026"
 export UPDATE
 
 # Diretorio do script principal
-#TOOLS_DIR="${TOOLS_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")}"
+TOOLS_DIR="${TOOLS_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")}"
 # CORRETO
-TOOLS_DIR="${TOOLS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+#TOOLS_DIR="${TOOLS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 
 # Diretorios dos modulos e configuracoes
 lib_dir="${lib_dir:-${TOOLS_DIR}/libs}"       # Diretorio dos modulos de biblioteca

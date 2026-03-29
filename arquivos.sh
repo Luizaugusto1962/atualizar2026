@@ -3,7 +3,7 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferência e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 26/03/2026-00
+# Versao: 30/03/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
@@ -12,7 +12,7 @@ base3="${base3:-}"                        # Caminho do diretorio da terceira bas
 cmd_zip="${cmd_zip:-}"                    # Comando para compactacao (ex: zip).
 jut="${jut:-}"                            # Caminho para o utilitario jutil.
 raiz="${raiz:-}"                          # Caminho raiz do sistema.
-cfg_dir="${cfg_dir:-${TOOLS_DIR}/cfg}"   # Caminho do diretorio de configuracoes.
+cfg_dir="${cfg_dir:-${TOOLS_DIR}/cfg}"    # Caminho do diretorio de configuracoes.
 LOGS="${LOGS:-${TOOLS_DIR}/logs}"         # Diretorio de logs
 
 #---------- FUNCOES DE LIMPEZA ----------#

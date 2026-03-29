@@ -4,7 +4,7 @@
 # Responsavel por informacoes do IsCOBOL, Linux, parametros e atualizacoes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 27/03/2026-00
+# Versao: 30/03/2026-00
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"      # Caminho do diretorio de configuracao do programa.
@@ -136,13 +136,13 @@ _mostrar_versao_linux() {
 }
 
 #---------- FUNCOES DE PARAMETROS ----------#
-       # Antes de usar, carregar o arquivo
-        if [[ -f "${cfg_dir}/.versao" ]]; then
-            "." "${cfg_dir}/.versao"
-        fi
-        
+
 # Mostra parametros do sistema
 _mostrar_parametros() {
+    # Carregar versao antes de exibir
+    if [[ -f "${cfg_dir}/.versao" ]]; then
+        "." "${cfg_dir}/.versao"
+    fi
     clear
     _linha "=" "${GREEN}"
     printf "${GREEN}Sistema e banco de dados: ${NORM}${dbmaker}${NORM}%*s\n"

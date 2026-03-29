@@ -4,7 +4,7 @@
 # Permite cadastrar usuarios e senhas para o sistema SAV
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 09/03/2026-01
+# Versao: 30/03/2026-01
 # Autor: Luiz Augusto
 #
 #
@@ -13,7 +13,7 @@ cfg_dir="${cfg_dir:-}"                 # Diretorio de configuracao
 lib_dir="${lib_dir:-}"                 # Diretorio de modulos de biblioteca
 
 # Diretorio do script principal
-#TOOLS_DIR="${TOOLS_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")}"
+#TOOLS_DIR="${TOOLS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 # CORRETO
 TOOLS_DIR="${TOOLS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 
@@ -38,9 +38,9 @@ main() {
         _mensagec "${RED}" "Cadastro de Usuario - Sistema SAV"
         _linha "=" "${GREEN}"
         printf "\n"
-        _mensagec "${YELLOW} 1. Cadastrar novo usuario"
-        _mensagec "${YELLOW} 2. Alterar senha de usuario"
-        _mensagec "${YELLOW} 0. Voltar"
+        _mensagec "${YELLOW}" "1. Cadastrar novo usuario"
+        _mensagec "${YELLOW}" "2. Alterar senha de usuario"
+        _mensagec "${YELLOW}" "0. Voltar"
         _linha "=" "${GREEN}"
         _mensagec "${GREEN}" "Digite o numero da opcao desejada e pressione ENTER." 
         read -rp "Escolha uma opcao: " opcao

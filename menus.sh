@@ -4,7 +4,7 @@
 # Responsavel pela apresentacao e navegacao dos menus do sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 26/03/2026-00
+# Versao: 30/03/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -192,7 +192,7 @@ _menu_biblioteca() {
         
         # Antes de usar, carregar o arquivo
         if [[ -f "${cfg_dir}/.versao" ]]; then
-            "." "${cfg_dir}/.versao"
+        "." "${cfg_dir}/.versao"
         fi
 
         if [[ -n "${VERSAOANT}" ]]; then

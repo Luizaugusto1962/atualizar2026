@@ -4,7 +4,7 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 26/03/2026-00
+# Versao: 30/03/2026-00
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
@@ -15,7 +15,7 @@ declare -a caminhos_base=(BASE1 BASE2 BASE3 TOOLS_DIR raiz base base2 base3 back
 declare -a caminhos_base2=(INI UMADATA acessoff E_EXEC T_TELAS X_XML)
 declare -a biblioteca=(SAVATU SAVATU1 SAVATU2 SAVATU3 SAVATU4)
 declare -a comandos=(cmd_unzip cmd_zip cmd_find cmd_who DEFAULT_UNZIP DEFAULT_ZIP DEFAULT_FIND DEFAULT_WHO jut JUTIL ISCCLIENT ISCCLIENTT)
-declare -a outros=(SERVER_PORTA USUARIO VERSAO SAVISC DEFAULT_VERSAO VERSAO DEFAULT_ARQUIVO DEFAULT_PEDARQ DEFAULT_PROG DEFAULT_PORTA DEFAULT_USUARIO DEFAULT_ipserver UPDATE DEFAULT_PEDARQ SAVISCC Offline base_trabalho)
+declare -a outros=(SERVER_PORTA USUARIO VERSAO SAVISC DEFAULT_VERSAO DEFAULT_ARQUIVO DEFAULT_PEDARQ DEFAULT_PROG DEFAULT_PORTA DEFAULT_USUARIO DEFAULT_ipserver UPDATE SAVISCC JUTIL ISCCLIENT Offline base_trabalho)
 declare -a logis=(LOG LOG_ATU LOG_LIMPA LOG_TMP)
 
 #-VARIAVEIS do sistema ----------------------------------------------------------------------------#
@@ -223,24 +223,16 @@ _configurar_variaveis_sistema() {
         export E_EXEC T_TELAS BASE1 BASE2 BASE3 acessoff
     fi
     # Configuracao do SAVISC
-    SAVISCC="${raiz}/savisc/iscobol/bin/"
-    if [[ -n "${SAVISCC}" ]]; then
-        SAVISC="${SAVISCC}"
-    fi
-    
+    SAVISCC="${SAVISCC:-${raiz}/savisc/iscobol/bin/}"
+    SAVISC="${SAVISCC}"
+
     # Utilitarios
-    JUTILL="jutil"
-    if [[ -n "${JUTILL}" ]]; then
-        JUTIL="${JUTILL}"
-    fi
-    
-    ISCCLIENTT="iscclient"
-    if [[ -n "${ISCCLIENTT}" ]]; then
-        ISCCLIENT="${ISCCLIENTT}"
-    fi
+    JUTIL="${JUTIL:-jutil}"
+    ISCCLIENT="${ISCCLIENT:-iscclient}"
     
     # Caminho completo do jutil
     jut="${SAVISC}${JUTIL}"
+    export SAVISCC SAVISC JUTIL ISCCLIENT jut
     
     # Configurar porta e acesso
     if [[ -z "${SERVER_PORTA}" ]]; then
