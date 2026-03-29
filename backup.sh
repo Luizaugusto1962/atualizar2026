@@ -420,8 +420,7 @@ _restaurar_arquivo_especifico() {
             _press
             _linha
             # Pergunta se deseja continuar mesmo após erro
-            read -rp "${YELLOW}Deseja restaurar mais arquivos? (S/N): ${NORM}" continuar
-            if [[ ! "$continuar" =~ ^[Ss]$ ]]; then
+            if ! _confirmar "Deseja restaurar mais arquivos?" "N"; then
                 return 0  # Sai da funcao se ncao quiser continuar
             fi
             continue  # Volta ao loop para novo nome
@@ -432,8 +431,7 @@ _restaurar_arquivo_especifico() {
             _press
             _linha
             # Pergunta se deseja continuar mesmo após erro
-            read -rp "${YELLOW}Deseja restaurar mais arquivos? (S/N): ${NORM}" continuar
-            if [[ ! "$continuar" =~ ^[Ss]$ ]]; then
+            if ! _confirmar "Deseja restaurar mais arquivos?" "N"; then
                 return 0  # Sai da funcao se ncao quiser continuar
             fi
             continue  # Volta ao loop para novo nome
@@ -456,8 +454,7 @@ _restaurar_arquivo_especifico() {
         fi
         _linha
         # Pergunta se deseja continuar (apenas após uma tentativa de restauracao)
-        read -rp "${YELLOW}Deseja restaurar mais arquivos? (S/N): ${NORM}" continuar
-        if [[ ! "$continuar" =~ ^[Ss]$ ]]; then
+        if ! _confirmar "Deseja restaurar mais arquivos?" "N"; then
             _mensagec "${GREEN}" "Restauracoes finalizadas."
             return 0  # Sai da funcao com sucesso
         fi

@@ -509,9 +509,7 @@ editar_variavel() {
     local valor_atual="${!nome}"
 
     # Funcao para editar variavel com prompt
-    read -rp "Deseja alterar ${nome} (valor atual: ${valor_atual})? [s/N] " alterar
-    alterar=${alterar,,}
-    if [[ "$alterar" =~ ^s$ ]]; then
+    if _confirmar "Deseja alterar ${nome} (valor atual: ${valor_atual})?" "N"; then
         if [[ "$nome" == "sistema" ]]; then
             printf "\n"
             printf "%s\n" "Escolha o sistema:"
