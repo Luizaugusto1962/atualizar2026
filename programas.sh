@@ -242,15 +242,22 @@ _coletar_artefatos_atualizacao() {
         _linha
 
         if [[ -z "${item}" ]]; then
-            _mensagec "${YELLOW}" "$mensagem_final"
-            _linha
             if (( ${#PROGRAMAS_SELECIONADOS[@]} > 0 )); then
                 _mensagec "${CYAN}" "Programas informados:"
                 for prog in "${PROGRAMAS_SELECIONADOS[@]}"; do
                     _mensagec "${GREEN}" "  -> ${prog}"
                 done
                 _linha
+                if ! _confirmar "Confirma a selecao dos programas acima?" "S"; then
+                    PROGRAMAS_SELECIONADOS=()
+                    ARQUIVOS_PROGRAMA=()
+                    _mensagec "${YELLOW}" "Selecao cancelada."
+                    _linha
+                fi
+            else
+                _mensagec "${YELLOW}" "$mensagem_final"
             fi
+            _linha
             break
         fi
 
