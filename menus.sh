@@ -183,7 +183,7 @@ _menu_biblioteca() {
         _mensagec "${PURPLE}" "Escolha Desatualizar:               "
         _meia_linha "-" "${YELLOW}"
         printf "\n"
-        _mensagec "${GREEN}" "3${NORM} -|: Voltar Programa(s) da Biblioteca"
+        _mensagec "${GREEN}" "3${NORM} -|: Voltar o(s) Programa(s)      "
         printf "\n"
         _meia_linha "-" "${YELLOW}"
         printf "\n"

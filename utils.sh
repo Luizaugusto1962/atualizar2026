@@ -11,9 +11,19 @@
 raiz="${raiz:-}"              # Diretorio raiz do sistema.
 
 # Limpa a tela e posiciona cursor no centro
+#_meiodatela() {
+#    printf "\033c\033[10;10H\n"
+#}
+
 _meiodatela() {
-    printf "\033c\033[10;10H\n"
+    local lines cols
+
+    lines=$(tput lines 2>/dev/null || echo "${LINES:-24}")
+    cols=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
+
+    printf "\033[2J\033[%d;1H" $((lines / 2))
 }
+
 
 # Exibe mensagem centralizada colorida
 _mensagec() {
