@@ -9,7 +9,7 @@
 #   - ./setup.sh --edit: Modo de edicao para modificar configuracoes existentes.
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 30/03/2026-00
+# Versao: 10/03/2026-00
 
 #---------- FUNCAO DE LOGICA DE NEGOCIO ----------#
 # Variaveis globais esperadas
@@ -91,7 +91,7 @@ _edit_setup() {
     echo "=================================================="
 
     # Carregar configuracoes existentes
-    "." "${cfg_dir}/.config"
+    "." ./.config
 
     # Fazer backup
     cp .config .config.bkp
@@ -128,7 +128,6 @@ _edit_setup() {
 
 # Configuracao para IsCobol
 _setup_iscobol() {
-    local tracejada="#-------------------------------------------------------------------#"
     sistema="iscobol"
     echo "sistema=iscobol" >> .config
     echo "$tracejada"
@@ -457,15 +456,19 @@ EOF
 
 # Funcao principal que direciona para o modo correto
 main() {
-    # Diretorio do script — calculado antes de qualquer cd
-    TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    raiz="${TOOLS_DIR%/*}"
-    acessoff="${acessoff:-${raiz}/portalsav/Atualiza}"
 
-    # Diretorios dos modulos e configuracoes
-    lib_dir="${TOOLS_DIR}/libs"
-    cfg_dir="${TOOLS_DIR}/cfg"
-    readonly TOOLS_DIR raiz acessoff lib_dir cfg_dir
+cd .. || exit 1
+
+ 
+# Diretorio do script
+TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+raiz="${TOOLS_DIR%/*}"
+acessoff="${acessoff:-${raiz}/portalsav/Atualiza}"  
+
+# Diretorios dos modulos e configuracoes
+lib_dir="${TOOLS_DIR}/libs"
+cfg_dir="${TOOLS_DIR}/cfg"
+readonly TOOLS_DIR raiz acessoff lib_dir cfg_dir
 
 # Verifica se o diretorio libs existe
 if [[ ! -d "${lib_dir}" ]]; then
