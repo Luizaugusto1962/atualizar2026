@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # arquivos.sh - Modulo de Gestao de Arquivos
-# Responsavel por limpeza, recuperacao, transferência e expurgo de arquivos
+# Responsavel por limpeza, recuperacao, transferencia e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
 # Versao: 30/03/2026-00
 #
