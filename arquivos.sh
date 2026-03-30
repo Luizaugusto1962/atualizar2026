@@ -246,6 +246,7 @@ _recuperar_arquivo_especifico() {
             else
                 _mensagec "${CYAN}" "Operacao cancelada."
                 _linha
+                _read_sleep 2 
                 return 0
             fi   
         else
