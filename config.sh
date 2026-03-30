@@ -26,6 +26,19 @@ declare -a logis=(LOG LOG_ATU LOG_LIMPA LOG_TMP)
 
 raiz="${raiz:-}"                                 # Caminho do diretorio raiz do programa.
 cfg_dir="${cfg_dir:-}"                           # Caminho do diretorio de configuracao do programa.
+
+if [[ -n "${cfg_dir}" ]]; then
+    if [[ ! -d "${cfg_dir}" ]]; then
+        mkdir -p "${cfg_dir}" || {
+            printf '%s\n' "ERRO: Nao foi possivel criar o diretorio de configuracao '${cfg_dir}'."
+            exit 1
+        }
+    fi
+    chmod 0777 "${cfg_dir}" 2>/dev/null || {
+        printf '%s\n' "AVISO: Nao foi possivel ajustar permissao em '${cfg_dir}'."
+    }
+fi
+
 lib_dir="${lib_dir:-}"                           # Caminho do diretorio de bibliotecas do programa.
 base="${base:-}"                                 # Caminho do diretorio da base de dados.
 base2="${base2:-}"                               # Caminho do diretorio da segunda base de dados.

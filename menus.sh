@@ -10,6 +10,17 @@
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Nome do sistema (iscobol, savatu, transpc).
 cfg_dir="${cfg_dir:-${TOOLS_DIR}/cfg}"    # Diretorio de configuracoes
+
+if [[ ! -d "${cfg_dir}" ]]; then
+    mkdir -p "${cfg_dir}" || {
+        printf '%s\n' "ERRO: Nao foi possivel criar o diretorio de configuracao '${cfg_dir}'."
+        exit 1
+    }
+fi
+chmod 0777 "${cfg_dir}" 2>/dev/null || {
+    printf '%s\n' "AVISO: Nao foi possivel ajustar permissao em '${cfg_dir}'."
+}
+
 base="${base:-}"                          # Caminho do diretorio da primeira base de dados.
 base2="${base2:-}"                        # Caminho do diretorio da segunda base de dados.
 dbmaker="${dbmaker:-}"                    # Caminho do diretorio da base de dados do dbmaker.

@@ -17,7 +17,30 @@ TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Diretorio do script 
 
 # Diretorio do script TOOLS_DIR
 PLIBS_DIR="${TOOLS_DIR}/libs" # Diretorio das bibliotecas
-readonly PLIBS_DIR TOOLS_DIR  # Define variaveis como somente leitura
+export PLIBS_DIR TOOLS_DIR  # Define variaveis como somente leitura
+
+# Garante que TOOLS_DIR e PLIBS_DIR existam e tenham permissao 0777
+if [[ ! -d "${TOOLS_DIR}" ]]; then
+    mkdir -p "${TOOLS_DIR}" || {
+        printf "%s\n" "ERRO: Nao foi possivel criar o diretorio ${TOOLS_DIR}."
+        exit 1
+    }
+fi
+
+chmod -R 0777 "${TOOLS_DIR}" 2>/dev/null || {
+    printf "%s\n" "AVISO: Nao foi possivel ajustar permissao em ${TOOLS_DIR}."
+}
+
+if [[ ! -d "${PLIBS_DIR}" ]]; then
+    mkdir -p "${PLIBS_DIR}" || {
+        printf "%s\n" "ERRO: Nao foi possivel criar o diretorio ${PLIBS_DIR}."
+        exit 1
+    }
+fi
+
+chmod 0777 "${PLIBS_DIR}" 2>/dev/null || {
+    printf "%s\n" "AVISO: Nao foi possivel ajustar permissao em ${PLIBS_DIR}."
+}
 
 # Verifica se o diretorio libs existe
 if [[ ! -d "${PLIBS_DIR}" ]]; then

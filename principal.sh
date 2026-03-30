@@ -22,6 +22,20 @@ aux_dirs=("${lib_dir}" "${cfg_dir}")  # Lista de diretorios obrigatorios
 
 for dir in "${aux_dirs[@]}"; do
     [[ -z "${dir}" ]] && { printf "ERRO: Variavel de diretorio nao definida.\n"; exit 1; }
+
+    # Criar diretório caso não exista e aplicar permissões 0777
+    if [[ ! -d "${dir}" ]]; then
+        mkdir -p "${dir}" || {
+            printf '%s\n' "ERRO: Nao foi possivel criar o diretorio '${dir}'."
+            sleep 2
+            exit 1
+        }
+    fi
+
+    chmod 0777 "${dir}" 2>/dev/null || {
+        printf '%s\n' "AVISO: Nao foi possivel ajustar permissao em '${dir}'."
+    }
+
     [[ -d "${dir}" ]] || {
         printf '%s\n' "ERRO: O diretorio '${dir}' nao foi encontrado."
         printf "Certifique-se de que os arquivos/modulos correspondentes estao instalados corretamente.\n"

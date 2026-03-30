@@ -498,6 +498,17 @@ readonly tracejada="#-----------------------------------------------------------
 declare -l sistema base base2 base3 dbmaker raiz Offline enviabackup
 declare -u empresa
 # Posiciona o script no diretorio cfg_dir.
+if [[ ! -d "${cfg_dir}" ]]; then
+    mkdir -p "${cfg_dir}" || {
+        _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio ${cfg_dir}"
+        _read_sleep 2
+        exit 1
+    }
+fi
+chmod 0777 "${cfg_dir}" 2>/dev/null || {
+    _mensagec "${YELLOW}" "Aviso: Nao foi possivel ajustar permissao para ${cfg_dir}"
+}
+
 cd "${cfg_dir}" || {
     _mensagec "${RED}" "Erro: Diretorio ${cfg_dir} nao encontrado"
     _read_sleep 2
@@ -595,6 +606,7 @@ _manutencao_setup() {
         _read_sleep 2
         return 1
     }
+
 
     # Carrega configurações existentes (se houver)
     if [[ -f ".config" ]]; then
