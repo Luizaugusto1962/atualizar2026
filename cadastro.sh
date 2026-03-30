@@ -13,9 +13,7 @@ cfg_dir="${cfg_dir:-}"                 # Diretorio de configuracao
 lib_dir="${lib_dir:-}"                 # Diretorio de modulos de biblioteca
 
 # Diretorio do script principal
-#TOOLS_DIR="${TOOLS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-# CORRETO
-TOOLS_DIR="${TOOLS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+TOOLS_DIR="${TOOLS_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")}"
 
 # Diretorios dos modulos e configuracoes
 lib_dir="${lib_dir:-${TOOLS_DIR}/libs}"       # Diretorio dos modulos de biblioteca
