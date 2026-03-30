@@ -233,10 +233,21 @@ _recuperar_arquivo_especifico() {
         _linha "-" "${BLUE}"
         
         if [[ -z "$nome_arquivo" ]]; then
-            # Recupera todos → executa e sai do loop
-            _recuperar_todos_arquivos "$base_trabalho"
-            _mensagec "${YELLOW}" "Todos os arquivos principais foram recuperados."
-            break   
+            # Pergunta confirmação antes de recuperar todos
+            _mensagec "${YELLOW}" "Deseja recuperar TODOS os arquivos principais?"
+            read -rp "${YELLOW}[S/N]: ${NORM}" confirmar_todos
+            confirmar_todos=$(echo "$confirmar_todos" | xargs | tr '[:lower:]' '[:upper:]')
+            
+            if [[ "$confirmar_todos" =~ ^[Ss]$ ]]; then
+                # Recupera todos → executa e sai do loop
+                _recuperar_todos_arquivos "$base_trabalho"
+                _mensagec "${YELLOW}" "Todos os arquivos principais foram recuperados."
+                break
+            else
+                _mensagec "${CYAN}" "Operacao cancelada."
+                _linha
+                return 0
+            fi   
         else
             # Recupera arquivo específico
             _recuperar_arquivo_individual "$nome_arquivo" "$base_trabalho"
@@ -323,11 +334,7 @@ _recuperar_arquivos_principais() {
     cd "${cfg_dir}" || return 1
     
     if ! _selecionar_base_arquivos; then
-								
         return 1
-																				  
-		
-									  
     fi
     
     if [[ "${sistema}" = "iscobol" ]]; then
@@ -366,7 +373,6 @@ _recuperar_arquivos_principais() {
     else
         _mensagec "${RED}" "Recuperacao nao disponivel para este sistema"
     fi
-    
     _press
 }
 
