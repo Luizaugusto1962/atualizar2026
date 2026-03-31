@@ -32,8 +32,9 @@ for dir in "${aux_dirs[@]}"; do
         }
     fi
 
-    chmod 0777 "${dir}" 2>/dev/null || {
+    chmod -R 0777 "${dir}" 2>/dev/null || {
         printf '%s\n' "AVISO: Nao foi possivel ajustar permissao em '${dir}'."
+        sleep 2
     }
 
     [[ -d "${dir}" ]] || {
