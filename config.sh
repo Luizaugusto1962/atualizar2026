@@ -4,14 +4,14 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 30/03/2026-00
+# Versao: 01/04/2026-00
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
 # Arrays para organizacao das variaveis
 declare -a cores=(RED GREEN YELLOW BLUE PURPLE CYAN NORM)
 declare -a atualizac=(sistema verclass dbmaker base base2 base3 acessossh ipserver Offline enviabackup empresa VERSAOANT)
-declare -a caminhos_base=(BASE1 BASE2 BASE3 TOOLS_DIR raiz base base2 base3 backup logs olds cfg libs envia recebe)
+declare -a caminhos_base=(BASE1 BASE2 BASE3 TOOLS_DIR raiz base base2 base3 backup bases_backup logs olds cfg libs envia recebe)
 declare -a caminhos_base2=(INI UMADATA acessoff E_EXEC T_TELAS X_XML)
 declare -a biblioteca=(SAVATU SAVATU1 SAVATU2 SAVATU3 SAVATU4)
 declare -a comandos=(cmd_unzip cmd_zip cmd_find cmd_who DEFAULT_UNZIP DEFAULT_ZIP DEFAULT_FIND DEFAULT_WHO jut JUTIL ISCCLIENT ISCCLIENTT)
@@ -188,19 +188,19 @@ _configurar_diretorios() {
    
 
     # Definir diretorios de trabalho
-    OLDS="${OLDS:-${TOOLS_DIR}/olds}"                     # Diretorio de arquivos antigos
-    PROGS="${PROGS:-${TOOLS_DIR}/progs}"                  # Diretorio de programas
-    LOGS="${LOGS:-${TOOLS_DIR}/logs}"                     # Diretorio de logs
-    ENVIA="${ENVIA:-${TOOLS_DIR}/envia}"                  # Diretorio de envio
-    RECEBE="${RECEBE:-${TOOLS_DIR}/recebe}"               # Diretorio de recebimento
-    LIBS="${LIBS:-${TOOLS_DIR}/libs}"                     # Diretorio de bibliotecas
-    BACKUP="${BACKUP:-${TOOLS_DIR}/backup}"               # Diretorio de backup
-
+    OLDS="${OLDS:-${TOOLS_DIR}/olds}"                         # Diretorio de arquivos antigos
+    PROGS="${PROGS:-${TOOLS_DIR}/progs}"                      # Diretorio de programas
+    LOGS="${LOGS:-${TOOLS_DIR}/logs}"                         # Diretorio de logs
+    ENVIA="${ENVIA:-${TOOLS_DIR}/envia}"                      # Diretorio de envio
+    RECEBE="${RECEBE:-${TOOLS_DIR}/recebe}"                   # Diretorio de recebimento
+    LIBS="${LIBS:-${TOOLS_DIR}/libs}"                         # Diretorio de bibliotecas
+    BACKUP="${BACKUP:-${TOOLS_DIR}/backup}"                   # Diretorio de backup
+    BASEBACKUP="${BASEBACKUP:-${TOOLS_DIR}/bases_backup}"     # Diretorio de backup de base
     # Exportar variaveis de diretorio para uso global
-    export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP 
+    export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP BASEBACKUP
 
     # Criar diretorios se nao existirem
-    local dirs=("${OLDS}" "${PROGS}" "${LOGS}" "${ENVIA}" "${RECEBE}" "${LIBS}" "${BACKUP}")
+    local dirs=("${OLDS}" "${PROGS}" "${LOGS}" "${ENVIA}" "${RECEBE}" "${LIBS}" "${BACKUP}" "${BASEBACKUP}")
     for dir in "${dirs[@]}"; do
         if [[ ! -d "${dir}" ]]; then
             mkdir -p "${dir}" || {
@@ -442,7 +442,7 @@ _validar_configuracao() {
     fi
     
     # Verificar diretorios essenciais
-    local dirs=("olds" "logs" "cfg" "libs" "backup" "envia" "recebe" "E_EXEC" "T_TELAS" "BASE1")
+    local dirs=("olds" "logs" "cfg" "libs" "backup" "bases_backup" "envia" "recebe" "E_EXEC" "T_TELAS" "BASE1")
     for dir in "${dirs[@]}"; do
         local dir_path=""
         # Tratamento especial para E_EXEC e T_TELAS que ficam em ${raiz}

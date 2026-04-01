@@ -4,7 +4,7 @@
 # Responsavel por backup completo, incremental e restauracao
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 30/02/2026-00
+# Versao: 01/04/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -57,15 +57,15 @@ _executar_backup() {
     export BASE_TRABALHO="$base_trabalho"
 
     # Verificar se o diretorio de backup existe
-    if [[ ! -d "$BACKUP" ]]; then
-        _mensagec "$YELLOW" "Diretorio de backups em $BACKUP, nao encontrado ..."
+    if [[ ! -d "$BASEBACKUP" ]]; then
+        _mensagec "$YELLOW" "Diretorio de backups em $BASEBACKUP, nao encontrado ..."
         _read_sleep 3
         return 1
     fi
 
     # Verificar espaco em disco
-    if ! _verificar_espaco_disco "$BACKUP"; then
-        _mensagec "$RED" "Espaco em disco insuficiente em $BACKUP"
+    if ! _verificar_espaco_disco "$BASEBACKUP"; then
+        _mensagec "$RED" "Espaco em disco insuficiente em $BASEBACKUP"
         _read_sleep 3
         return 1
     fi
@@ -79,7 +79,7 @@ _executar_backup() {
     # Gerar nome do arquivo
     local nome_backup
     nome_backup="${empresa}_${tipo_backup}_$(date +%Y%m%d%H%M).zip"
-    local caminho_backup="${BACKUP}/$nome_backup"
+    local caminho_backup="${BASEBACKUP}/$nome_backup"
 
     # Verificar backups recentes
     if _verificar_backups_recentes; then
@@ -305,7 +305,7 @@ _selecionar_backup() {
 
     # Carrega todos os .zip disponiveis
     shopt -s nullglob
-    arquivos_backup=("${BACKUP}/${empresa}"_*.zip)
+    arquivos_backup=("${BASEBACKUP}/${empresa}"_*.zip)
 
     if ((${#arquivos_backup[@]} == 0)); then
         _mensagec "${RED}" "Nenhum backup (${empresa}_*.zip) encontrado"
@@ -470,7 +470,7 @@ _enviar_backup_servidor() {
     local destino_remoto
 
     # Validar se arquivo existe
-    if [[ ! -f "${BACKUP}/${nome_backup}" ]]; then
+    if [[ ! -f "${BASEBACKUP}/${nome_backup}" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
         _read_sleep 3
         return 1
@@ -491,7 +491,7 @@ _enviar_backup_servidor() {
     _mensagec "${YELLOW}" "Enviando backup via vaievem..."
     _linha
     
-    if _upload_rsync "${BACKUP}/${nome_backup}" "/${destino_remoto}"; then
+    if _upload_rsync "${BASEBACKUP}/${nome_backup}" "/${destino_remoto}"; then
         _linha
         _mensagec "${GREEN}" "Backup enviado com sucesso para \"${destino_remoto}\""
         _linha
@@ -501,7 +501,7 @@ _enviar_backup_servidor() {
             _mensagec "${YELLOW}" "Backup local mantido"
             _read_sleep 2
         else
-            if rm -f "${BACKUP}/${nome_backup}"; then
+            if rm -f "${BASEBACKUP}/${nome_backup}"; then
                 _mensagec "${YELLOW}" "Backup local excluido"
                 _read_sleep 2
             else
@@ -522,7 +522,7 @@ _mover_backup_offline() {
     local nome_backup="$1"
     
     # Validar se arquivo existe
-    if [[ ! -f "${BACKUP}/${nome_backup}" ]]; then
+    if [[ ! -f "${BASEBACKUP}/${nome_backup}" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
         _press
         return 1
@@ -547,7 +547,7 @@ _mover_backup_offline() {
         fi
     fi
     
-    if mv -f "${BACKUP}/${nome_backup}" "$down_dir"; then
+    if mv -f "${BASEBACKUP}/${nome_backup}" "$down_dir"; then
         _mensagec "${GREEN}" "Backup movido para: ${down_dir}"
         _press
     else
@@ -563,7 +563,7 @@ _enviar_backup_rede() {
     local destino_remoto
     
     # Validar se arquivo existe
-    if [[ ! -f "${BACKUP}/${nome_backup}" ]]; then
+    if [[ ! -f "${BASEBACKUP}/${nome_backup}" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
         _press
         return 1
@@ -583,7 +583,7 @@ _enviar_backup_rede() {
     _mensagec "${YELLOW}" "Enviando backup via vaievem..."
     _linha
     
-    if _upload_rsync "${BACKUP}/${nome_backup}" "/${destino_remoto}"; then
+    if _upload_rsync "${BASEBACKUP}/${nome_backup}" "/${destino_remoto}"; then
         _linha
         _mensagec "${GREEN}" "Backup enviado para \"${destino_remoto}\" no servidor ${IPSERVER}"
         _read_sleep 3
@@ -614,11 +614,11 @@ _verificar_espaco_disco() {
 
 # Verifica backups recentes (ultimos 2 dias)
 _verificar_backups_recentes() {
-    if find "${BACKUP}" -maxdepth 1 -ctime -2 -name "${empresa}*zip" -print -quit | grep -q .; then
+    if find "${BASEBACKUP}" -maxdepth 1 -ctime -2 -name "${empresa}*zip" -print -quit | grep -q .; then
         _linha
-        _mensagec "$CYAN" "Ja existe backup recente em $BACKUP:"
+        _mensagec "$CYAN" "Ja existe backup recente em $BASEBACKUP:"
         _linha
-        ls -ltrh "${BACKUP}/${empresa}"_*.zip 2>/dev/null
+        ls -ltrh "${BASEBACKUP}/${empresa}"_*.zip 2>/dev/null
         _linha
         return 0
     fi
@@ -667,15 +667,15 @@ _executar_backup_multiplos_padroes() {
     export BASE_TRABALHO="$base_trabalho"
 
     # Verificar se o diretorio de backup existe
-    if [[ ! -d "$BACKUP" ]]; then
-        _mensagec "$YELLOW" "Diretorio de backups em $BACKUP, nao encontrado ..."
+    if [[ ! -d "$BASEBACKUP" ]]; then
+        _mensagec "$YELLOW" "Diretorio de backups em $BASEBACKUP, nao encontrado ..."
         _read_sleep 3
         return 1
     fi
 
     # Verificar espaco em disco
-    if ! _verificar_espaco_disco "$BACKUP"; then
-        _mensagec "$RED" "Espaco em disco insuficiente em $BACKUP"
+    if ! _verificar_espaco_disco "$BASEBACKUP"; then
+        _mensagec "$RED" "Espaco em disco insuficiente em $BASEBACKUP"
         _read_sleep 3
         return 1
     fi
@@ -781,7 +781,7 @@ _executar_backup_multiplos_padroes() {
     # Gerar nome do arquivo
     local nome_backup
     nome_backup="${empresa}_multiplos_$(date +%Y%m%d%H%M).zip"
-    caminho_backup="${BACKUP}/${nome_backup}"
+    caminho_backup="${BASEBACKUP}/${nome_backup}"
     _mensagec "${YELLOW}" "Criando backup com multiplos padroes..."
     _linha
 
@@ -823,17 +823,17 @@ _finalizar_backup_sucesso() {
     local nome_backup="$1"
     local tamanho_backup
     
-    if [[ -f "${BACKUP}/${nome_backup}" ]]; then
-        tamanho_backup=$(du -h "${BACKUP}/${nome_backup}" | cut -f1)
+    if [[ -f "${BASEBACKUP}/${nome_backup}" ]]; then
+        tamanho_backup=$(du -h "${BASEBACKUP}/${nome_backup}" | cut -f1)
         _linha
         _mensagec "$GREEN" "Backup Concluido!"
         _linha
         _mensagec "$YELLOW" "Arquivo: $nome_backup"
-        _mensagec "$YELLOW" "Local: ${BACKUP}"
+        _mensagec "$YELLOW" "Local: ${BASEBACKUP}"
         _mensagec "$YELLOW" "Tamanho: ${tamanho_backup}"
         _linha
     else
-        _mensagec "$YELLOW" "O backup $nome_backup foi criado em ${BACKUP}"
+        _mensagec "$YELLOW" "O backup $nome_backup foi criado em ${BASEBACKUP}"
         _linha
         _mensagec "$YELLOW" "Backup Concluido!"
         _linha

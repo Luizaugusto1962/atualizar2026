@@ -3,7 +3,7 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferencia e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 30/03/2026-00
+# Versao: 01/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
@@ -604,6 +604,7 @@ _executar_expurgador() {
     # Definir diretorios para limpeza
     local diretorios_limpeza=(
         "${BACKUP}/"
+        "${BASEBACKUP}/"
         "${OLDS}/"
         "${PROGS}/"
         "${LOGS}/"

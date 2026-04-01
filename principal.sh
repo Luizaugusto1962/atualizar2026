@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 30/03/2026-00
+# Versao: 01/04/2026-00
 # Autor: Luiz Augusto
 # Email: luizaugusto@sav.com.br
 #
 # Versao do sistema
-readonly UPDATE="30/03/26-v.2026"
+UPDATE="01/04/26-v.2026"
 export UPDATE
 
 # Diretorio do script principal
@@ -73,14 +73,14 @@ _carregar_modulo "utils.sh"      # Utilitarios basicos primeiro
 _carregar_modulo "config.sh"     # Configuracoes
 _carregar_modulo "auth.sh"       # Autenticacao
 _carregar_modulo "lembrete.sh"   # Sistema de lembretes
-_carregar_modulo "vaievem.sh"      # Operacoes de rede
+_carregar_modulo "vaievem.sh"    # Operacoes de rede
 _carregar_modulo "sistema.sh"    # Informacoes do sistema
 _carregar_modulo "arquivos.sh"   # Gestao de arquivos
 _carregar_modulo "backup.sh"     # Sistema de backup
 _carregar_modulo "programas.sh"  # Gestao de programas
 _carregar_modulo "biblioteca.sh" # Gestao de biblioteca
 _carregar_modulo "help.sh"       # Sistema de ajuda
-_carregar_modulo "menus.sh"       # Menu principal
+_carregar_modulo "menus.sh"      # Modulos de Menu
 
 # Funcao principal de inicializacao
 _inicializar_sistema() {
