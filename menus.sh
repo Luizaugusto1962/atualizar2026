@@ -4,7 +4,7 @@
 # Responsavel pela apresentacao e navegacao dos menus do sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 30/03/2026-00
+# Versao: 01/04/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -251,7 +251,7 @@ _menu_arquivos() {
         if [[ "${dbmaker}" != "s" ]]; then
             _mensagec "${GREEN}" "1${NORM} -|: Rotinas de Backup         "
             printf "\n" 
-            _mensagec "${GREEN}" "2${NORM} -|: Recuperar Arquivos        "
+            _mensagec "${GREEN}" "2${NORM} -|: Reconstruir Arquivos      "
             printf "\n"
         fi
         _mensagec "${GREEN}" "3${NORM} -|: Enviar & Receber Arquivos "
