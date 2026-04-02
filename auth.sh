@@ -4,7 +4,7 @@
 # Responsavel pela autenticacao de usuarios
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 30/03/2026-01
+# Versao: 02/04/2026-00
 # Autor: Luiz Augusto
 #
 #
@@ -78,66 +78,68 @@ _cadastrar_usuario() {
 # Funcao para login
 _login() {
     local senha hash_senha stored_hash
+    local tentativas=1
+    local resposta
     # usuario is made global to be used in logging
 
-    _mensagec "${RED}" "Login no Sistema"
-    _linha "=" "${GREEN}"
+    while [[ $tentativas -le 2 ]]; do
+        _mensagec "${RED}" "Login no Sistema"
+        _linha "=" "${GREEN}"
 
- #   read -rp "${YELLOW}Usuario: ${NORM}" usuario
- #   usuario=$(echo "$usuario" | tr '[:lower:]' '[:upper:]')
- #   read -rsp "${YELLOW}Senha: ${NORM}" senha
- #   printf "\n"
- 
-    read -rp "${YELLOW}Usuario: ${NORM}" usuario
-    usuario=$(echo "$usuario" | tr '[:lower:]' '[:upper:]' | xargs)
+        read -rp "${YELLOW}Usuario: ${NORM}" usuario
+        usuario=$(echo "$usuario" | tr '[:lower:]' '[:upper:]' | xargs)
 
-    if [[ -z "$usuario" ]]; then
-        _mensagec "${RED}" "Nome de usuario nao pode ser vazio."
-        return 1
-    fi
+        if [[ -z "$usuario" ]]; then
+            _mensagec "${RED}" "Nome de usuario nao pode ser vazio."
+        else
+            read -rsp "${YELLOW}Senha: ${NORM}" senha
+            printf "\n"
 
-    read -rsp "${YELLOW}Senha: ${NORM}" senha
-    printf "\n"
+            if [[ -z "$senha" ]]; then
+                _mensagec "${RED}" "Senha nao pode ser vazia."
+            elif [[ ! -f "$SENHA_FILE" ]]; then
+                _mensagec "${RED}" "Nenhum usuario cadastrado. Execute o programa de cadastro primeiro."
+                return 1
+            elif [[ ! -s "$SENHA_FILE" ]]; then
+                # Verificar se o arquivo de senhas esta vazio
+                _mensagec "${RED}" "ALERTA: Arquivo de senhas esta vazio. Nenhum usuario cadastrado no sistema."
+                _mensagec "${YELLOW}" "Execute o programa de cadastro primeiro."
+                _linha "-" "${RED}"
+                return 1
+            else
+                stored_hash=$(grep "^${usuario}:" "$SENHA_FILE" | cut -d':' -f2)
+                if [[ -z "$stored_hash" ]]; then
+                    _mensagec "${RED}" "Usuario nao encontrado."
+                    _linha "-" "${RED}"
+                else
+                    hash_senha=$(_hash_senha "$senha")
+                    if [[ "$hash_senha" == "$stored_hash" ]]; then
+                        _mensagec "${GREEN}" "Login bem-sucedido."
+                        export usuario
+                        return 0
+                    else
+                        _mensagec "${RED}" "Senha incorreta."
+                        _linha "-" "${RED}"
+                        printf "\n"
+                        # Clear usuario on failure
+                        unset usuario
+                    fi
+                fi
+            fi
+        fi
 
-    if [[ -z "$senha" ]]; then
-        _mensagec "${RED}" "Senha nao pode ser vazia."
-        return 1
-    fi
-
-    if [[ ! -f "$SENHA_FILE" ]]; then
-        _mensagec "${RED}" "Nenhum usuario cadastrado. Execute o programa de cadastro primeiro."
-        return 1
-    fi
-
-    # Verificar se o arquivo de senhas esta vazio
-    if [[ ! -s "$SENHA_FILE" ]]; then
-        _mensagec "${RED}" "ALERTA: Arquivo de senhas esta vazio. Nenhum usuario cadastrado no sistema."
-        _mensagec "${YELLOW}" "Execute o programa de cadastro primeiro."
-        _linha "-" "${RED}"
-
-        return 1
-    fi
-
-    stored_hash=$(grep "^${usuario}:" "$SENHA_FILE" | cut -d':' -f2)
-    if [[ -z "$stored_hash" ]]; then
-        _mensagec "${RED}" "Usuario nao encontrado."
-        _linha "-" "${RED}"
-        return 1
-    fi
-
-    hash_senha=$(_hash_senha "$senha")
-    if [[ "$hash_senha" == "$stored_hash" ]]; then
-        _mensagec "${GREEN}" "Login bem-sucedido."
-        export usuario
-        return 0
-    else
-        _mensagec "${RED}" "Senha incorreta."
-        _linha "-" "${RED}"
+        if [[ $tentativas -ge 2 ]]; then
+            return 1
+        fi
+        
+        read -rp "${YELLOW}Deseja tentar novamente? (s/N): ${NORM}" resposta
+        if [[ ! "$resposta" =~ ^[sS]$ ]]; then
+            return 1
+        fi
+        ((tentativas++))
         printf "\n"
-        # Clear usuario on failure
-        unset usuario
-        return 1
-    fi
+    done
+    return 1
 }    
 
 # Funcao para alterar senha
