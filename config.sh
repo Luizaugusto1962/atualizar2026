@@ -4,7 +4,7 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 01/04/2026-00
+# Versao: 02/04/2026-00
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
@@ -43,6 +43,11 @@ lib_dir="${lib_dir:-}"                           # Caminho do diretorio de bibli
 base="${base:-}"                                 # Caminho do diretorio da base de dados.
 base2="${base2:-}"                               # Caminho do diretorio da segunda base de dados.
 base3="${base3:-}"                               # Caminho do diretorio da terceira base de dados.
+progs="${progs:-}"                               # Caminho do diretorio dos programas.  
+envia="${envia:-}"                               # Caminho do diretorio de envio.   
+recebe="${recebe:-}"                             # Caminho do diretorio de recebimento.     
+backup="${backup:-}"                             # Caminho do diretorio de backup.      
+bkbase="${bkbase:-}"                             # Caminho do diretorio de backup da base.          
 logs="${logs:-}"                                 # Caminho do diretorio dos arquivos de log.
 olds="${olds:-}"                                 # Caminho do diretorio dos arquivos de backup.
 libs="${libs:-}"                                 # Caminho do diretorio das bibliotecas.
@@ -195,7 +200,7 @@ _configurar_diretorios() {
     RECEBE="${RECEBE:-${TOOLS_DIR}/recebe}"                   # Diretorio de recebimento
     LIBS="${LIBS:-${TOOLS_DIR}/libs}"                         # Diretorio de bibliotecas
     BACKUP="${BACKUP:-${TOOLS_DIR}/backup}"                   # Diretorio de backup
-    BASEBACKUP="${BASEBACKUP:-${TOOLS_DIR}/bases_backup}"     # Diretorio de backup de base
+    BASEBACKUP="${BASEBACKUP:-${TOOLS_DIR}/bkbase}"           # Diretorio de backup de base
     # Exportar variaveis de diretorio para uso global
     export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP BASEBACKUP
 
