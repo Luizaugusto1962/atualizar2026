@@ -2,7 +2,7 @@
 #
 # SISTEMA SAV - Script de Atualizacao Modular
 # lembrete.sh - Modulo de Lembretes e Notas
-# Versao: 26/03/2026-00
+# Versao: 02/04/2026-00
 # Autor: Luiz Augusto
 # utils.sh - Modulo de Utilitarios e Funcoes Auxiliares  
 # Funcoes basicas para formatacao, mensagens, validacao e controle de fluxo
@@ -45,23 +45,6 @@ _escrever_nova_nota() {
         _read_sleep 2
     fi
 }
-################
-_escrever_nova_nota2() {
-    clear
-    _linha
-    _mensagec "${YELLOW}" "Digite sua nota (pressione Ctrl+D para finalizar):"
-    _linha
-
-    local arquivo_notas="${cfg_dir}/lembrete"
-    if cat >> "$arquivo_notas"; then
-        _linha
-        _mensagec "${YELLOW}" "Nota gravada com sucesso!"
-        _read_sleep 2
-    else
-        _mensagec "${RED}" "Erro ao gravar nota"
-        _read_sleep 2
-    fi
-}
 
 # Mostra notas iniciais se existirem
 _mostrar_notas_iniciais() {
@@ -97,25 +80,6 @@ _gerar_aviso_entrada() {
         _read_sleep 2
     else
         rm -f "$arquivo_tmp"
-        _mensagec "${RED}" "Erro ao gravar mensagem"
-        _read_sleep 2
-    fi
-}
-
-###########
-_gerar_aviso_entrada2() {
-    clear
-    _linha
-    _mensagec "${YELLOW}" "Digite a mensagem de entrada (Ctrl+D para finalizar):"
-    _linha
-
-    local arquivo_msg="${cfg_dir}/avisos"
-    # sobrescreve o arquivo existente
-    if cat > "$arquivo_msg"; then
-        _linha
-        _mensagec "${GREEN}" "Mensagem gravada com sucesso!"
-        _read_sleep 2
-    else
         _mensagec "${RED}" "Erro ao gravar mensagem"
         _read_sleep 2
     fi

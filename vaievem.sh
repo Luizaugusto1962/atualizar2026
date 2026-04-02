@@ -4,7 +4,7 @@
 # Responsavel por operacoes de download/upload via rsync, sftp e ssh
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 26/03/2026-00
+# Versao: 02/04/2026-00
 #
 #---------- CONFIGURACOES DE CONEXAO ----------#
 #
@@ -124,30 +124,6 @@ _download_scp() {
             _log_erro "SCP retornou sucesso mas arquivo ausente ou vazio: ${arquivo_destino}"
             return 1
         fi
-    else
-        _log_erro "Falha no download SCP: ${arquivo_remoto}"
-        return 1
-    fi
-}
-
-######
-_download_scp2() {
-    local arquivo_remoto="$1"
-    local destino_local="${2:-.}"
-    local servidor="${3:-$ipserver}"
-    local porta="${4:-$SERVER_PORTA}"
-    local rem_user="${5:-$USUARIO}"
-
-    if [[ -z "$arquivo_remoto" ]]; then
-        _log_erro "Erro: Arquivo remoto nao especificado para SCP"
-        return 1
-    fi
-
-    _log "Iniciando download SCP: ${arquivo_remoto}"
-
-    if scp -P "$porta" "${rem_user}@${servidor}:${arquivo_remoto}" "$destino_local"; then
-        _log_sucesso "Download SCP concluido: ${arquivo_remoto}"
-        return 0
     else
         _log_erro "Falha no download SCP: ${arquivo_remoto}"
         return 1
