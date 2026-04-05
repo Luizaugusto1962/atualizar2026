@@ -4,12 +4,12 @@
 # Responsavel pela apresentacao e navegacao dos menus do sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 01/04/2026-00
+# Versao: 05/04/2026-01
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Nome do sistema (iscobol, savatu, transpc).
-cfg_dir="${cfg_dir:-${TOOLS_DIR}/cfg}"    # Diretorio de configuracoes
+cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"    # Diretorio de configuracoes
 
 if [[ ! -d "${cfg_dir}" ]]; then
     mkdir -p "${cfg_dir}" || {
@@ -62,7 +62,7 @@ _ler_opcao_menu() {
 # Menu principal do sistema
 _principal() {
     while true; do
-        tput clear
+        _limpa_tela
         printf "\n"
         
         # Cabecalho
@@ -107,7 +107,7 @@ _principal() {
             4) _menu_ferramentas ;;
             0) _menu_ajuda_principal ;;
             9) 
-                clear
+                _limpa_tela
                 _encerrar_programa 0
                 ;;
             *)
@@ -123,7 +123,7 @@ _principal() {
 # Menu de atualizacao de programas
 _menu_programas() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu de Programas"
@@ -178,7 +178,7 @@ _menu_programas() {
 # Menu de atualizacao de biblioteca
 _menu_biblioteca() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu da Biblioteca"
@@ -236,7 +236,7 @@ _menu_biblioteca() {
 # Menu de arquivos do sistema
 _menu_arquivos() {
     while true; do
-        tput clear
+        _limpa_tela
         printf "\n"
         
         _linha "=" "${GREEN}"
@@ -309,7 +309,7 @@ _menu_arquivos() {
 # Menu de ferramentas do sistema
 _menu_ferramentas() {
     while true; do
-        tput clear
+        _limpa_tela
         printf "\n"
         
         _linha "=" "${GREEN}"
@@ -372,7 +372,7 @@ _menu_ferramentas() {
 # Menu de limpeza de arquivos temporarios
 _menu_temporarios() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu de Limpeza"
@@ -416,7 +416,7 @@ _menu_temporarios() {
 # Menu de recuperacao de arquivos
 _menu_recuperar_arquivos() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu de Recuperacao de Arquivo(s)"
@@ -457,7 +457,7 @@ _menu_recuperar_arquivos() {
 # Menu de backup do sistema
 _menu_backup() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu de Backup(s)"
@@ -505,7 +505,7 @@ _menu_backup() {
 # Menu de envio e recebimento de arquivos
 _menu_transferencia_arquivos() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu de Enviar e Receber Arquivo(s)"
@@ -544,7 +544,7 @@ _menu_transferencia_arquivos() {
 # Menu de setups do sistema
 _menu_setups() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu de Setup do Sistema"
@@ -602,7 +602,7 @@ _menu_setups() {
 # Menu de bloco de notas/lembretes
 _menu_lembretes() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" " Bloco de Notas "
@@ -655,7 +655,7 @@ _menu_lembretes() {
 # Menu de aviso inicial
 _menu_avisos() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu de Aviso(s)"
@@ -697,7 +697,7 @@ _menu_avisos() {
 # Menu dos logs do sistema
 _menu_logs() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu dos Logs"
@@ -744,7 +744,7 @@ _menu_ajuda_principal() {
     fi
     
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "SISTEMA DE AJUDA"
@@ -796,7 +796,7 @@ _menu_ajuda_principal() {
 # Menu para escolher base de dados
 _menu_escolha_base() {
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Escolha a Base"
@@ -860,7 +860,7 @@ _menu_escolha_base() {
 _menu_tipo_backup() {
 
     while true; do
-        clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Menu de Tipo de Backup(s)"

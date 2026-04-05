@@ -10,11 +10,10 @@
 # Variaveis globais esperadas
 raiz="${raiz:-}"              # Diretorio raiz do sistema.
 
-# Limpa a tela e posiciona cursor no centro
-#_meiodatela() {
-#    printf "\033c\033[10;10H\n"
-#}
-
+# Função para limpar tela
+_limpar_tela() {
+    clear
+}
 _meiodatela() {
     local lines cols
 

@@ -4,7 +4,7 @@
 # Responsavel pela autenticacao de usuarios
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 02/04/2026-00
+# Versao: 05/04/2026-01
 # Autor: Luiz Augusto
 #
 #
@@ -121,7 +121,7 @@ _login() {
                         _mensagec "${RED}" "Senha incorreta."
                         _linha "-" "${RED}"
                         printf "\n"
-                        # Clear usuario on failure
+                        # _limpa_tela usuario on failure
                         unset usuario
                     fi
                 fi

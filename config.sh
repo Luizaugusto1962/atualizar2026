@@ -4,14 +4,14 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 02/04/2026-00
+# Versao: 05/04/2026-01
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
 # Arrays para organizacao das variaveis
 declare -a cores=(RED GREEN YELLOW BLUE PURPLE CYAN NORM)
 declare -a atualizac=(sistema verclass dbmaker base base2 base3 acessossh ipserver Offline enviabackup empresa VERSAOANT)
-declare -a caminhos_base=(BASE1 BASE2 BASE3 TOOLS_DIR raiz base base2 base3 backup bases_backup logs olds cfg libs envia recebe)
+declare -a caminhos_base=(BASE1 BASE2 BASE3 SCRIPT_DIR raiz base base2 base3 backup bases_backup logs olds cfg libs envia recebe)
 declare -a caminhos_base2=(INI UMADATA acessoff E_EXEC T_TELAS X_XML)
 declare -a biblioteca=(SAVATU SAVATU1 SAVATU2 SAVATU3 SAVATU4)
 declare -a comandos=(cmd_unzip cmd_zip cmd_find cmd_who DEFAULT_UNZIP DEFAULT_ZIP DEFAULT_FIND DEFAULT_WHO jut JUTIL ISCCLIENT ISCCLIENTT)
@@ -168,13 +168,13 @@ _configurar_comandos() {
 _configurar_diretorios() {
     
     # Verificar diretorio principal
-    if [[ -z "${TOOLS_DIR}" ]] || [[ ! -d "${TOOLS_DIR}" ]]; then
-        _mensagec "${CYAN}" "Diretorio principal nao encontrado: ${TOOLS_DIR}"
+    if [[ -z "${SCRIPT_DIR}" ]] || [[ ! -d "${SCRIPT_DIR}" ]]; then
+        _mensagec "${CYAN}" "Diretorio principal nao encontrado: ${SCRIPT_DIR}"
         exit 1
     fi
 
     # Definir diretorio de configuracao
-    raiz="${TOOLS_DIR%/*}"
+    raiz="${SCRIPT_DIR%/*}"
 
     # Criar diretorio de configuracao se nao existir
     if [[ ! -d "${cfg_dir}" ]]; then
@@ -193,14 +193,14 @@ _configurar_diretorios() {
    
 
     # Definir diretorios de trabalho
-    OLDS="${OLDS:-${TOOLS_DIR}/olds}"                         # Diretorio de arquivos antigos
-    PROGS="${PROGS:-${TOOLS_DIR}/progs}"                      # Diretorio de programas
-    LOGS="${LOGS:-${TOOLS_DIR}/logs}"                         # Diretorio de logs
-    ENVIA="${ENVIA:-${TOOLS_DIR}/envia}"                      # Diretorio de envio
-    RECEBE="${RECEBE:-${TOOLS_DIR}/recebe}"                   # Diretorio de recebimento
-    LIBS="${LIBS:-${TOOLS_DIR}/libs}"                         # Diretorio de bibliotecas
-    BACKUP="${BACKUP:-${TOOLS_DIR}/backup}"                   # Diretorio de backup
-    BASEBACKUP="${BASEBACKUP:-${TOOLS_DIR}/bkbase}"           # Diretorio de backup de base
+    OLDS="${OLDS:-${SCRIPT_DIR}/olds}"                         # Diretorio de arquivos antigos
+    PROGS="${PROGS:-${SCRIPT_DIR}/progs}"                      # Diretorio de programas
+    LOGS="${LOGS:-${SCRIPT_DIR}/logs}"                         # Diretorio de logs
+    ENVIA="${ENVIA:-${SCRIPT_DIR}/envia}"                      # Diretorio de envio
+    RECEBE="${RECEBE:-${SCRIPT_DIR}/recebe}"                   # Diretorio de recebimento
+    LIBS="${LIBS:-${SCRIPT_DIR}/libs}"                         # Diretorio de bibliotecas
+    BACKUP="${BACKUP:-${SCRIPT_DIR}/backup}"                   # Diretorio de backup
+    BASEBACKUP="${BASEBACKUP:-${SCRIPT_DIR}/bkbase}"           # Diretorio de backup de base
     # Exportar variaveis de diretorio para uso global
     export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP BASEBACKUP
 
@@ -341,7 +341,7 @@ _configurar_acessos() {
 # Funcao principal de carregamento de configuracoes
 _carregar_configuracoes() {
     # Mudar para diretorio do script
-    cd "${TOOLS_DIR}" || exit 1
+    cd "${SCRIPT_DIR}" || exit 1
     
     # Definir cores
     _definir_cores
@@ -405,7 +405,7 @@ _configurar_ambiente() {
 
 # Funcao para validar a configuracao atual do sistema
 _validar_configuracao() {
-    clear
+    _limpa_tela
     _linha "=" "${GREEN}"
     _mensagec "${RED}" "Validacao de Configuracao"
     _linha
@@ -455,7 +455,7 @@ _validar_configuracao() {
             dir_path="${!dir}"
         else
             # Para outros diretorios, usar o caminho padrao
-            dir_path="${TOOLS_DIR}${!dir}"
+            dir_path="${SCRIPT_DIR}${!dir}"
         fi
         
         if [[ ! -d "${dir_path}" ]]; then
@@ -487,8 +487,8 @@ _validar_configuracao() {
 }
 
 _ir_para_tools() {
-    cd "${TOOLS_DIR}" || {
-        printf "Erro ao acessar o diretorio %s\n" "${TOOLS_DIR}"
+    cd "${SCRIPT_DIR}" || {
+        printf "Erro ao acessar o diretorio %s\n" "${SCRIPT_DIR}"
         exit 1
     }
 }

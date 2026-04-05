@@ -9,7 +9,7 @@
 #   - ./setup.sh --edit: Modo de edicao para modificar configuracoes existentes.
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/03/2026-00
+# Versao: 05/04/2026-01
 
 #---------- FUNCAO DE LOGICA DE NEGOCIO ----------#
 # Variaveis globais esperadas
@@ -21,7 +21,7 @@ declare -u empresa
                               # Diretorio do servidor offline
 # Configuracao inicial do sistema
 _initial_setup() {
-    clear
+    _limpa_tela
 
     # Constantes
     local tracejada="#-------------------------------------------------------------------#"
@@ -63,7 +63,7 @@ _initial_setup() {
     _setup_empresa
 
     # Criar atalho global
-    echo "cd ${TOOLS_DIR:-TOOLS_DIR}" > /usr/local/bin/atualiza
+    echo "cd ${SCRIPT_DIR:-SCRIPT_DIR}" > /usr/local/bin/atualiza
     echo "./atualiza.sh" >> /usr/local/bin/atualiza
     chmod +x /usr/local/bin/atualiza
 
@@ -461,14 +461,14 @@ cd .. || exit 1
 
  
 # Diretorio do script
-TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-raiz="${TOOLS_DIR%/*}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+raiz="${SCRIPT_DIR%/*}"
 acessoff="${acessoff:-${raiz}/portalsav/Atualiza}"  
 
 # Diretorios dos modulos e configuracoes
-lib_dir="${TOOLS_DIR}/libs"
-cfg_dir="${TOOLS_DIR}/cfg"
-readonly TOOLS_DIR raiz acessoff lib_dir cfg_dir
+lib_dir="${SCRIPT_DIR}/libs"
+cfg_dir="${SCRIPT_DIR}/cfg"
+readonly SCRIPT_DIR raiz acessoff lib_dir cfg_dir
 
 # Verifica se o diretorio libs existe
 if [[ ! -d "${lib_dir}" ]]; then
@@ -489,7 +489,7 @@ fi
         # Verificar se os arquivos de configuracao ja existem
 
         if [[ -f "${cfg_dir}/.config" ]]; then  
-            clear
+            _limpa_tela
             echo "Arquivos de configuracao ja existem."
             while true; do
                 read -rp "Deseja sobrescrevê-los com a configuracao inicial? [s/N]: " choice

@@ -4,7 +4,7 @@
 # Permite cadastrar usuarios e senhas para o sistema SAV
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 30/03/2026-01
+# Versao: 05/04/2026-01
 # Autor: Luiz Augusto
 #
 #
@@ -13,11 +13,11 @@ cfg_dir="${cfg_dir:-}"                 # Diretorio de configuracao
 lib_dir="${lib_dir:-}"                 # Diretorio de modulos de biblioteca
 
 # Diretorio do script principal
-TOOLS_DIR="${TOOLS_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")}"
+SCRIPT_DIR="${SCRIPT_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")}"
 
 # Diretorios dos modulos e configuracoes
-lib_dir="${lib_dir:-${TOOLS_DIR}/libs}"       # Diretorio dos modulos de biblioteca
-cfg_dir="${cfg_dir:-${TOOLS_DIR}/cfg}"  
+lib_dir="${lib_dir:-${SCRIPT_DIR}/libs}"       # Diretorio dos modulos de biblioteca
+cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"  
 
 # Carregar modulos necessarios
 "." "${lib_dir}/utils.sh" 2>/dev/null || { echo "Erro: utils.sh nao encontrado."; exit 1; }
@@ -30,7 +30,7 @@ cfg_dir="${cfg_dir:-${TOOLS_DIR}/cfg}"
 # Funcao principal
 main() {
     while true; do
-        tput clear
+        _limpa_tela
         printf "\n"
         _linha "=" "${GREEN}"
         _mensagec "${RED}" "Cadastro de Usuario - Sistema SAV"
@@ -57,7 +57,7 @@ main() {
                 read -rp "Pressione ENTER para continuar..." -t 5
                 ;;
             0)
-                clear
+                _limpa_tela
                 exit 0
                 ;;
             *)

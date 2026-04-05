@@ -14,7 +14,7 @@ cfg_dir="${cfg_dir:-}"          # Caminho do diretorio de configuracao do progra
 # Mostra menu de lembretes
 # Escreve nova nota
 _escrever_nova_nota() {
-    clear
+    _limpa_tela
     _linha
     _mensagec "${YELLOW}" "Digite sua nota (pressione Ctrl+D para finalizar):"
     _linha
@@ -58,7 +58,7 @@ _mostrar_notas_iniciais() {
 # ---------- MENSAGEM DE ENTRADA ----------
 # Gera ou edita a mensagem que sera exibida ao iniciar o programa
 _gerar_aviso_entrada() {
-    clear
+    _limpa_tela
     _linha
     _mensagec "${YELLOW}" "Digite a mensagem de entrada (Ctrl+D para finalizar):"
     _linha
@@ -89,7 +89,7 @@ _gerar_aviso_entrada() {
 _editar_aviso_existente() {
     local arquivo_avisos="${cfg_dir}/avisos"
     
-    clear
+    _limpa_tela
     if [[ -f "$arquivo_avisos" ]]; then
         if ! ${EDITOR:-nano} "$arquivo_avisos"; then
             _mensagec "${RED}" "Erro ao abrir editor!"
@@ -105,7 +105,7 @@ _editar_aviso_existente() {
 _mostrar_aviso() {
     local arquivo_msg="${cfg_dir}/avisos"
     if [[ -f "$arquivo_msg" ]] && grep -q '[^[:space:]]' "$arquivo_msg"; then
-        clear
+        _limpa_tela
         _linha "=" "${CYAN}"
         _mensagec "${YELLOW}" "MENSAGEM DE ENTRADA"
         _linha "=" "${CYAN}"
@@ -163,7 +163,7 @@ _visualizar_notas_arquivo() {
         return 1
     fi
 
-    clear
+    _limpa_tela
     _linha "=" "${CYAN}"
     _mensagec "${YELLOW}" "LEMBRETES E NOTAS"
     _linha "=" "${CYAN}"
@@ -192,7 +192,7 @@ _visualizar_notas_arquivo() {
 _editar_nota_existente() {
     local arquivo_notas="${cfg_dir}/lembrete"
     
-    clear
+    _limpa_tela
     if [[ -f "$arquivo_notas" ]]; then
         if ! ${EDITOR:-nano} "$arquivo_notas"; then
             _mensagec "${RED}" "Erro ao abrir editor!"

@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao das bibliotecas do sistema (Transpc, Savatu)
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 26/03/2026-00
+# Versao: 05/04/2026-01
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                 # Tipo de sistema (iscobol/mf)
@@ -61,7 +61,7 @@ trap '_limpar_interrupcao TERM' TERM
 
 # Atualizacao do Transpc
 _atualizar_transpc() {
-    clear
+    _limpa_tela
     _solicitar_versao_biblioteca
     
     if [[ -z "${VERSAO}" ]]; then
@@ -79,13 +79,19 @@ _atualizar_transpc() {
     _mensagec "${YELLOW}" "Informe a senha para o usuario remoto:"
     _linha
     _configurar_acessos
+    # Verificar espaco em disco
+    if ! _verificar_espaco_disco "$E_EXEC"; then
+        _mensagec "$RED" "Espaco em disco insuficiente em $E_EXEC"
+        _read_sleep 3
+        return 1
+    fi
     _baixar_biblioteca_sincroniza
     _salvar_atualizacao_biblioteca
 }
 
 # Atualizacao offline da biblioteca
 _atualizar_biblioteca_offline() {
-    clear
+    _limpa_tela
        _linha
     _mensagec "${YELLOW}" "Diretorio de download: ${WHITE}${down_dir}"
      _solicitar_versao_biblioteca
@@ -163,7 +169,7 @@ _processar_biblioteca_offline() {
 _salvar_atualizacao_biblioteca() {
     cd "${down_dir}" || return 1
 
-    clear
+    _limpa_tela
     _definir_variaveis_biblioteca
 
     # Verificar arquivos de atualizacao
@@ -254,7 +260,7 @@ _processar_atualizacao_biblioteca() {
         fi
     fi
     _ir_para_tools
-    clear
+    _limpa_tela
     _linha
     _mensagec "${YELLOW}" "Backup Completo"
     _linha
@@ -297,7 +303,7 @@ _executar_atualizacao_biblioteca() {
 
 # Definir diretorio de configuracao usando variaveis locais
     local raiz_local
-    raiz_local="${TOOLS_DIR%/*}"
+    raiz_local="${SCRIPT_DIR%/*}"
     local principal_local
     principal_local="$(dirname "$raiz_local")"
 
@@ -326,7 +332,7 @@ _executar_atualizacao_biblioteca() {
             fi
             _linha
             _read_sleep 1
-            clear
+            _limpa_tela
         fi
     done
 

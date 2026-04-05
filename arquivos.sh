@@ -3,7 +3,7 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferencia e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 01/04/2026-00
+# Versao: 05/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
@@ -12,8 +12,8 @@ base3="${base3:-}"                        # Caminho do diretorio da terceira bas
 cmd_zip="${cmd_zip:-}"                    # Comando para compactacao (ex: zip).
 jut="${jut:-}"                            # Caminho para o utilitario jutil.
 raiz="${raiz:-}"                          # Caminho raiz do sistema.
-cfg_dir="${cfg_dir:-${TOOLS_DIR}/cfg}"    # Caminho do diretorio de configuracoes.
-LOGS="${LOGS:-${TOOLS_DIR}/logs}"         # Diretorio de logs
+cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"    # Caminho do diretorio de configuracoes.
+LOGS="${LOGS:-${SCRIPT_DIR}/logs}"         # Diretorio de logs
 
 #---------- FUNCOES DE LIMPEZA ----------#
 
@@ -154,7 +154,7 @@ _limpar_base_especifica() {
 # Adiciona arquivo à lista de limpeza
 _adicionar_arquivo_lixo() {
     
-    clear
+    _limpa_tela
     _meiodatela
     _mensagec "${CYAN}" "Informe o nome do arquivo a ser adicionado ao limpetmp2"
     _linha
@@ -179,7 +179,7 @@ _adicionar_arquivo_lixo() {
 
 _lista_arquivos_lixo() {
     
-    clear
+    _limpa_tela
     _meiodatela
     _mensagec "${CYAN}" "Lista de arquivos no limpetmp:"
     _linha
@@ -213,7 +213,7 @@ _recuperar_arquivo_especifico() {
         return 1
     fi
 
-    clear
+    _limpa_tela
     if [[ "${sistema}" != "iscobol" ]]; then
         _mensagec "${RED}" "Recuperacao em desenvolvimento para este sistema"
         _press
@@ -264,7 +264,7 @@ _recuperar_arquivo_especifico() {
         # Se vazio, assumir "N"
         [[ -z "$continuar" ]] && continuar="N"
     
-        clear
+        _limpa_tela
     done
     
     _ir_para_tools
@@ -429,7 +429,7 @@ _executar_jutil() {
 
 # Envia arquivo avulso
 _enviar_arquivo_avulso() {
-    clear
+    _limpa_tela
     local dir_origem arquivo_enviar destino_remoto
     
     # Solicitar diretorio de origem
@@ -540,7 +540,7 @@ _enviar_arquivo_avulso() {
 
 # Recebe arquivo avulso
 _receber_arquivo_avulso() {
-    clear
+    _limpa_tela
     local origem_remota arquivo_receber destino_local
     
     # Solicitar origem remota
@@ -594,7 +594,7 @@ _receber_arquivo_avulso() {
 # Executa expurgador de arquivos antigos
 _executar_expurgador() {
     local origem="${1:-principal}"
-    clear
+    _limpa_tela
     
     _linha
     _mensagec "${RED}" "Verificando e excluindo arquivos com mais de 30 dias"
@@ -654,7 +654,7 @@ _executar_expurgador() {
 }
 
 _listar_logs_atualizacao() {
-    clear
+    _limpa_tela
     _linha
     _mensagec "${YELLOW}" "Logs de Atualizacao encontrados em ${LOGS}:"
     _linha
@@ -692,7 +692,7 @@ _listar_logs_atualizacao() {
         return 0
     fi
 
-    clear
+    _limpa_tela
     _linha
 
     if (( opcao == 0 )); then
@@ -727,7 +727,7 @@ _listar_logs_atualizacao() {
     read -r
 } 
 _listar_logs_limpeza() {
-    clear
+    _limpa_tela
     _linha
     _mensagec "${YELLOW}" "Logs de Limpeza encontrados em ${LOGS}:"
     _linha
@@ -765,7 +765,7 @@ _listar_logs_limpeza() {
         return 0
     fi
 
-    clear
+    _limpa_tela
     _linha
 
     if (( opcao == 0 )); then

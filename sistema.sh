@@ -4,7 +4,7 @@
 # Responsavel por informacoes do IsCOBOL, Linux, parametros e atualizacoes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 01/04/2026-00
+# Versao: 05/04/2026-01
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"      # Caminho do diretorio de configuracao do programa.
@@ -18,7 +18,7 @@ mclass="${mclass:-}"        # Variavel da mclass.
 _mostrar_versao_iscobol() {
     if [[ "${sistema}" == "iscobol" ]]; then
         if [[ -x "${SAVISC}${ISCCLIENT}" ]]; then
-            clear
+            _limpa_tela
             _linha "=" "${GREEN}"
             _mensagec "${GREEN}" "Versao do IsCobol"
             _linha "=" "${GREEN}"
@@ -47,7 +47,7 @@ _mostrar_versao_iscobol() {
 
 # Mostra informacoes do Linux
 _mostrar_versao_linux() {
-    clear
+    _limpa_tela
     printf "\n"
     _mensagec "${GREEN}" "Vamos descobrir qual S.O. / Distro voce esta executando"
     _linha
@@ -96,7 +96,7 @@ _mostrar_versao_linux() {
 
     _linha
     _press
-    clear
+    _limpa_tela
     _linha
 
     # Checando os usuarios logados
@@ -143,11 +143,11 @@ _mostrar_parametros() {
     if [[ -f "${cfg_dir}/.versao" ]]; then
         "." "${cfg_dir}/.versao"
     fi
-    clear
+    _limpa_tela
     _linha "=" "${GREEN}"
     printf "${GREEN}Sistema e banco de dados: ${NORM}${dbmaker}${NORM}%*s\n"
     printf "${GREEN}Diretorio raiz: ${NORM}${raiz}${NORM}%*s\n"
-    printf "${GREEN}Diretorio do atualiza.sh: ${NORM}${TOOLS_DIR}${NORM}%*s\n"
+    printf "${GREEN}Diretorio do atualiza.sh: ${NORM}${SCRIPT_DIR}${NORM}%*s\n"
     printf "${GREEN}Diretorio da base principal: ${NORM}${raiz}${base}${NORM}%*s\n"
     printf "${GREEN}Diretorio da segunda base: ${NORM}${raiz}${base2}${NORM}%*s\n"
     printf "${GREEN}Diretorio da terceira base: ${NORM}${raiz}${base3}${NORM}%*s\n"
@@ -167,7 +167,7 @@ _mostrar_parametros() {
     printf "${GREEN}Biblioteca 4: ${NORM}${SAVATU4}${NORM}%*s\n"
     _linha "=" "${GREEN}"
     _press
-    clear
+    _limpa_tela
     _linha "=" "${GREEN}"
     printf "${GREEN}Diretorio para envio de backup: ${NORM}${enviabackup}${NORM}%*s\n"
     printf "${GREEN}Diretorio do backup de base: ${NORM}${BASEBACKUP}${NORM}%*s\n"
@@ -339,7 +339,7 @@ _atualizando() {
         # Determinar destino baseado no nome do arquivo
         local sh_target
         if [[ "$arquivo" == "atualiza.sh" ]]; then
-            sh_target="${TOOLS_DIR}"
+            sh_target="${SCRIPT_DIR}"
         else
             sh_target="${lib_dir}"
         fi
@@ -628,7 +628,7 @@ _manutencao_setup() {
         _mensagec "${YELLOW}" "Arquivo .config nao encontrado."
     fi
 
-    clear
+    _limpa_tela
 
     # === Edição interativa das variáveis ===
     editar_variavel sistema

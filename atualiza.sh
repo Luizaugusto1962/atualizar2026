@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Atualiza.sh - Script de Atualizacao Modular do SISTEMA SAV
-# Versao: 30/02/2026-00
+# Versao: 05/04/2026-01
 # Autor: Luiz Augusto
 # Os programas usados por este script devem estar na pasts /libs.
 
@@ -13,22 +13,22 @@ if [[ ! -t 0 && ! -p /dev/stdin ]]; then
     printf "%s\n" "Este script deve ser executado interativamente" >&2
     exit 1
 fi
-TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Diretorio do script atual
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Diretorio do script atual
 
-# Diretorio do script TOOLS_DIR
-PLIBS_DIR="${TOOLS_DIR}/libs" # Diretorio das bibliotecas
-export PLIBS_DIR TOOLS_DIR  # Define variaveis como somente leitura
+# Diretorio do script SCRIPT_DIR
+PLIBS_DIR="${SCRIPT_DIR}/libs" # Diretorio das bibliotecas
+export PLIBS_DIR SCRIPT_DIR  # Define variaveis como somente leitura
 
-# Garante que TOOLS_DIR e PLIBS_DIR existam e tenham permissao 0777
-if [[ ! -d "${TOOLS_DIR}" ]]; then
-    mkdir -p "${TOOLS_DIR}" || {
-        printf "%s\n" "ERRO: Nao foi possivel criar o diretorio ${TOOLS_DIR}."
+# Garante que SCRIPT_DIR e PLIBS_DIR existam e tenham permissao 0777
+if [[ ! -d "${SCRIPT_DIR}" ]]; then
+    mkdir -p "${SCRIPT_DIR}" || {
+        printf "%s\n" "ERRO: Nao foi possivel criar o diretorio ${SCRIPT_DIR}."
         exit 1
     }
 fi
 
-chmod -R 0777 "${TOOLS_DIR}" 2>/dev/null || {
-    printf "%s\n" "AVISO: Nao foi possivel ajustar permissao em ${TOOLS_DIR}."
+chmod -R 0777 "${SCRIPT_DIR}" 2>/dev/null || {
+    printf "%s\n" "AVISO: Nao foi possivel ajustar permissao em ${SCRIPT_DIR}."
 }
 
 if [[ ! -d "${PLIBS_DIR}" ]]; then

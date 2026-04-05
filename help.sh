@@ -4,7 +4,7 @@
 # Fornece documentacao completa e help contextual para o sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 26/03/2026-01
+# Versao: 05/04/2026-01
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"     # Diretorio de configuracoes
@@ -65,7 +65,7 @@ _exibir_paginado() {
                     ;;
                 *)
                     # ENTER ou qualquer outra tecla continua
-                    clear
+                    _limpa_tela
                     ;;
             esac
         fi
@@ -132,7 +132,7 @@ _exibir_manual_completo() {
         return 1
     fi
     
-    clear
+    _limpa_tela
     
     local linhas_por_pagina=25
     local total_linhas
@@ -140,7 +140,7 @@ _exibir_manual_completo() {
     local linha_atual=1
     
     while [[ $linha_atual -le $total_linhas ]]; do
-        clear
+        _limpa_tela
         sed -n "${linha_atual},$((linha_atual + linhas_por_pagina - 1))p" "$MANUAL_FILE"
         
         linha_atual=$((linha_atual + linhas_por_pagina))
@@ -155,7 +155,7 @@ _exibir_manual_completo() {
                     break
                     ;;
                 a)
-                    clear
+                    _limpa_tela
                     sed -n "${linha_atual},\$p" "$MANUAL_FILE"
                     break
                     ;;
@@ -221,7 +221,7 @@ _exibir_ajuda_contextual() {
             ;;
     esac
     
-    clear
+    _limpa_tela
     _linha "=" "${CYAN}"
     _mensagec "${CYAN}" "AJUDA - ${contexto^^}"
     _linha "=" "${CYAN}"
@@ -284,7 +284,7 @@ _ajuda_rapida() {
             ;;
     esac
     
-    clear
+    _limpa_tela
     _linha "=" "${CYAN}"
     _mensagec "${CYAN}" "AJUDA - ${contexto^^}"
     _linha "=" "${CYAN}"
@@ -324,7 +324,7 @@ _ajuda_no_geral() {
             ;;
     esac
     
-    clear
+    _limpa_tela
     _linha "=" "${CYAN}"
     _mensagec "${CYAN}" "AJUDA - ${contexto^^}"
     _linha "=" "${CYAN}"
@@ -367,7 +367,7 @@ _buscar_manual() {
         return 1
     fi
     
-    clear
+    _limpa_tela
     _linha "=" "${CYAN}"
     _mensagec "${CYAN}" "RESULTADOS DA BUSCA: $termo"
     _linha "=" "${CYAN}"
@@ -389,7 +389,7 @@ _buscar_manual() {
 
 # Exporta manual para arquivo externo
 _exportar_manual() {
-    local destino="${1:-$TOOLS_DIR/manual_sav.txt}"
+    local destino="${1:-$SCRIPT_DIR/manual_sav.txt}"
     
     if ! _verificar_manual; then
         _press
@@ -410,7 +410,7 @@ _exportar_manual() {
 
 # Menu para selecionar contexto de ajuda
 _menu_selecao_contexto() {
-    clear
+    _limpa_tela
     _linha "=" "${CYAN}"
     _mensagec "${CYAN}" "SELECIONE O CONTEXTO"
     _linha "=" "${CYAN}"
