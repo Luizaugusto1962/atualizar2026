@@ -932,7 +932,7 @@ COMPONENTES:
 * DATA: Ano, mes, dia, hora, minuto, segundo
 
 LOCALIZACAO:
-tools/backup/
+tools/bkbase/
 
 RETENCAO:
 * Local: 30 dias (expurgador)
