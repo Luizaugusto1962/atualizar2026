@@ -8,6 +8,13 @@
 set -euo pipefail # Configuracao de seguranca para o script
 export LC_ALL=C
 
+# Verificar se é root
+if [ "$EUID" -ne 0 ]; then
+   printf "%s\n" "Aviso: Nao esta executando como root"
+   printf "%s\n" "Alguns recursos podem exigir privilegios elevados"
+   printf "\n"
+fi
+
 # Verificacoes basicas
 if [[ ! -t 0 && ! -p /dev/stdin ]]; then
     printf "%s\n" "Este script deve ser executado interativamente" >&2
