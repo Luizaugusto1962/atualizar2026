@@ -229,11 +229,11 @@ _atualizando() {
     for arquivo in *.sh; do
         # Verificar se o arquivo existe
         [[ -f "$arquivo" ]] || continue
-#       if [[ ! -f "$arquivo" ]]; then
-#           _mensagec "${YELLOW}" "Aviso: Nenhum arquivo .sh encontrado para backup"
-#           _read_sleep 2
-#            break
-#        fi
+        if [[ ! -f "$arquivo" ]]; then
+           _mensagec "${YELLOW}" "Aviso: Nenhum arquivo .sh encontrado para backup"
+           _read_sleep 2
+           return 1
+         fi
 
         # Copiar o arquivo para o diretorio de backup
         if cp -f "$arquivo" "$BACKUP/$arquivo.bkp"; then
