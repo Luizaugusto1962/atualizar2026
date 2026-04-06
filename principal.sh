@@ -9,6 +9,8 @@
 UPDATE="01/04/26-v.2026"
 export UPDATE
 
+set -euo pipefail # Configuracao de seguranca para o script
+
 # Diretorio do script principal
 SCRIPT_DIR="${SCRIPT_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")}"
 
