@@ -205,7 +205,7 @@ _configurar_diretorios() {
     export OLDS PROGS LOGS ENVIA RECEBE LIBS BACKUP BASEBACKUP
 
     # Criar diretorios se nao existirem
-    local dirs=("${OLDS}" "${PROGS}" "${LOGS}" "${ENVIA}" "${RECEBE}" "${LIBS}" "${BACKUP}" "${BASEBACKUP}")
+    local dirs=("${BASEBACKUP}" "${OLDS}" "${PROGS}" "${LOGS}" "${ENVIA}" "${RECEBE}" "${LIBS}" "${BACKUP}")
     for dir in "${dirs[@]}"; do
         if [[ ! -d "${dir}" ]]; then
             mkdir -p "${dir}" || {

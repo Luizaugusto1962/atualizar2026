@@ -205,7 +205,7 @@ _executar_update() {
 
 # Atualizacao online via GitHub
 _atualizando() {
-    _configurar_diretorios
+#    _configurar_diretorios
 
     # Criar backup do arquivo atual
     if [[ ! -d "${BACKUP}" ]]; then
@@ -225,15 +225,15 @@ _atualizando() {
         _read_sleep 2
         return 1
     }
-    # Processar todos os arquivos .sh para backup
-    for arquivo in *.sh; do
-        # Verificar se o arquivo existe
-        if [[ ! -f "$arquivo" ]]; then
-            _mensagec "${YELLOW}" "Aviso: Nenhum arquivo .sh encontrado para backup"
-            _read_sleep 2
-            break
-        fi
-
+    
+    # ✅ CORREÇÃO: Ativar nullglob para iterar TODOS os arquivos corretamente
+    # Isto evita que o padrão *.sh seja tratado como literal quando não há matches
+    shopt -s nullglob
+    local -a sh_files=(*.sh)
+    shopt -u nullglob
+    
+    # Processar TODOS os arquivos .sh para backup
+    for arquivo in "${sh_files[@]}"; do
         # Copiar o arquivo para o diretorio de backup
         if cp -f "$arquivo" "$BACKUP/$arquivo.bkp"; then
             _mensagec "${GREEN}" "Backup do arquivo $arquivo feito com sucesso"
@@ -283,6 +283,16 @@ _atualizando() {
         _read_sleep 2 
         return 1
     fi
+    
+    # ✅ CRÍTICO: Garantir que estamos no diretório correto ANTES de expandir *.sh
+    # Os arquivos .sh foram descompactados em $RECEBE, então precisamos estar lá
+    if [[ "$(pwd)" != "$RECEBE" ]]; then
+        cd "$RECEBE" || {
+            _mensagec "${RED}" "Erro: Nao foi possivel acessar diretorio $RECEBE"
+            return 1
+        }
+    fi
+    
     # Verificar e instalar arquivos
     local arquivos_instalados=0
     local arquivos_erro=0
@@ -322,15 +332,16 @@ _atualizando() {
     done
 
     #---------- INSTALAR ARQUIVOS .SH ----------#
-    # Processa todos os arquivos .sh encontrados
+    # ✅ CORREÇÃO CRÍTICA: Processa TODOS os arquivos .sh encontrados
+    # Usa shopt nullglob para garantir iteração de TODOS os matches
+    # Importante: Os arquivos estão em $RECEBE (descompactados)
     local sh_instalados=0
+    
+    shopt -s nullglob
+    local -a arquivos_sh=(*.sh)
+    shopt -u nullglob
 
-    for arquivo in *.sh; do
-        # Verificar se o arquivo existe
-        if [[ ! -f "$arquivo" ]]; then
-            continue  
-        fi
-
+    for arquivo in "${arquivos_sh[@]}"; do
         # Definir permissões executáveis
         chmod +x "$arquivo" || {
             _mensagec "${RED}" "Aviso: falha ao definir permissao em $arquivo"
@@ -350,7 +361,6 @@ _atualizando() {
             ((arquivos_erro++))
             chmod 0700 "$sh_target" 2>/dev/null || true
             continue
-
         fi
 
         # Mover arquivo para destino
@@ -443,7 +453,7 @@ fi
     }
 
     # Baixar arquivo
-    if ! wget -q -c "$link"; then
+    if ! wget -q -c "$link" -O "atualiza.zip"; then
         _mensagec "${RED}" "Erro ao baixar arquivo de atualizacao"
         _mensagec "${YELLOW}" "Verifique sua conexao com a internet e tente novamente"
         _read_sleep 2
