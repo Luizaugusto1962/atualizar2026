@@ -11,7 +11,7 @@
 raiz="${raiz:-}"              # Diretorio raiz do sistema.
 
 # Função para limpar tela
-_limpar_tela() {
+_limpa_tela() {
     clear
 }
 _meiodatela() {
