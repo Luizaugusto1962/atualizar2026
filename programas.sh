@@ -248,7 +248,7 @@ _coletar_artefatos_atualizacao() {
                     _mensagec "${GREEN}" "  -> ${prog}"
                 done
                 _linha
-                if ! _confirmar "Confirma a selecao dos programas acima?" "S"; then
+                if ! _confirmar "${WHITE}"" Confirma a selecao do(s) programa(s) acima?" "S"; then
                     PROGRAMAS_SELECIONADOS=()
                     ARQUIVOS_PROGRAMA=()
                     _mensagec "${YELLOW}" "Selecao cancelada."
