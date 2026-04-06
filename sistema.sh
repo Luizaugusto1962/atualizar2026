@@ -238,10 +238,10 @@ _atualizando() {
         # Copiar o arquivo para o diretorio de backup
         if cp -f "$arquivo" "$BACKUP/$arquivo.bkp"; then
             _mensagec "${GREEN}" "Backup do arquivo $arquivo feito com sucesso"
-            ((backup_sucesso++))
+            ((backup_sucesso++)) || true
         else
             _mensagec "${RED}" "Erro ao fazer backup de $arquivo"
-            ((backup_erro++))
+            ((backup_erro++)) || true
             _read_sleep 2
         fi
     done
