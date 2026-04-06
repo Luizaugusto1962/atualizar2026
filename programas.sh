@@ -131,7 +131,7 @@ _selecionar_programas_reversao() {
     local idx=1
     for programa in "${programas[@]}"; do
         _mensagec "${GREEN}" "${idx}) ${programa}"
-        ((idx++))
+        ((idx++)) || true
     done
 
     _linha

@@ -154,8 +154,9 @@ _visualizar_notas_arquivo() {
     cols=$(tput cols 2>/dev/null || echo 80)
 
     # Ajuste para o prefixo "* - " e identacao
-    local largura=$(( cols - 6 ))
-    (( largura < 40 )) && largura=40
+    local largura
+    largura=$(( cols - 6 ))
+    [[ $largura -lt 40 ]] && largura=40
 
     if [[ ! -f "$arquivo" || ! -r "$arquivo" ]]; then
         _mensagec "${RED}" "Arquivo de notas nao encontrado ou ilegivel: $arquivo"

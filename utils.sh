@@ -184,7 +184,7 @@ _confirmar() {
             n|nao) return 1 ;;
             *)
                 _mensagec "${RED}" "Resposta invalida. Use S ou N."
-                ((tentativas++))
+                ((tentativas++)) || true
                 ;;
         esac
     done

@@ -306,7 +306,7 @@ _atualizando() {
         # Criar destino se não existir
         if ! mkdir -p "$cfg_target" 2>/dev/null; then
             _mensagec "${RED}" "Erro ao criar diretorio de destino: $cfg_target"
-            ((arquivos_erro++))
+            ((arquivos_erro++)) || true
             chmod 0700 "$cfg_target" 2>/dev/null || true
             continue
         fi
@@ -314,11 +314,11 @@ _atualizando() {
         # Mover arquivo para destino
         if mv -f "$cfg_arquivo" "$cfg_target/$cfg_arquivo"; then
             _mensagec "${GREEN}" "Arquivo $cfg_arquivo instalado em $cfg_target"
-            ((arquivos_instalados++))
+            ((arquivos_instalados++)) || true
              
         else
             _mensagec "${RED}" "ERRO:Falha ao instalar $cfg_arquivo"
-            ((arquivos_erro++))
+            ((arquivos_erro++)) || true
         fi
     done
 
@@ -348,7 +348,7 @@ _atualizando() {
         # Criar destino se não existir
         if ! mkdir -p "$sh_target" 2>/dev/null; then
             _mensagec "${RED}" "Erro ao criar diretorio: $sh_target"
-            ((arquivos_erro++))
+            ((arquivos_erro++)) || true
             chmod 0700 "$sh_target" 2>/dev/null || true
             continue
 
@@ -357,11 +357,11 @@ _atualizando() {
         # Mover arquivo para destino
         if mv -f "$arquivo" "$sh_target/"; then
             _mensagec "${GREEN}" "Instalado $arquivo em $sh_target"
-            ((arquivos_instalados++))
-            ((sh_instalados++))
+            ((arquivos_instalados++)) || true
+            ((sh_instalados++)) || true
         else
             _mensagec "${RED}" "ERRO: Falha ao instalar $arquivo"
-            ((arquivos_erro++))
+            ((arquivos_erro++)) || true
         fi
     done
 

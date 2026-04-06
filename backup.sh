@@ -354,7 +354,8 @@ _selecionar_backup() {
             fi
 
             # Agora o indice corresponde corretamente à lista exibida
-            local idx=$((REPLY - 1))
+            local idx
+            idx=$((REPLY - 1))
             if (( idx >= 0 && idx < ${#arquivos_backup[@]} )); then
                 backup_selecionado="${arquivos_backup[$idx]}"
                 break

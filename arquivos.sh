@@ -320,7 +320,7 @@ _recuperar_arquivo_individual() {
     for arquivo in ${base_trabalho}/${padrao_arquivo}; do
         if [[ -f "$arquivo" ]]; then
             _executar_jutil "$arquivo"
-            ((arquivos_encontrados++))
+            ((arquivos_encontrados++)) || true
         fi
     done
     

@@ -136,7 +136,7 @@ _login() {
         if [[ ! "$resposta" =~ ^[sS]$ ]]; then
             return 1
         fi
-        ((tentativas++))
+        ((tentativas++)) || true
         printf "\n"
     done
     return 1

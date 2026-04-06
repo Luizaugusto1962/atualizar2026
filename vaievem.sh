@@ -293,7 +293,7 @@ _enviar_arquivo_multi() {
         local falhas_envio=0
         for arquivo_item in "${arquivos_encontrados[@]}"; do
             if ! _upload_rsync "$arquivo_item" "${destino_remoto}/"; then
-                ((falhas_envio++))
+                ((falhas_envio++)) || true
             fi
         done
         if (( falhas_envio == 0 )); then

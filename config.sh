@@ -416,7 +416,7 @@ _validar_configuracao() {
     # Verificar arquivos de configuracao
     if [[ ! -f "${cfg_dir}/.config" ]]; then
         _mensagec "${RED}" "ERRO: Arquivo .config nao encontrado!"
-        ((erros++))
+        ((erros++)) || true
     else
         _mensagec "${GREEN}" "OK: Arquivo .config encontrado"
     fi
@@ -424,24 +424,24 @@ _validar_configuracao() {
     # Verificar variaveis essenciais
     if [[ -z "${sistema}" ]]; then
         _mensagec "${RED}" "ERRO: Variavel 'sistema' nao definida!"
-        ((erros++))
+        ((erros++)) || true
     elif [[ "${sistema}" != "iscobol" && "${sistema}" != "cobol" ]]; then
         _mensagec "${YELLOW}" "Alerta: Valor desconhecido para 'sistema': ${sistema}"
-        ((warnings++))
+        ((warnings++)) || true
     else
         _mensagec "${GREEN}" "OK: Sistema definido como ${sistema}"
     fi
     
     if [[ -z "${raiz}" ]]; then
         _mensagec "${RED}" "ERRO: Variavel 'raiz' nao definida!"
-        ((erros++))
+        ((erros++)) || true
     else
         _mensagec "${GREEN}" "OK: Diretorio raiz definido"
     fi
     
     if [[ -z "${dbmaker}" ]]; then
         _mensagec "${YELLOW}" "Alerta: Variavel 'dbmaker' nao definida"
-        ((warnings++))
+        ((warnings++)) || true
     else
         _mensagec "${GREEN}" "OK: Configuracao de banco de dados definida"
     fi
@@ -460,7 +460,7 @@ _validar_configuracao() {
         
         if [[ ! -d "${dir_path}" ]]; then
             _mensagec "${YELLOW}" "Alerta: Diretorio ${dir} nao encontrado: ${dir_path}"
-            ((warnings++))
+            ((warnings++)) || true
         fi
     done
     

@@ -216,7 +216,7 @@ _processar_atualizacao_biblioteca() {
     _mostrar_progresso_backup "$pid_zip_exec"
     if wait "$pid_zip_exec"; then
         pids=("${pids[@]/$pid_zip_exec}")  # Remover PID apos concluido
-        ((contador++))
+        ((contador++)) || true
         _mensagec "${GREEN}" "Compactacao de $E_EXEC concluida [Etapa ${contador}/${total_etapas}]"
         _linha
     else
@@ -233,7 +233,7 @@ _processar_atualizacao_biblioteca() {
     pids+=("$pid_zip_telas")  # Registrar PID
     _mostrar_progresso_backup "$pid_zip_telas"
     if wait "$pid_zip_telas"; then
-        ((contador++))
+        ((contador++)) || true
         _mensagec "${GREEN}" "Compactacao de $T_TELAS concluida [Etapa ${contador}/${total_etapas}]"
         _linha
     else
@@ -251,7 +251,7 @@ _processar_atualizacao_biblioteca() {
         pids+=("$pid_zip_xml")  # Registrar PID
         _mostrar_progresso_backup "$pid_zip_xml"
         if wait "$pid_zip_xml"; then
-            ((contador++))
+            ((contador++)) || true
             _mensagec "${GREEN}" "Compactacao de $X_XML concluida [Etapa ${contador}/${total_etapas}]"
             _linha
         else
@@ -297,7 +297,7 @@ _executar_atualizacao_biblioteca() {
     # Contar arquivos a processar
     local total_arquivos=0
     for arquivo in "${arquivos_update[@]}"; do
-        [[ -n "${arquivo}" && -r "${arquivo}" ]] && ((total_arquivos++))
+        [[ -n "${arquivo}" && -r "${arquivo}" ]] && { ((total_arquivos++)) || true; }
     done
     local contador=1
 
@@ -324,7 +324,7 @@ _executar_atualizacao_biblioteca() {
             _mostrar_progresso_backup "$pid_unzip"
             if wait "$pid_unzip"; then
                 _mensagec "${GREEN}" "Descompactacao de ${arquivo} concluida com sucesso"
-                ((contador++))
+                ((contador++)) || true
             else
                 _mensagec "${RED}" "Erro na descompactacao de ${arquivo} - Verifique o log ${LOG_ATU}"
                 _read_sleep 2
