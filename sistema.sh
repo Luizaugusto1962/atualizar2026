@@ -4,7 +4,7 @@
 # Responsavel por informacoes do IsCOBOL, Linux, parametros e atualizacoes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/04/2026-01
+# Versao: 07/04/2026-01
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"      # Caminho do diretorio de configuracao do programa.
@@ -171,6 +171,7 @@ _mostrar_parametros() {
     _linha "=" "${GREEN}"
     printf "${GREEN}Diretorio para envio de backup: ${NORM}${enviabackup}${NORM}%*s\n"
     printf "${GREEN}Diretorio do backup de base: ${NORM}${BASEBACKUP}${NORM}%*s\n"
+    printf "${GREEN}Diretorio do backup da biblioteca: ${NORM}${BIBLIOTECA}${NORM}%*s\n"
     printf "${GREEN}Servidor OFF: ${NORM}${Offline}${NORM}%*s\n"
     printf "${GREEN}Diretorio de configuracoes em OFF: ${NORM}${down_dir}${NORM}%*s\n"
     printf "${GREEN}Versao da biblioteca atual: ${NORM}${VERSAOANT}${NORM}%*s\n"
