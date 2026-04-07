@@ -6,7 +6,7 @@
 # Email: luizaugusto@sav.com.br
 #
 # Versao do sistema
-UPDATE="01/04/26-v.2026"
+UPDATE="07/04/26-v.2026"
 export UPDATE
 
 # Diretorio do script principal
