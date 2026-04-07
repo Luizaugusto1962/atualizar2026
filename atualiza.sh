@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Atualiza.sh - Script de Atualizacao Modular do SISTEMA SAV
-# Versao: 30/02/2026-00
+# Versao: 07/04/2026-00
 # Autor: Luiz Augusto
 # Os programas usados por este script devem estar na pasts /libs.
 
@@ -13,11 +13,11 @@ if [[ ! -t 0 && ! -p /dev/stdin ]]; then
     printf "%s\n" "Este script deve ser executado interativamente" >&2
     exit 1
 fi
-TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Diretorio do script atual
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Diretorio do script atual
 
-# Diretorio do script TOOLS_DIR
-PLIBS_DIR="${TOOLS_DIR}/libs" # Diretorio das bibliotecas
-export PLIBS_DIR TOOLS_DIR  # Define variaveis como somente leitura
+# Diretorio do script SCRIPT_DIR
+PLIBS_DIR="${SCRIPT_DIR}/libs" # Diretorio das bibliotecas
+export PLIBS_DIR SCRIPT_DIR  # Define variaveis como somente leitura
 
 # Verifica se o diretorio libs existe
 if [[ ! -d "${PLIBS_DIR}" ]]; then
