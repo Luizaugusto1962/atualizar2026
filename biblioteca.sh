@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao das bibliotecas do sistema (Transpc, Savatu)
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/04/2026-01
+# Versao: 07/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                 # Tipo de sistema (iscobol/mf)
@@ -35,7 +35,7 @@ _limpar_interrupcao() {
     # Limpeza de temporarios (ex: zips parciais ou descompactados incompletos)
     _ir_para_tools
 
-    for temp_file in *"${VERSAO}".zip *"${VERSAO}".bkp; do
+    for temp_file in *"${VERSAO}".zip; do
         if [[ -f "$temp_file" ]]; then
             rm -f "$temp_file" 
             _log "Arquivo temporario removido: $temp_file"
@@ -43,7 +43,7 @@ _limpar_interrupcao() {
     done
         
     # Verificar se backup parcial existe e sugerir rollback
-    local ultimo_backup="${OLDS}/backup-*.zip"
+    local ultimo_backup="${BIBLIOTECA}/backup_biblioteca_antes_da_versao-*.zip"
     if [[ -n "$(ls -A "${ultimo_backup}" 2>/dev/null)" ]]; then
         _mensagec "${YELLOW}" "Backup parcial encontrado. Considere reverter manualmente com '_reverter_biblioteca'"
     fi
@@ -124,7 +124,7 @@ _reverter_biblioteca() {
         return 1
     fi
 
-    local arquivo_backup="${OLDS}/backup-${versao_reverter}.zip"
+    local arquivo_backup="${BIBLIOTECA}/backup_biblioteca_antes_da_versao-${versao_reverter}.zip"
 
     if [[ ! -r "${arquivo_backup}" ]]; then
         _mensagec "${RED}" "Backup da biblioteca nao encontrado: ${WHITE}${arquivo_backup}"
@@ -190,8 +190,8 @@ _salvar_atualizacao_biblioteca() {
 
 # Processa a atualizacao da biblioteca
 _processar_atualizacao_biblioteca() {
-    local arquivo_backup="backup-${VERSAO}.zip"
-    local caminho_backup="${OLDS}/${arquivo_backup}"
+    local arquivo_backup="backup_biblioteca_antes_da_versao-${VERSAO}.zip"
+    local caminho_backup="${BIBLIOTECA}/${arquivo_backup}"
 
     # Inicializar contadores para progresso geral (opcional, para log final)
     local contador=0
@@ -344,29 +344,16 @@ _executar_atualizacao_biblioteca() {
     # Ir para o diretório envia para renomear os arquivos
     cd "${down_dir:-}" || return 1
     
-    # Mover arquivos .zip para .bkp
+    # Excluir arquivos .zip da atualizacao
     for arquivo_zip in *_"${VERSAO}".zip; do
         if [[ -f "${arquivo_zip}" ]]; then
-            mv -f "${arquivo_zip}" "${arquivo_zip%.zip}.bkp"
+            rm -f "${arquivo_zip}"
         fi
     done
-    
-    # Mover backups para diretorio
-    local arquivos=(*_"${VERSAO}".bkp)
-    if (( ${#arquivos[@]} )); then
-        mv -- "${arquivos[@]}" "${OLDS}" || {
-        _mensagec "${YELLOW}" "Erro ao mover arquivos de backup."
-        _read_sleep 2
-        return 1
-        }
-    else
-        _mensagec "${YELLOW}" "Nenhum arquivo de backup para mover"
-    fi
 
     # Atualizar mensagens finais
     _linha
-    _mensagec "${YELLOW}" "Alterando a extensao da atualizacao"
-    _mensagec "${YELLOW}" "De *.zip para *.bkp"
+    _mensagec "${YELLOW}" "Arquivos .zip da atualizacao removidos"
     _mensagec "${RED}" "Versao atualizada - ${VERSAO}"
     _linha
 
@@ -393,8 +380,8 @@ _reverter_biblioteca_completa() {
     local arquivo_backup="$1"
     local raiz="/"
 
-    if ! cd "${OLDS}"; then
-        _mensagec "${RED}" "Erro: Falha ao acessar o diretorio ${OLDS}"
+    if ! cd "${BIBLIOTECA}"; then
+        _mensagec "${RED}" "Erro: Falha ao acessar o diretorio ${BIBLIOTECA}"
         _press
         return 1
     fi
@@ -417,8 +404,8 @@ _reverter_programa_especifico_biblioteca() {
     local arquivo_backup="$1"
     local programa_reverter
 
-    if ! cd "${OLDS}"; then
-        _mensagec "${RED}" "Erro: Falha ao acessar o diretorio ${OLDS}"
+    if ! cd "${BIBLIOTECA}"; then
+        _mensagec "${RED}" "Erro: Falha ao acessar o diretorio ${BIBLIOTECA}"
         _read_sleep 2
         return 1
     fi
