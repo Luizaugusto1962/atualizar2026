@@ -360,6 +360,9 @@ _carregar_configuracoes() {
     
     # Configurar acesso offline
     _configurar_acessos
+
+    # Verificar e remover diretorio .ssh se existir
+    _verificar_remover_ssh
 }
 
 # Funcao para validar diretorios essenciais
@@ -445,6 +448,7 @@ _validar_configuracao() {
     else
         _mensagec "${GREEN}" "OK: Configuracao de banco de dados definida"
     fi
+   
     
     # Verificar diretorios essenciais
     local dirs=("olds" "logs" "cfg" "libs" "backup" "bases_backup" "envia" "recebe" "E_EXEC" "T_TELAS" "BASE1")
@@ -484,6 +488,17 @@ _validar_configuracao() {
     fi
     
     _linha
+}
+
+# Verificar e remover diretorio .ssh dentro de SCRIPT_DIR se existir
+_verificar_remover_ssh() {
+    local ssh_dir="${SCRIPT_DIR}/.ssh"
+    if [[ -d "${ssh_dir}" ]]; then
+        rm -rf "${ssh_dir}" || {
+            printf "AVISO: Nao foi possivel remover o diretorio %s\n" "${ssh_dir}"
+            return 1
+        }
+    fi
 }
 
 _ir_para_tools() {
