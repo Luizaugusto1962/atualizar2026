@@ -250,7 +250,7 @@ _configurar_variaveis_sistema() {
     
     # Caminho completo do jutil
     jut="${SAVISC}${JUTIL}"
-    export SAVISCC SAVISC JUTIL ISCCLIENT jut
+    export SAVISC ISCCLIENT jut
     
     # Configurar porta e acesso
     if [[ -z "${SERVER_PORTA}" ]]; then
