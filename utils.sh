@@ -306,9 +306,9 @@ _limpar_arquivos_antigos() {
 }
 
 #---------- FUNCOES DE INICIALIZACAO ----------#
-
 # Executa limpeza automatica diaria
 _executar_expurgador_diario() {
+
     local flag_file
     local savlog="${raiz}/portalsav/log"
     local err_isc="${raiz}/err_isc"
@@ -329,10 +329,10 @@ _executar_expurgador_diario() {
     _limpar_arquivos_antigos "${BACKUP}" 30 "*.*"
     _limpar_arquivos_antigos "${BASEBACKUP}" 30 "*.*"
     _limpar_arquivos_antigos "${OLDS}" 30 "*.*"
-    _limpar_arquivos_antigos "${BIBLIOTECA}" 30 "*.*"
-    _limpar_arquivos_antigos "${PROGS}" 30 "*.*"
-    _limpar_arquivos_antigos "${ENVIA}" 30 "*.*"
-    _limpar_arquivos_antigos "${RECEBE}" 30 "*.*"
+    _limpar_arquivos_antigos "${LIBS}" 10 "*.*"
+    _limpar_arquivos_antigos "${PROGS}" 10 "*.*"
+    _limpar_arquivos_antigos "${ENVIA}" 10 "*.*"
+    _limpar_arquivos_antigos "${RECEBE}" 10 "*.*"
     # Limpar arquivos específicos do sistema
     _limpar_arquivos_antigos "${savlog}" 30 "*.*"
     _limpar_arquivos_antigos "${err_isc}" 30 "*.*"

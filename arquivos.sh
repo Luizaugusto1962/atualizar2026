@@ -3,7 +3,7 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferencia e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/04/2026-00
+# Versao: 08/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
@@ -592,6 +592,8 @@ _receber_arquivo_avulso() {
 
 # Executa expurgador de arquivos antigos
 _executar_expurgador() {
+    _executar_expurgador_diario
+
     local origem="${1:-principal}"
     _limpa_tela
     
@@ -603,6 +605,9 @@ _executar_expurgador() {
     # Definir diretorios para limpeza
     local diretorios_limpeza=(
         "${BACKUP}/"
+        "${BIBLIOTECA}/"
+        "${ENVIA}/"
+        "${RECEBE}/"
         "${BASEBACKUP}/"
         "${OLDS}/"
         "${PROGS}/"
@@ -611,12 +616,8 @@ _executar_expurgador() {
         "${raiz}/err_isc/"
         "${raiz}/savisc/viewvix/tmp/"
     )
-    
-    local diretorios_zip=(
-        "${E_EXEC}/"
-        "${T_TELAS}/"
-    )
-    
+   
+   
     # Limpar arquivos antigos nos diretorios padrao
     for diretorio in "${diretorios_limpeza[@]}"; do
         if [[ -d "$diretorio" ]]; then
@@ -627,7 +628,12 @@ _executar_expurgador() {
             _mensagec "${YELLOW}" "Diretorio nao encontrado: ${diretorio}"
         fi
     done
-    
+
+    local diretorios_zip=(
+        "${E_EXEC}/"
+        "${T_TELAS}/"
+    )
+
     # Limpar arquivos ZIP antigos especificos
     for diretorio in "${diretorios_zip[@]}"; do
         if [[ -d "$diretorio" ]]; then
