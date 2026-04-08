@@ -328,8 +328,6 @@ _baixar_pacotes_vaievem() {
 _mover_arquivos_offline() {
     _configurar_acessos
 
-#    cd "${down_dir}" || return 1
-#    if [[ "${Offline}" == "s" ]]; then
         for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
             if [[ -f "${down_dir}/${arquivo}" ]]; then
                 _mensagec "${GREEN}" "Arquivo encontrado: ${arquivo}"

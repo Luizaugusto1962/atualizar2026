@@ -18,7 +18,8 @@ verclass="${verclass:-}"
 # Variáveis globais
 declare -l sistema base base2 base3 dbmaker enviabackup
 declare -u empresa
-                              # Diretorio do servidor offline
+
+# Diretorio do servidor offline
 # Configuracao inicial do sistema
 _initial_setup() {
     _limpa_tela

@@ -41,17 +41,7 @@ get "${arquivo_remoto}" "${destino_local}"
 quit
 EOF
     )
-#    local sftp_exit=$?
 
-    # 1ª verificacao: exit code do processo sftp
-    # 2ª verificacao: mensagens de erro na saida (sftp retorna 0 mesmo em falhas internas)
-
-#    if (( sftp_exit != 0 )) || \
-#       echo "$sftp_output" | grep -qiE "no such file|not found|error|failed|permission denied"; then
-#        _log_erro "Falha no download SFTP SSH: ${arquivo_remoto}"
-#        _log_erro "Saida sftp: ${sftp_output}"
-#        return 1
-#    fi
     local padroes_erro=(
         "no such file"
         "not found"
