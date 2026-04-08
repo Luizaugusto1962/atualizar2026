@@ -10,7 +10,7 @@
 sistema="${sistema:-}"                 # Tipo de sistema (iscobol/mf)
 cmd_zip="${cmd_zip:-}"                 # Comando de compactacao (zip)
 cmd_unzip="${cmd_unzip:-}"             # Comando de descompactacao (unzip)
-cmd_find="${cmd_find:-}"               # Comando find
+cmd_find="${cmd_find:-}"               # Comando de busca (find)
 acessossh="${acessossh:-}"             # Acesso via SSH (s/n)
 Offline="${Offline:-}"                 # Modo offline (s/n)
 down_dir="${down_dir:-}"               # Diretorio de download
