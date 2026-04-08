@@ -4,7 +4,7 @@
 # Funcoes basicas para formatacao, mensagens, validacao e controle de fluxo
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 01/04/2026-00
+# Versao: 07/04/2026-00
 
 #---------- FUNCOES DE FORMATACAO DE TELA ----------#
 # Variaveis globais esperadas
@@ -329,6 +329,11 @@ _executar_expurgador_diario() {
     _limpar_arquivos_antigos "${BACKUP}" 30 "*.*"
     _limpar_arquivos_antigos "${BASEBACKUP}" 30 "*.*"
     _limpar_arquivos_antigos "${OLDS}" 30 "*.*"
+    _limpar_arquivos_antigos "${BIBLIOTECA}" 30 "*.*"
+    _limpar_arquivos_antigos "${PROGS}" 30 "*.*"
+    _limpar_arquivos_antigos "${ENVIA}" 30 "*.*"
+    _limpar_arquivos_antigos "${RECEBE}" 30 "*.*"
+    # Limpar arquivos específicos do sistema
     _limpar_arquivos_antigos "${savlog}" 30 "*.*"
     _limpar_arquivos_antigos "${err_isc}" 30 "*.*"
     _limpar_arquivos_antigos "${viewvix}" 30 "*.*"
