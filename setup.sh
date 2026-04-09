@@ -283,7 +283,7 @@ _setup_backup() {
     echo "###     ( Nome de pasta no servidor da SAV )                ###"
     echo "Nome de pasta no servidor da SAV, informar somento o nome do cliente"
     read -rp "(Ex: cliente/\"NOME_da_pasta_do_CLIENTE\"): " enviabackup
-    echo "enviabackup=cliente/${enviabackup}_jisam" >> .config
+    echo "enviabackup=/cliente/${enviabackup}_jisam" >> .config
     fi
 }
 _setup_empresa() {
