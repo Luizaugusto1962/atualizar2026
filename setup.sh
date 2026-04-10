@@ -5,11 +5,11 @@
 # .config, que e essencial para o funcionamento do sistema.
 #
 # Modos de Operacao:
-#   - ./setup.sh: Modo de configuracao inicial interativo.
-#   - ./setup.sh --edit: Modo de edicao para modificar configuracoes existentes.
+#   ./atualiza.sh --setup          - Configuracao inicial interativa
+#   ./atualiza.sh --setup --edit   - Edicao das configuracoes existentes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 09/04/2026-00
+# Versao: 10/04/2026-00
 
 #---------- FUNCAO DE LOGICA DE NEGOCIO ----------#
 # Variaveis globais esperadas
@@ -18,6 +18,11 @@ verclass="${verclass:-}"
 # Variáveis globais
 declare -l sistema base base2 base3 dbmaker enviabackup
 declare -u empresa
+ip_do_server="179.94.20.40"
+# Limpar tela
+_limpa_tela() {
+    clear
+}
 
 # Diretorio do servidor offline
 # Configuracao inicial do sistema
@@ -217,13 +222,14 @@ _setup_banco_de_dados() {
 _setup_diretorios() {
     echo ${tracejada}
     echo "###     ( Nome de pasta no servidor )              ###"
-    read -rp "Nome da pasta da base de dados (Ex: /dados_jisam): " base
+    read -rp "Nome da pasta da base de dados (Ex: /dados_jisam) [/dados_jisam]: " base
+    base="${base:-/dados_jisam}"
     echo "base=${base}" >> .config
     echo ${tracejada}
-    read -rp "Nome da pasta da base 2 (Opcional): " base2
+    read -rp "Nome da pasta da segunda base  (Opcional): " base2
     [[ -n "$base2" ]] && echo "base2=${base2}" >> .config || echo "#base2=" >> .config
     echo ${tracejada}
-    read -rp "Nome da pasta da base 3 (Opcional): " base3
+    read -rp "Nome da pasta da terceira base (Opcional): " base3
     [[ -n "$base3" ]] && echo "base3=${base3}" >> .config || echo "#base3=" >> .config
     echo ${tracejada}
 }
@@ -235,7 +241,7 @@ _setup_acesso_remoto() {
         if [[ "${acessossh,,}" =~ ^[sn]$ ]]; then
             break
         else
-            echo "Entrada inválida. Digite S ou N."
+            echo "Entrada invalida. Digite S ou N."
         fi
     done
     if [[ "${acessossh,,}" == "s" ]]; then
@@ -245,9 +251,10 @@ _setup_acesso_remoto() {
     fi
     echo ${tracejada}
     echo "###      ( IP do servidor da SAV )         ###"
-    read -rp "Informe o IP do servidor: " ipserver
+    read -rp "Informe o IP do servidor [${ip_do_server}]: " ipserver
+    ipserver="${ipserver:-${ip_do_server}}"
     echo "ipserver=${ipserver}" >> .config
-    echo "IP do servidor:${ipserver}"
+    echo "IP do servidor: ${ipserver}"
     echo ${tracejada}
 
     echo "###      ( Tipo de acesso        )         ###"
@@ -257,7 +264,7 @@ _setup_acesso_remoto() {
         if [[ "${opt,,}" =~ ^[sn]$ ]]; then
             break
         else
-            echo "Entrada inválida. Digite S ou N."
+            echo "Entrada invalida. Digite S ou N."
         fi
     done
     if [[ "${opt,,}" == "s" ]]; then
@@ -295,7 +302,7 @@ echo ${tracejada}
     echo "empresa=${empresa}" >> .config
 }
 
-#---------- FUNcoES DE EDIcaO ----------#
+#---------- FUNCOES DE EDICAO ----------#
 
 # Edita uma variavel de forma interativa
 _editar_variavel() {
@@ -458,18 +465,16 @@ EOF
 # Funcao principal que direciona para o modo correto
 main() {
 
-cd .. || exit 1
-
- 
-# Diretorio do script
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Diretorio do script (compativel com chamada direta ou via atualiza.sh)
+SCRIPT_DIR="${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 raiz="${SCRIPT_DIR%/*}"
-acessoff="${acessoff:-${raiz}/portalsav/Atualiza}"  
+acessoff="${acessoff:-${raiz}/portalsav/Atualiza}"
 
 # Diretorios dos modulos e configuracoes
-lib_dir="${SCRIPT_DIR}/libs"
-cfg_dir="${SCRIPT_DIR}/cfg"
-readonly SCRIPT_DIR raiz acessoff lib_dir cfg_dir
+lib_dir="${lib_dir:-${SCRIPT_DIR}/libs}"
+cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"
+
+cd "${SCRIPT_DIR}" || exit 1
 
 # Verifica se o diretorio libs existe
 if [[ ! -d "${lib_dir}" ]]; then

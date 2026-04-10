@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 #
 # Atualiza.sh - Script de Atualizacao Modular do SISTEMA SAV
-# Versao: 07/04/2026-00
+# Versao: 10/04/2026-00
 # Autor: Luiz Augusto
-# Os programas usados por este script devem estar na pasts /libs.
+# Os programas usados por este script devem estar na pasta /libs.
+#
+# Uso:
+#   ./atualiza.sh                  - Executa o programa principal
+#   ./atualiza.sh --setup          - Executa a configuracao inicial do sistema
+#   ./atualiza.sh --setup --edit   - Edita as configuracoes existentes
+#   ./atualiza.sh --cadastro       - Executa o cadastro de usuarios
 
 set -euo pipefail # Configuracao de seguranca para o script
 export LC_ALL=C
@@ -25,13 +31,40 @@ if [[ ! -d "${PLIBS_DIR}" ]]; then
     exit 1
 fi
 
-# Verifica se o arquivo principal.sh existe
-if [[ -f "${PLIBS_DIR}/principal.sh" ]]; then
-    printf "%s\n" "Carregando utilitario..."
-    # Carrega o script principal
-    cd "${PLIBS_DIR}" || exit 1
-    "./principal.sh"
-else
-    printf "%s\n" "ERRO: Arquivo ${PLIBS_DIR}/principal.sh nao encontrado."
-    exit 1
-fi
+# Processar argumentos
+case "${1:-}" in
+    --setup)
+        if [[ -f "${PLIBS_DIR}/setup.sh" ]]; then
+            printf "%s\n" "Carregando configurador..."
+            "${PLIBS_DIR}/setup.sh" "${@:2}"
+        else
+            printf "%s\n" "ERRO: Arquivo ${PLIBS_DIR}/setup.sh nao encontrado."
+            exit 1
+        fi
+        ;;
+    --cadastro)
+        if [[ -f "${PLIBS_DIR}/cadastro.sh" ]]; then
+            printf "%s\n" "Carregando cadastro de usuarios..."
+            "${PLIBS_DIR}/cadastro.sh" "${@:2}"
+        else
+            printf "%s\n" "ERRO: Arquivo ${PLIBS_DIR}/cadastro.sh nao encontrado."
+            exit 1
+        fi
+        ;;
+    "")
+        # Verifica se o arquivo principal.sh existe
+        if [[ -f "${PLIBS_DIR}/principal.sh" ]]; then
+            printf "%s\n" "Carregando utilitario..."
+            # Carrega o script principal
+            cd "${PLIBS_DIR}" || exit 1
+            "./principal.sh"
+        else
+            printf "%s\n" "ERRO: Arquivo ${PLIBS_DIR}/principal.sh nao encontrado."
+            exit 1
+        fi
+        ;;
+    *)
+        printf "%s\n" "Uso: atualiza.sh [--setup | --cadastro]"
+        exit 1
+        ;;
+esac

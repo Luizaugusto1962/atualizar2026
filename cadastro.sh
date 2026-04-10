@@ -4,20 +4,23 @@
 # Permite cadastrar usuarios e senhas para o sistema SAV
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/04/2026-01
+# Versao: 10/04/2026-01
 # Autor: Luiz Augusto
 #
+# Uso:
+#   ./atualiza.sh --cadastro  - Chamada pelo atualiza.sh (recomendado)
+#   ./cadastro.sh             - Chamada direta
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"                 # Diretorio de configuracao
 lib_dir="${lib_dir:-}"                 # Diretorio de modulos de biblioteca
 
-# Diretorio do script principal
-SCRIPT_DIR="${SCRIPT_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")}"
+# Diretorio do script (compativel com chamada direta ou via atualiza.sh)
+SCRIPT_DIR="${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 
 # Diretorios dos modulos e configuracoes
-lib_dir="${lib_dir:-${SCRIPT_DIR}/libs}"       # Diretorio dos modulos de biblioteca
-cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"  
+lib_dir="${lib_dir:-${SCRIPT_DIR}/libs}"
+cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"
 
 # Carregar modulos necessarios
 "." "${lib_dir}/utils.sh" 2>/dev/null || { echo "Erro: utils.sh nao encontrado."; exit 1; }
@@ -27,6 +30,7 @@ cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"
         RED=$(tput bold)$(tput setaf 1)          # Vermelho
         GREEN=$(tput bold)$(tput setaf 2)        # Verde
         YELLOW=$(tput bold)$(tput setaf 3)       # Amarelo
+        NORM=$(tput sgr0)                        # Normal
 # Funcao principal
 main() {
     while true; do
@@ -58,6 +62,7 @@ main() {
                 ;;
             0)
                 _limpa_tela
+                tput sgr0
                 exit 0
                 ;;
             *)
