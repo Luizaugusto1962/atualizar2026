@@ -4,7 +4,7 @@
 # Permite cadastrar usuarios e senhas para o sistema SAV
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/04/2026-01
+# Versao: 10/04/2026-02
 # Autor: Luiz Augusto
 #
 # Uso:
@@ -16,7 +16,17 @@ cfg_dir="${cfg_dir:-}"                 # Diretorio de configuracao
 lib_dir="${lib_dir:-}"                 # Diretorio de modulos de biblioteca
 
 # Diretorio do script (compativel com chamada direta ou via atualiza.sh)
-SCRIPT_DIR="${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+# Quando chamado diretamente de /libs, sobe um nivel para o diretorio do atualiza.sh
+if [[ -z "${SCRIPT_DIR}" ]]; then
+    _self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # Se estiver dentro de /libs, o SCRIPT_DIR e o pai
+    if [[ "$(basename "${_self_dir}")" == "libs" ]]; then
+        SCRIPT_DIR="$(dirname "${_self_dir}")"
+    else
+        SCRIPT_DIR="${_self_dir}"
+    fi
+    unset _self_dir
+fi
 
 # Diretorios dos modulos e configuracoes
 lib_dir="${lib_dir:-${SCRIPT_DIR}/libs}"
@@ -30,7 +40,7 @@ cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"
         RED=$(tput bold)$(tput setaf 1)          # Vermelho
         GREEN=$(tput bold)$(tput setaf 2)        # Verde
         YELLOW=$(tput bold)$(tput setaf 3)       # Amarelo
-        NORM=$(tput sgr0)                        # Normal
+#       NORM=$(tput sgr0)                        # Normal
 # Funcao principal
 main() {
     while true; do

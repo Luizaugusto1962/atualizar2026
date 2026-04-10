@@ -9,7 +9,7 @@
 #   ./atualiza.sh --setup --edit   - Edicao das configuracoes existentes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/04/2026-00
+# Versao: 10/04/2026-02
 
 #---------- FUNCAO DE LOGICA DE NEGOCIO ----------#
 # Variaveis globais esperadas
@@ -466,7 +466,16 @@ EOF
 main() {
 
 # Diretorio do script (compativel com chamada direta ou via atualiza.sh)
-SCRIPT_DIR="${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+# Quando chamado diretamente de /libs, sobe um nivel para o diretorio do atualiza.sh
+if [[ -z "${SCRIPT_DIR}" ]]; then
+    _self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [[ "$(basename "${_self_dir}")" == "libs" ]]; then
+        SCRIPT_DIR="$(dirname "${_self_dir}")"
+    else
+        SCRIPT_DIR="${_self_dir}"
+    fi
+    unset _self_dir
+fi
 raiz="${SCRIPT_DIR%/*}"
 acessoff="${acessoff:-${raiz}/portalsav/Atualiza}"
 
@@ -509,7 +518,7 @@ fi
                 cd cfg || exit 1
                 _initial_setup
             else
-                echo "Operacao cancelada. Use './setup.sh --edit' para modificar."
+                echo "Operacao cancelada. Use './atualiza.sh --setup --edit' para modificar."
                 exit 0
             fi
         else
