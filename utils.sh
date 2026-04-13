@@ -29,8 +29,8 @@ _meio_da_tela() {
 
 # Exibe mensagem centralizada com cor
 _mensagec() {
-    local cor="${1:?Cor e obrigatoria}"
-    local mensagem="${2:?Mensagem e obrigatoria}"
+    local cor="${1}"
+    local mensagem="${2}"
     local colunas
 
     colunas=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
@@ -50,8 +50,8 @@ _mensagec() {
 # Exibe mensagem alinhada à direita
 # Parametros: $1=cor $2=mensagem  
 _mensaged() {
-    local cor="${1:?Cor é obrigatória}"
-    local mensagem="${2:?Mensagem é obrigatória}"
+    local cor="${1}"
+    local mensagem="${2}"
     local largura_terminal largura_mensagem posicao_inicio
 
     # Obter largura do terminal com fallback seguro

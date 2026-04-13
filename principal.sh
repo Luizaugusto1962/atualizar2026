@@ -1,13 +1,29 @@
 #!/usr/bin/env bash
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/04/2026-01
+# Versao: 14/04/2026-02
 # Autor: Luiz Augusto
 # Email: luizaugusto@sav.com.br
 #
-# Versao do sistema
-UPDATE="07/04/26-v.2026"
-export UPDATE
+# =============================================================================
+# CONFIGURAÇÕES DE SEGURANÇA
+# =============================================================================
+# Ativa tratamento rigoroso de erros
+# -e: Sai imediatamente se um comando falhar
+# -u: Trata variáveis não definidas como erro
+# -o pipefail: Faz o pipeline retornar o status do último comando que falhou
+set -eo pipefail
+# Desativa globbing acidental para evitar expansão de curingas
+set +o noglob
+
+# =============================================================================
+# VERSAO DO SISTEMA
+# =============================================================================
+declare -rx UPDATE="14/04/26-v.2026"
+
+# =============================================================================
+# DIRETÓRIOS DO SCRIPT
+# =============================================================================
 
 # Diretorio do script principal
 SCRIPT_DIR="${SCRIPT_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")}"
@@ -15,115 +31,257 @@ SCRIPT_DIR="${SCRIPT_DIR:-$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pw
 # Diretorios dos modulos e configuracoes
 lib_dir="${lib_dir:-${SCRIPT_DIR}/libs}"       # Diretorio dos modulos de biblioteca
 cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"        # Diretorio de configuracoes
-export SCRIPT_DIR lib_dir cfg_dir  
+export SCRIPT_DIR lib_dir cfg_dir
 
-# Diretórios obrigatórios
-aux_dirs=("${lib_dir}" "${cfg_dir}")  # Lista de diretorios obrigatorios
+# =============================================================================
+# FUNÇÕES AUXILIARES
+# =============================================================================
 
-for dir in "${aux_dirs[@]}"; do
-    [[ -z "${dir}" ]] && { printf "ERRO: Variavel de diretorio nao definida.\n"; exit 1; }
+# -----------------------------------------------------------------------------
+# Cria um diretório com permissões seguras
+# Parâmetros:
+#   $1 - Caminho do diretório
+#   $2 - Permissões (opcional, padrão: 0755)
+# Retorna: 0 se criado/existente, 1 se erro
+# -----------------------------------------------------------------------------
+_criar_diretorio_seguro() {
+    local caminho="${1:}"
+    local permissao="${2:-0755}"  # PERMISSAO SEGURA: 0755 ao inves de 0777
 
-    # Criar diretório caso não exista e aplicar permissões 0777
-    if [[ ! -d "${dir}" ]]; then
-        mkdir -p "${dir}" || {
-            printf '%s\n' "ERRO: Nao foi possivel criar o diretorio '${dir}'."
-            sleep 2
-            exit 1
-        }
+    if [[ -z "$caminho" ]]; then
+        printf "Erro: Caminho nao pode ser vazio.\n" >&2
+        return 1
     fi
 
-    chmod -R 0777 "${dir}" 2>/dev/null || {
-        printf '%s\n' "AVISO: Nao foi possivel ajustar permissao em '${dir}'."
-        sleep 2
+    if [[ -d "$caminho" ]]; then
+        return 0
+    fi
+
+    if mkdir -p "$caminho" 2>/dev/null; then
+        chmod "$permissao" "$caminho" 2>/dev/null || true
+        return 0
+    else
+        printf "Erro: Nao foi possivel criar o diretorio '%s'.\n" "$caminho" >&2
+        return 1
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Verifica se uma variavel de diretorio esta definida
+# Parâmetros:
+#   $1 - Nome da variavel
+# Retorna: 0 se definida, 1 se vazia
+# -----------------------------------------------------------------------------
+_verificar_variavel_diretorio() {
+    local nome_var="$1"
+    local valor="${!nome_var}"
+
+    if [[ -z "$valor" ]]; then
+        printf "ERRO: Variavel de diretorio '%s' nao definida.\n" "$nome_var" >&2
+        return 1
+    fi
+    return 0
+}
+
+# =============================================================================
+# INICIALIZAÇÃO DE DIRETÓRIOS
+# =============================================================================
+
+# Lista de diretórios obrigatórios
+declare -a AUX_DIRS=("${lib_dir}" "${cfg_dir}")
+
+for dir in "${AUX_DIRS[@]}"; do
+    # Verificar se a variável está definida
+    if [[ -z "${dir}" ]]; then
+        printf "ERRO: Variavel de diretorio nao definida.\n" >&2
+        exit 1
+    fi
+
+    # Criar diretório caso não exista com permissões seguras
+    if [[ ! -d "${dir}" ]]; then
+        if ! _criar_diretorio_seguro "${dir}" 0755; then
+            printf "ERRO: Nao foi possivel criar o diretorio '%s'.\n" "${dir}" >&2
+            exit 1
+        fi
+    fi
+
+    # APLICAR PERMISSOES DE FORMA SEGURA: 0755 ao inves de 0777
+    # Recursivo apenas quando necessario, e com 0755 ao inves de 0777
+    chmod 0755 "${dir}" 2>/dev/null || {
+        printf "AVISO: Nao foi possivel ajustar permissao em '%s'.\n" "${dir}" >&2
     }
 
+    # Verificar se o diretório existe após criação
     [[ -d "${dir}" ]] || {
-        printf '%s\n' "ERRO: O diretorio '${dir}' nao foi encontrado."
-        printf "Certifique-se de que os arquivos/modulos correspondentes estao instalados corretamente.\n"
-        sleep 2
+        printf "ERRO: O diretorio '%s' nao foi encontrado.\n" "${dir}" >&2
+        printf "Certifique-se de que os arquivos/modulos correspondentes estao instalados corretamente.\n" >&2
         exit 1
     }
 done
 
-# Funcao para carregar modulos com verificacao
-_carregar_modulo() {
-    local modulo="$1"
+# =============================================================================
+# CARREGAMENTO DE MÓDULOS
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Carrega um módulo com verificação de segurança
+# Parâmetros:
+#   $1 - Nome do módulo (sem extensão)
+# Retorna: 0 se sucesso, 1 se erro
+# -----------------------------------------------------------------------------
+_caminho_modulo() {
+    local modulo="${1}"
     local caminho="${lib_dir}/${modulo}"
+
+    # Verificar se o arquivo existe
     if [[ ! -f "${caminho}" ]]; then
-        printf "%s\n" "ERRO: Modulo ${modulo} nao encontrado em ${caminho}"
-        sleep 2
-        exit 1
+        printf "ERRO: Modulo '%s' nao encontrado em '%s'\n" "${modulo}" "${caminho}" >&2
+        return 1
     fi
-    
+
+    # Verificar se o arquivo pode ser lido
     if [[ ! -r "${caminho}" ]]; then
-        printf "%s\n" "ERRO: Modulo ${modulo} nao pode ser lido"
-        sleep 2
-        exit 1
+        printf "ERRO: Modulo '%s' nao pode ser lido\n" "${modulo}" >&2
+        return 1
     fi
-    
+
+    # Verificar se o arquivo não está vazio
+    if [[ ! -s "${caminho}" ]]; then
+        printf "ERRO: Modulo '%s' esta vazio\n" "${modulo}" >&2
+        return 1
+    fi
+
+    # Carregar o módulo
     if ! "." "${caminho}"; then
-        printf "%s\n" "ERRO: Falha ao carregar modulo ${modulo}"
-        sleep 2
-        exit 1
+        printf "ERRO: Falha ao carregar modulo '%s'\n" "${modulo}" >&2
+        return 1
     fi
 }
 
-# Carregamento sequencial dos modulos (ordem importante)
-_carregar_modulo "utils.sh"      # Utilitarios basicos primeiro
-_carregar_modulo "config.sh"     # Configuracoes
-_carregar_modulo "auth.sh"       # Autenticacao
-_carregar_modulo "lembrete.sh"   # Sistema de lembretes
-_carregar_modulo "vaievem.sh"    # Operacoes de rede
-_carregar_modulo "sistema.sh"    # Informacoes do sistema
-_carregar_modulo "arquivos.sh"   # Gestao de arquivos
-_carregar_modulo "backup.sh"     # Sistema de backup
-_carregar_modulo "programas.sh"  # Gestao de programas
-_carregar_modulo "biblioteca.sh" # Gestao de biblioteca
-_carregar_modulo "help.sh"       # Sistema de ajuda
-_carregar_modulo "menus.sh"      # Modulos de Menu
+# -----------------------------------------------------------------------------
+# Carrega módulos com tratamento de erros acumulativo
+# Retorna: 0 se todos carregados, 1 se algum falhou
+_carregar_modulos() {
+    local modulos=(
+        "utils.sh"      # Utilitarios basicos primeiro
+        "config.sh"     # Configuracoes
+        "auth.sh"       # Autenticacao
+        "lembrete.sh"   # Sistema de lembretes
+        "vaievem.sh"    # Operacoes de rede
+        "sistema.sh"    # Informacoes do sistema
+        "arquivos.sh"   # Gestao de arquivos
+        "backup.sh"     # Sistema de backup
+        "programas.sh"  # Gestao de programas
+        "biblioteca.sh" # Gestao de biblioteca
+        "help.sh"       # Sistema de ajuda
+        "menus.sh"      # Modulos de Menu
+    )
 
-# Funcao principal de inicializacao
+    local modulo=""
+    local erros=0
+
+    for modulo in "${modulos[@]}"; do
+        if ! _caminho_modulo "$modulo"; then
+            ((erros++))
+        fi
+    done
+
+    if (( erros > 0 )); then
+        printf "AVISO: %d modulo(s) falharam ao carregar.\n" "$erros" >&2
+        return 1
+    fi
+    return 0
+}
+
+# =============================================================================
+# INICIALIZAÇÃO DO SISTEMA
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Inicializa o sistema carregando configurações e validando ambiente
+# Retorna: 0 se sucesso, 1 se erro
+# -----------------------------------------------------------------------------
 _inicializar_sistema() {
+        # Carregar módulos do sistema
+    if ! _carregar_modulos; then
+        printf "ERRO: Falha ao carregar modulos.\n" >&2
+        return 1
+    fi
+
     # Carregar e validar configuracoes
-    _carregar_configuracoes
-    
-    # Verificar dependências
-    _check_instalado
+    if ! _carregar_configuracoes; then
+        printf "ERRO: Falha ao carregar configuracoes.\n" >&2
+        return 1
+    fi
+
+    # Verificar dependências (agora retorna erro ao inves de sair)
+    if ! _check_instalado; then
+        printf "ERRO: Dependencias nao atendidas.\n" >&2
+        return 1
+    fi
 
     # Validar diretorios
-    _validar_diretorios
-    
+    if ! _validar_diretorios; then
+        printf "ERRO: Falha na validacao de diretorios.\n" >&2
+        return 1
+    fi
+
     # Configurar ambiente
     _configurar_ambiente
-    
+
     # Executar limpeza automatica diaria
     _executar_expurgador_diario
+
+    return 0
 }
 
-# Funcao principal do programa
+# =============================================================================
+# FUNÇÃO PRINCIPAL
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Função principal do programa
+# -----------------------------------------------------------------------------
 _main() {
     # Tratamento de sinais para limpeza
     trap '_resetando' EXIT
     trap '_encerrar_programa 130' INT TERM
-    
+    trap '_encerrar_programa 1' HUP
+
     # Inicializar sistema
-    _inicializar_sistema
-    
-    # Autenticacao
-    if ! _login; then
-        printf "Autenticacao falhou. Saindo...\n"
+    if ! _inicializar_sistema; then
+        printf "ERRO: Falha na inicializacao do sistema. Saindo...\n" >&2
         exit 1
     fi
-    
+
+    # Autenticacao
+    if ! _login; then
+        printf "ERRO: Autenticacao falhou. Saindo...\n" >&2
+        exit 1
+    fi
+
     # Mostrar mensagem de entrada (se existe) e opcao para excluir
-    _mostrar_aviso
+    if command -v _mostrar_aviso >/dev/null 2>&1; then
+        _mostrar_aviso
+    fi
 
     # Mostrar notas se existirem
-    _mostrar_notas_iniciais
-    
+    if command -v _mostrar_notas_iniciais >/dev/null 2>&1; then
+        _mostrar_notas_iniciais
+    fi
+
     # Executar menu principal
-    _principal
+    if command -v _principal >/dev/null 2>&1; then
+        _principal
+    else
+        printf "ERRO: Menu principal nao encontrado.\n" >&2
+        exit 1
+    fi
 }
+
+# =============================================================================
+# EXECUÇÃO DO SCRIPT
+# =============================================================================
 
 # Verificar se esta sendo executado diretamente
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
