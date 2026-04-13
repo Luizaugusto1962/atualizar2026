@@ -4,7 +4,7 @@
 # Responsavel por backup completo, incremental e restauracao
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 01/04/2026-00
+# Versao: 13/04/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -197,7 +197,7 @@ _enviar_backup_avulso() {
     if ! _selecionar_backup; then
         return 1
     fi
-
+if [[ "${Offline}" =~ ^[sn]$ ]]; then
     if [[ "${Offline}" == "s" ]]; then
         _mover_backup_offline "$nome_backup"
         return
@@ -206,6 +206,7 @@ _enviar_backup_avulso() {
     if _confirmar "Enviar backup via rede?" "S"; then
         _enviar_backup_rede "$nome_backup"
     fi
+fi    
 }
 
 #---------- FUNCOES DE EXECUCAO DE BACKUP ----------#
@@ -405,7 +406,7 @@ _restaurar_arquivo_especifico() {
     local arquivo_backup="$1"
     local nome_arquivo
     local base_trabalho="${raiz}${base}"
-    local continuar
+#    local continuar
    
     if [[ ! -f "$arquivo_backup" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"

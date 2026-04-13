@@ -4,7 +4,7 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 07/04/2026-01
+# Versao: 13/04/2026-01
 
 #---------- VARIaVEIS GLOBAIS ----------#
 
@@ -324,6 +324,7 @@ _carregar_config_empresa() {
 
 # Configurar acesso offline se necessario
 _configurar_acessos() {
+if [[ "${Offline}" =~ ^[sn]$ ]]; then    
     if [[ "${Offline}" == "s" ]]; then
             down_dir="${acessoff}"    #"acessoff=/sav/portalsav/Atualiza"
         if [[ ! -d "${down_dir}" ]]; then
@@ -336,6 +337,7 @@ _configurar_acessos() {
     else
         down_dir="${RECEBE}"       
     fi
+fi
 }
 
 # Funcao principal de carregamento de configuracoes
@@ -405,6 +407,7 @@ _configurar_ambiente() {
     fi 
 }
 
+
 # Funcao para validar a configuracao atual do sistema
 _validar_configuracao() {
     _limpa_tela
@@ -468,6 +471,7 @@ _validar_configuracao() {
     done
     
     # Verificar conectividade se for modo online
+if [[ "${Offline}" =~ ^[sn]$ ]]; then    
     if [[ "${Offline}" == "n" ]]; then
         _mensagec "${WHITE}" "INFO: Servidor em modo On ..."
     else 
@@ -485,7 +489,7 @@ _validar_configuracao() {
     else
         _mensagec "${RED}" "Configuracao com erros!"
     fi
-    
+fi    
     _linha
 }
 

@@ -4,7 +4,7 @@
 # Responsavel por informacoes do IsCOBOL, Linux, parametros e atualizacoes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 07/04/2026-01
+# Versao: 13/04/2026-01
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"      # Caminho do diretorio de configuracao do programa.
@@ -193,14 +193,15 @@ _executar_update() {
     local down_dir="${down_dir}"
  
     _configurar_acessos
-    
-    if [[ "${Offline}" == "n" ]]; then
-        _atualizar_online
-        export tipo_online
-    else
-        _atualizar_offline
-        export tipo_offline
-    fi
+    if [[ "${Offline}" =~ ^[sn]$ ]]; then
+        if [[ "${Offline}" == "n" ]]; then
+            _atualizar_online
+            export tipo_online
+        else
+            _atualizar_offline
+            export tipo_offline
+        fi
+    fi    
     _press
 }
 

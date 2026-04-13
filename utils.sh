@@ -4,75 +4,92 @@
 # Funcoes basicas para formatacao, mensagens, validacao e controle de fluxo
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 07/04/2026-00
+# Versao: 13/04/2026-00
 
 #---------- FUNCOES DE FORMATACAO DE TELA ----------#
 # Variaveis globais esperadas
-raiz="${raiz:-}"              # Diretorio raiz do sistema.
+raiz="${raiz:-}"                                       # Diretorio raiz do sistema.
+LOGS="${LOGS:-$raiz/logs}"                             # Diretorio de logs.
 
 # Função para limpar tela
 _limpa_tela() {
     clear
 }
-_meiodatela() {
-    local lines cols
 
-    lines=$(tput lines 2>/dev/null || echo "${LINES:-24}")
-    cols=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
+# Posiciona o cursor no meio da tela
+_meio_da_tela() {
+    local linhas 
+    local colunas
 
-    printf "\033[2J\033[%d;1H" $((lines / 2))
+    linhas=$(tput lines 2>/dev/null || echo "${LINES:-24}")
+    colunas=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
+
+    printf "\033[2J\033[%d;1H" $((linhas / 2))
 }
 
-
-# Exibe mensagem centralizada colorida
+# Exibe mensagem centralizada com cor
 _mensagec() {
-    local color="${1}"
-    local message="${2}"
-    local cols
+    local cor="${1:?Cor e obrigatoria}"
+    local mensagem="${2:?Mensagem e obrigatoria}"
+    local colunas
 
-    cols=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
+    colunas=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
+    local tamanho_mensagem=${#mensagem}
 
-    if [[ "$cols" -lt "${#message}" ]]; then
+    if [[ "$colunas" -lt "$tamanho_mensagem" ]]; then
         # Terminal muito estreito — exibir sem centralizar
-        printf "%s%s%s\n" "${color}" "${message}" "${NORM}"
+        printf "%s%s%s\n" "${cor}" "${mensagem}" "${NORM}"
     else
-        printf "%s%*s%s\n" "${color}" $(((${#message} + cols) / 2)) "${message}" "${NORM}"
+        # Calcula margem esquerda para centralizar
+        local margem=$(( (colunas - tamanho_mensagem) / 2 ))
+        printf "%s%*s%s%s\n" "${cor}" "$margem" "" "${mensagem}" "${NORM}"
     fi
 }
+
 
 # Exibe mensagem alinhada à direita
 # Parametros: $1=cor $2=mensagem  
 _mensaged() {
-    local color="${1}"
-    local mensagem="${2}"
-    local largura_terminal
-    local largura_mensagem
-    local posicao_inicio
-    
-    largura_terminal=$(tput cols)
+    local cor="${1:?Cor é obrigatória}"
+    local mensagem="${2:?Mensagem é obrigatória}"
+    local largura_terminal largura_mensagem posicao_inicio
+
+    # Obter largura do terminal com fallback seguro
+    if ! largura_terminal=$(tput cols 2>/dev/null); then
+        largura_terminal="${COLUMNS:-80}"
+    fi
+
     largura_mensagem=${#mensagem}
     posicao_inicio=$((largura_terminal - largura_mensagem))
-    
-    printf "%s%*s%s${NORM}\n" "${color}" "${posicao_inicio}" "" "$mensagem"
+
+    # Garante posição mínima não negativa
+    if [[ "$posicao_inicio" -lt 0 ]]; then
+        posicao_inicio=0
+    fi
+
+    printf "%s%*s%s${NORM}\n" "${cor}" "${posicao_inicio}" "" "$mensagem"
 }
 
 # Cria linha horizontal com caractere especificado
 # Parametros: $1=caractere (opcional, padrao='-') $2=cor (opcional)
 _linha() {
-    local Traco="${1:--}"
-    local CCC="${2:-}"
-    local cols
+    local traco="${1:--}"
+    local cor="${2:-}"
+    local colunas
 
-    cols=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
-
-    if [[ "$cols" -lt 10 ]]; then
-        cols=10
+    if ! colunas=$(tput cols 2>/dev/null); then
+        colunas="${COLUMNS:-80}"
     fi
 
-    printf "%s" "${CCC}"
-    printf '%*s\n' "$cols" '' | tr ' ' "$Traco"
+    if [[ "$colunas" -lt 10 ]]; then
+        colunas=10
+    fi
+
+    printf "%s" "${cor}"
+    printf '%*s\n' "$colunas" '' | tr ' ' "$traco"
     printf "%s" "${NORM}"
 }
+
 
 # Cria meia linha horizontal com caractere especificado
 # Parametros: $1=caractere (opcional, padrao='-') $2=cor (opcional)
@@ -82,45 +99,59 @@ _linha() {
 #   $2 = cor (opcional)
 #   $3 = largura em caracteres (opcional, padrao=45)
 _meia_linha() {
-    local Traco="${1:--}"
-    local CCC="${2:-}"
-    local Espacos
-    local linhas
-    local largura=45
-    local cols
-    cols=$(tput cols)
-    
-    printf -v Espacos "%${largura}s" ""
-    linhas=${Espacos// /$Traco}
-    printf "%s" "${CCC}"
-    printf "%*s\n" $(((cols + largura) / 2)) "$linhas"
+    local traco="${1:--}"
+    local cor="${2:-}"
+    local largura="${3:-45}"
+    local espacos linhas colunas
+
+    if ! colunas=$(tput cols 2>/dev/null); then
+        colunas="${COLUMNS:-80}"
+    fi
+
+    printf -v espacos "%${largura}s" ""
+    linhas=${espacos// /$traco}
+    printf "%s" "${cor}"
+    printf "%*s\n" $(((colunas + largura) / 2)) "$linhas"
     printf "%s" "${NORM}"
 }
+
+
 #---------- FUNcoES DE CONTROLE DE FLUXO ----------#
 
 # Pausa a execucao por tempo especificado
 # Parametros: $1=tempo_em_segundos
 _read_sleep() {
-    if [[ -z "${1}" ]]; then
-        printf "Erro: Nenhum argumento passado para _read_sleep.\n"
+    local tempo="${1:-}"
+
+    if [[ -z "$tempo" ]]; then
+        printf "Erro: Nenhum argumento passado para _read_sleep.\n" >&2
         return 1
     fi
 
-    if ! [[ "${1}" =~ ^[0-9.]+$ ]]; then
-        printf "Erro: Argumento invalido para _read_sleep: %s\n" "${1}"
+    if ! [[ "$tempo" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+        printf "Erro: Argumento inválido para _read_sleep: %s\n" "$tempo" >&2
         return 1
     fi
 
-    read -rt "${1}" <> <(:) || :
+    read -rt "$tempo" <> <(:) || :
 }
+
 
 # Aguarda pressionar qualquer tecla com timeout
 _press() {
+    local mensagem="${1:-... Pressione qualquer tecla para continuar ...}"
+    local timeout="${2:-15}"
+    local colunas
+
+    if ! colunas=$(tput cols 2>/dev/null); then
+        colunas="${COLUMNS:-80}"
+    fi
+
     printf "%s" "${YELLOW}"
-    printf "%*s\n" $(((36 + COLUMNS) / 2)) "<< ... Pressione qualquer tecla para continuar ... >>"
+    printf "%*s\n" $(((36 + colunas) / 2)) "<< $mensagem >>"
     printf "%s" "${NORM}"
-    read -rt 15 || :
-    tput sgr0
+    read -rt "$timeout" || :
+    tput sgr0 2>/dev/null || true
 }
 
 # Exibe mensagem de opcao invalida
@@ -130,14 +161,19 @@ _opinvalida() {
     _linha
 }
 
-#---------- FUNcoES DE VALIDAcaO ----------#
+#---------- FUNCOES DE VALIDACAO ----------#
 
 # Valida nome de programa (letras maiúsculas e números)
 # Parametros: $1=nome_programa
 # Retorna: 0=valido 1=invalido
 _validar_nome_programa() {
     local programa="$1"
-    [[ -n "$programa" && "$programa" =~ ^[A-Z0-9]+$ ]]
+
+    if [[ -z "$programa" ]]; then
+        return 1
+    fi
+
+    [[ "$programa" =~ ^[A-Z0-9]+$ ]]
 }
 
 # Valida se diretorio existe e e acessivel
@@ -145,10 +181,9 @@ _validar_nome_programa() {
 # Retorna: 0=valido 1=invalido
 _validar_diretorio() {
     local dir="$1"
-    [[ -n "$dir" && -d "$dir" && -r "$dir" ]]
+
+   [[ -n "$dir" && -d "$dir" && -r "$dir" ]]
 }
-
-
 
 # Solicita confirmacao S/N
 # Parametros: $1=mensagem $2=padrao(S/N)
@@ -200,50 +235,52 @@ _confirmar() {
 
 # Mostra progresso do backup com spinner animado e tempo decorrido
 _mostrar_progresso_backup() {
-    local pid="$1"
+    local pid="${1:?PID é obrigatório}"
     local delay=0.2
     local spin=( "|" "/" "-" "\\" )
     local i=0
     local elapsed=0
     local msg="Processo em andamento"
+    local status_proc=0
 
-    # Verifica se o processo ainda esta ativo
+    # Verifica se o processo ainda está ativo
     if ! kill -0 "$pid" 2>/dev/null; then
-        _mensagec "$YELLOW" "Iniciando..."
-        sleep 1
-        return
+        _mensagec "$YELLOW" "Processo ja encerrou"
+        return 0
     fi
 
     # Oculta o cursor
-    tput civis
+    tput civis 2>/dev/null || true
 
-    # Salva posicao do cursor
-    tput sc
+    # Salva posição do cursor
+    tput sc 2>/dev/null || true
     printf "${YELLOW}%s... [${NORM}" "$msg"
 
-    # Loop de animacao
+    # Loop de animação
     while kill -0 "$pid" 2>/dev/null; do
-        tput rc  # Restaura posicao
+        tput rc 2>/dev/null || true  # Restaura posição
         printf "${YELLOW}%s... [%3ds] ${NORM}${GREEN}%s${NORM}" \
             "$msg" "$elapsed" "${spin[i]}"
-        ((i = (i + 1) % ${#spin[@]}))
-        ((elapsed += 1))
+        i=$(( (i + 1) % ${#spin[@]} ))
         sleep "$delay"
+        # Incrementa elapsed a cada 5 iterações (aproximadamente 1 segundo)
+        if (( i % 5 == 0 )); then
+            ((elapsed++))
+        fi
     done
 
     # Mostra o cursor novamente
-    tput cnorm
+    tput cnorm 2>/dev/null || true
 
-    # Mensagem final — captura o status do processo (único wait)
-    local status_proc=0
+    # Mensagem final — captura o status do processo
     wait "$pid" 2>/dev/null || status_proc=$?
 
-    if [[ $status_proc -eq 0 ]]; then
+    if [[ "$status_proc" -eq 0 ]]; then
         printf "\r${GREEN}%s... [Concluido] ${NORM}\n" "$msg"
     else
         printf "\r${RED}%s... [Falhou] ${NORM}\n" "$msg"
     fi
-    return $status_proc
+    return "$status_proc"
 }
 
 #---------- FUNcoES DE LOG ----------#
@@ -251,13 +288,37 @@ _mostrar_progresso_backup() {
 # Registra mensagem no log com timestamp
 # Parametros: $1=mensagem $2=arquivo_log(opcional)
 _log() {
-    local mensagem="$1"
+    local mensagem="${1:?Mensagem é obrigatória}"
     local arquivo_log="${2:-$LOG_ATU}"
-    local timestamp
-    local user="${usuario:-SISTEMA}"
-    
+    local timestamp usuario_log
+
+    # Validação do arquivo de log
+    if [[ -z "$arquivo_log" ]]; then
+        arquivo_log="/var/log/sav.log"
+    fi
+
+    # Verifica se o diretório do log existe e é gravável
+    local log_dir
+    log_dir=$(dirname "$arquivo_log")
+    if [[ ! -d "$log_dir" ]]; then
+        printf "Erro: Diretorio de log nao existe: %s\n" "$log_dir" >&2
+        return 1
+    fi
+
+    if [[ ! -w "$log_dir" ]]; then
+        printf "Aviso: Sem permissao de escrita no diretorio de log: %s\n" "$log_dir" >&2
+        return 1
+    fi
+
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    printf "[%s] [%s] %s\n" "$timestamp" "$user" "$mensagem" >> "$arquivo_log" 2>/dev/null
+    usuario_log="${usuario:-SISTEMA}"
+
+    if printf "[%s] [%s] %s\n" "$timestamp" "$usuario_log" "$mensagem" >> "$arquivo_log"; then
+        return 0
+    else
+        printf "Erro: Falha ao escrever no log: %s\n" "$arquivo_log" >&2
+        return 1
+    fi
 }
 
 # Registra erro no log
@@ -266,7 +327,7 @@ _log_erro() {
     local erro="$1"
     local arquivo_log="${2:-$LOG_ATU}"
     
-    _log "ERRO: $erro" "$arquivo_log"
+    _log "ERRO: $erro" "$arquivo_log" || true
 }
 
 # Registra sucesso no log  
@@ -275,7 +336,7 @@ _log_sucesso() {
     local sucesso="$1"
     local arquivo_log="${2:-$LOG_ATU}"
     
-    _log "SUCESSO: $sucesso" "$arquivo_log"
+    _log "SUCESSO: $sucesso" "$arquivo_log" || true
 }
 
 #---------- FUNCOES DE ARQUIVO ----------#
@@ -283,65 +344,91 @@ _log_sucesso() {
 # Remove arquivos antigos de um diretorio
 # Parametros: $1=diretorio $2=dias $3=padrao(opcional)
 _limpar_arquivos_antigos() {
-    local diretorio="$1"
-    local dias="$2"
+    local diretorio="${1:?Diretório é obrigatório}"
+    local dias="${2:?Número de dias é obrigatório}"
     local padrao="${3:-*}"
-    local count
-    
+    local count=0
+    local arquivos
+
+    # Validação do diretório
     if [[ ! -d "$diretorio" ]]; then
         _log_erro "Diretorio nao encontrado: $diretorio"
         return 1
     fi
-    
-    count=$(find "$diretorio" -name "$padrao" -type f -mtime +"$dias" -print | wc -l)
-    
-    if (( count > 0 )); then
+
+    # Validação do número de dias
+    if ! [[ "$dias" =~ ^[0-9]+$ ]]; then
+        _log_erro "Numero de dias invalido: $dias"
+        return 1
+    fi
+
+    # Monta lista de arquivos para exclusão
+    mapfile -t arquivos < <(find "$diretorio" -name "$padrao" -type f -mtime +"$dias" -print 2>/dev/null)
+    count=${#arquivos[@]}
+
+    if ((count > 0)); then
         _log "Removendo $count arquivos antigos de $diretorio"
-        find "$diretorio" -name "$padrao" -type f -mtime +"$dias" -delete
-        return 0
+        # Remove os arquivos diretamente
+        for arquivo in "${arquivos[@]}"; do
+            rm -f "$arquivo" 2>/dev/null || true
+        done
+        _log "Remocao concluida: $count arquivos removidos"
     else
         _log "Nenhum arquivo antigo encontrado em $diretorio"
-        return 0
     fi
+
+    return 0
 }
 
 #---------- FUNCOES DE INICIALIZACAO ----------#
 # Executa limpeza automatica diaria
 _executar_expurgador_diario() {
-
     local flag_file
     local savlog="${raiz}/portalsav/log"
     local err_isc="${raiz}/err_isc"
     local viewvix="${raiz}/savisc/viewvix/tmp"
 
-    flag_file="${LOGS}/.expurgador_$(date +%Y%m%d)"
-    
-    # Se ja foi executado hoje, pular
+    # Define diretório de logs com fallback
+    local logs_dir="${LOGS:-/var/log/sav}"
+    flag_file="${logs_dir}/.expurgador_$(date +%Y%m%d)"
+
+    # Se já foi executado hoje, pular
     if [[ -f "$flag_file" ]]; then
         return 0
     fi
-    
+
     # Remover flags antigas (mais de 3 dias)
-    find "${LOGS}" -name ".expurgador_*" -mtime +3 -delete 2>/dev/null || true
-    
-    # Executar limpeza basica
-    _limpar_arquivos_antigos "${LOGS}" 30 "*.log"
-    _limpar_arquivos_antigos "${BACKUP}" 30 "*.*"
-    _limpar_arquivos_antigos "${BASEBACKUP}" 30 "*.*"
-    _limpar_arquivos_antigos "${OLDS}" 30 "*.*"
-    _limpar_arquivos_antigos "${LIBS}" 10 "*.*"
-    _limpar_arquivos_antigos "${PROGS}" 10 "*.*"
-    _limpar_arquivos_antigos "${ENVIA}" 10 "*.*"
-    _limpar_arquivos_antigos "${RECEBE}" 10 "*.*"
+    find "${logs_dir}" -name ".expurgador_*" -mtime +3 -delete 2>/dev/null || true
+
+    # Array de diretórios e configurações de limpeza
+    local -A configuracoes=(
+        ["${LOGS:-}"]=30
+        ["${BACKUP:-}"]=30
+        ["${BASEBACKUP:-}"]=30
+        ["${OLDS:-}"]=30
+        ["${LIBS:-}"]=10
+        ["${PROGS:-}"]=10
+        ["${ENVIA:-}"]=10
+        ["${RECEBE:-}"]=10
+    )
+
+    # Loop otimizado para limpeza
+    for dir in "${!configuracoes[@]}"; do
+        if [[ -n "$dir" && -d "$dir" ]]; then
+            _limpar_arquivos_antigos "$dir" "${configuracoes[$dir]}" "*.*" 2>/dev/null || true
+        fi
+    done
+
     # Limpar arquivos específicos do sistema
-    _limpar_arquivos_antigos "${savlog}" 30 "*.*"
-    _limpar_arquivos_antigos "${err_isc}" 30 "*.*"
-    _limpar_arquivos_antigos "${viewvix}" 30 "*.*"
-    
+    _limpar_arquivos_antigos "${savlog}" 30 "*.*" 2>/dev/null || true
+    _limpar_arquivos_antigos "${err_isc}" 30 "*.*" 2>/dev/null || true
+    _limpar_arquivos_antigos "${viewvix}" 30 "*.*" 2>/dev/null || true
+
     # Criar flag para hoje
-    touch "$flag_file"
-    
-    _log "Limpeza automatica diaria executada"
+    if touch "$flag_file" 2>/dev/null; then
+        _log "Limpeza automatica diaria executada"
+    fi
+
     return 0
 }
 
@@ -354,7 +441,6 @@ _check_instalado() {
     [[ ${#apps[@]} -eq 0 ]] && apps=(zip unzip rsync wget)
 
     local missing=()
-
     local install_cmd=""
 
     # Detectar gerenciador de pacotes
@@ -383,6 +469,6 @@ _check_instalado() {
         printf "%sProgramas ausentes: %s%s\n" "${YELLOW}" "${missing[*]}" "${NORM}"
         printf "%sSugestao: %s %s%s\n" "${YELLOW}" "$install_cmd" "${missing[*]}" "${NORM}"
         printf "%sInstale os programas ausentes e tente novamente.%s\n" "${YELLOW}" "${NORM}"
-        exit 1
+        return 1
     fi
 }

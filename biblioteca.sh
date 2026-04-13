@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao das bibliotecas do sistema (Transpc, Savatu)
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 07/04/2026-00
+# Versao: 13/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                 # Tipo de sistema (iscobol/mf)
@@ -67,7 +67,7 @@ _atualizar_transpc() {
     if [[ -z "${VERSAO}" ]]; then
         return 1
     fi
-
+if [[ "${Offline}" =~ ^[sn]$ ]]; then
     if [[ "${Offline}" == "s" ]]; then
         _linha
         _mensagec "${YELLOW}" "Parametro de biblioteca do servidor OFF ativo"
@@ -85,6 +85,7 @@ _atualizar_transpc() {
         _read_sleep 3
         return 1
     fi
+fi    
     _baixar_biblioteca_sincroniza
     _salvar_atualizacao_biblioteca
 }
@@ -99,12 +100,13 @@ _atualizar_biblioteca_offline() {
     if [[ -z "${VERSAO}" ]]; then
         return 1
     fi
-
+if [[ "${Offline}" =~ ^[sn]$ ]]; then
     if [[ "${Offline}" == "s" ]]; then
         _processar_biblioteca_offline
     else
         _salvar_atualizacao_biblioteca
     fi
+fi    
 }
 
 # Reverter biblioteca para versao anterior
@@ -317,7 +319,12 @@ _executar_atualizacao_biblioteca() {
 
             # Descompactar arquivo em background
             {
-            "${cmd_unzip}" -o "${arquivo}" -d "${principal_local}" >>"${LOG_ATU}" 2>&1
+            timeout 300 "${cmd_unzip}" -o "${arquivo}" -d "${principal_local}" >>"${LOG_ATU}" 2>&1
+                local status=$?
+                if [[ $status -eq 124 ]]; then
+                _log_erro "Timeout na descompactação de ${arquivo}"
+                fi
+               return $status
             } &
             local pid_unzip=$!
             pids+=("$pid_unzip")  # Registrar PID para trap

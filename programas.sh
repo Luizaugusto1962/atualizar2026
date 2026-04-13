@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao, instalacao e reversao de programas
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 30/03/2026-00
+# Versao: 13/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"      # Nome do sistema (iscobol, savatu, transpc).
@@ -25,6 +25,7 @@ declare -a ARQUIVOS_PROGRAMA=()
 
 # Atualizacao de programas via conexao online
 _atualizar_programa_online() {
+if [[ "${Offline}" =~ ^[sn]$ ]]; then    
     if [[ "${Offline}" == "s" ]]; then
         _linha
         _mensagec "${YELLOW}" "Parametro do servidor OFF ativo"
@@ -32,7 +33,7 @@ _atualizar_programa_online() {
         _press
         return 1
     fi
-    
+fi    
     # Solicitar programas a serem atualizados
     _solicitar_programas_atualizacao
     
@@ -83,6 +84,7 @@ _atualizar_programa_offline() {
 # Atualizacao de programas em pacotes
 _atualizar_programa_pacote() {
         _solicitar_pacotes_atualizacao
+if [[ "${Offline}" =~ ^[sn]$ ]]; then        
     if [[ "${Offline}" == "s" ]]; then
         _linha
         _mensagec "${YELLOW}" "Parametro do servidor OFF ativo"
@@ -90,6 +92,7 @@ _atualizar_programa_pacote() {
     else 
         _baixar_pacotes_vaievem
     fi
+fi
         _processar_atualizacao_pacotes
         _linha
         _press
@@ -234,7 +237,7 @@ _coletar_artefatos_atualizacao() {
     ARQUIVOS_PROGRAMA=()
 
     for ((contador = 1; contador <= max_repeticoes; contador++)); do
-        _meiodatela
+        _meio_da_tela
         _mensagec "${RED}" "$mensagem_item"
         _linha
 
