@@ -3,7 +3,7 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferencia e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 08/04/2026-00
+# Versao: 13/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
@@ -154,7 +154,7 @@ _limpar_base_especifica() {
 _adicionar_arquivo_lixo() {
     
     _limpa_tela
-    _meiodatela
+    _meio_da_tela
     _mensagec "${CYAN}" "Informe o nome do arquivo a ser adicionado ao limpetmp2"
     _linha
     
@@ -179,7 +179,7 @@ _adicionar_arquivo_lixo() {
 _lista_arquivos_lixo() {
     
     _limpa_tela
-    _meiodatela
+    _meio_da_tela
     _mensagec "${CYAN}" "Lista de arquivos no limpetmp:"
     _linha
 
@@ -221,7 +221,7 @@ _recuperar_arquivo_especifico() {
 
     # Loop para permitir múltiplas recuperações
     while [[ "${continuar}" =~ ^[Ss]$ ]]; do
-        _meiodatela
+        _meio_da_tela
         _mensagec "${CYAN}" "Informe o nome do arquivo a ser recuperado ou ENTER para todos:"
         _linha
         

@@ -65,7 +65,7 @@ _atualizar_transpc() {
     _solicitar_versao_biblioteca
     
     if [[ -z "${VERSAO}" ]]; then
-        return 1
+        return 0
     fi
 if [[ "${Offline}" =~ ^[sn]$ ]]; then
     if [[ "${Offline}" == "s" ]]; then
@@ -73,7 +73,7 @@ if [[ "${Offline}" =~ ^[sn]$ ]]; then
         _mensagec "${YELLOW}" "Parametro de biblioteca do servidor OFF ativo"
         _linha
         _press
-        return 1
+        return 0
     fi
     _linha
     _mensagec "${YELLOW}" "Informe a senha para o usuario remoto:"
@@ -83,7 +83,7 @@ if [[ "${Offline}" =~ ^[sn]$ ]]; then
     if ! _verificar_espaco_disco "$E_EXEC"; then
         _mensagec "$RED" "Espaco em disco insuficiente em $E_EXEC"
         _read_sleep 3
-        return 1
+        return 0
     fi
 fi    
     _baixar_biblioteca_sincroniza
@@ -98,7 +98,7 @@ _atualizar_biblioteca_offline() {
      _solicitar_versao_biblioteca
     
     if [[ -z "${VERSAO}" ]]; then
-        return 1
+        return 0
     fi
 if [[ "${Offline}" =~ ^[sn]$ ]]; then
     if [[ "${Offline}" == "s" ]]; then
@@ -111,7 +111,7 @@ fi
 
 # Reverter biblioteca para versao anterior
 _reverter_biblioteca() {
-    _meiodatela
+    _meio_da_tela
     _mensagec "${RED}" "Informe a versao da biblioteca para reverter:"
     _linha
     
@@ -123,7 +123,7 @@ _reverter_biblioteca() {
         _mensagec "${RED}" "Versao nao informada"
         _linha
         _press
-        return 1
+        return 0
     fi
 
     local arquivo_backup="${BIBLIOTECA}/backup_biblioteca_antes_da_versao-${versao_reverter}.zip"
@@ -456,7 +456,7 @@ _solicitar_versao_biblioteca() {
         _mensagec "${RED}" "Versao a ser atualizada nao foi informada"
         _linha
         _press
-        return 1
+        return 0
     fi
     
     return 0
