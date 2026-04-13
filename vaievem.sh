@@ -4,7 +4,7 @@
 # Responsavel por operacoes de download/upload via rsync, sftp e ssh
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 02/04/2026-00
+# Versao: 13/04/2026-00
 #
 #---------- CONFIGURACOES DE CONEXAO ----------#
 #
@@ -148,7 +148,7 @@ _upload_rsync() {
         return 0
     else
         _log_erro "Falha no upload RSYNC: ${arquivo_local}"
-        return 1
+        return 0
     fi
 }
 
@@ -170,7 +170,7 @@ _baixar_biblioteca_sincroniza() {
                 return 0
             else
                 _log_erro "Falha no download da biblioteca: ${SAVATU}${VERSAO}.zip"
-                return 1
+                return 0
             fi
         else
             _definir_variaveis_biblioteca
@@ -180,7 +180,7 @@ _baixar_biblioteca_sincroniza() {
 
             if [[ ${#arquivos_update[@]} -eq 0 ]]; then
                 _mensagec "${RED}" "Erro: Nenhum arquivo de atualizacao encontrado"
-                return 1
+                return 0
             fi
 
             for arquivo in "${arquivos_update[@]}"; do
@@ -190,7 +190,7 @@ _baixar_biblioteca_sincroniza() {
                     _log_sucesso "Download concluido: ${arquivo}"
                 else
                     _log_erro "Falha no download: ${arquivo}"
-                    return 1
+                    return 0
                 fi
             done
 
@@ -210,7 +210,7 @@ _baixar_programas_vaievem() {
     fi
 
     if (( ${#ARQUIVOS_PROGRAMA[@]} == 0 )); then
-        return 1
+        return 0
     fi
 
     _linha

@@ -31,7 +31,7 @@ if [[ "${Offline}" =~ ^[sn]$ ]]; then
         _mensagec "${YELLOW}" "Parametro do servidor OFF ativo"
         _linha
         _press
-        return 1
+        return 0
     fi
 fi    
     # Solicitar programas a serem atualizados
@@ -41,7 +41,7 @@ fi
         _mensagec "${YELLOW}" "Nenhum programa selecionado"
         _linha
         _press
-        return 1
+        return 0
     fi
     
     # Baixar programas via vaievem
@@ -64,13 +64,13 @@ _atualizar_programa_offline() {
         _mensagec "${YELLOW}" "Nenhum programa selecionado"
         _linha
         _press
-        return 1
+        return 0
     fi
     
     _linha
     _mensagec "${YELLOW}" "Os programas devem estar no diretorio ${WHITE}${down_dir}"
     _linha
-    _read_sleep 1
+    _read_sleep 0
     
     # Mover arquivos do servidor offline se configurado
     _mover_arquivos_offline
@@ -96,6 +96,7 @@ fi
         _processar_atualizacao_pacotes
         _linha
         _press
+        return 0
 }
 
 #---------- FUNCOES DE REVERSaO ----------#
@@ -109,7 +110,7 @@ _selecionar_programas_reversao() {
     if [[ ! -d "${OLDS}" ]]; then
         _mensagec "${RED}" "Diretorio de backups nao encontrado: ${OLDS}"
         _press
-        return 1
+        return 0
     fi
 
     shopt -s nullglob
@@ -119,7 +120,7 @@ _selecionar_programas_reversao() {
     if (( ${#backups[@]} == 0 )); then
         _mensagec "${YELLOW}" "Nenhum backup de programa encontrado em ${OLDS}"
         _press
-        return 1
+        return 0
     fi
 
     local programas=()
@@ -216,11 +217,13 @@ _resolver_arquivo_compilado() {
     read -rp "${YELLOW}Tipo de compilacao: ${NORM}" -n1 tipo_compilacao
     printf "\n"
 
-    case "$tipo_compilacao" in
-        1) ARQUIVO_COMPILADO_ATUAL="${nome_item}${class}.zip" ;;
-        2) ARQUIVO_COMPILADO_ATUAL="${nome_item}${mclass}.zip" ;;
-        *) return 1 ;;
-    esac
+    if [ "$tipo_compilacao" = "1" ]; then
+        ARQUIVO_COMPILADO_ATUAL="${nome_item}${class}.zip"
+    elif [ "$tipo_compilacao" = "2" ]; then
+        ARQUIVO_COMPILADO_ATUAL="${nome_item}${mclass}.zip"
+    else
+        return 1
+    fi
 }
 
 _coletar_artefatos_atualizacao() {
