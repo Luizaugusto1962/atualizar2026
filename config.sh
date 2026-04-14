@@ -452,7 +452,7 @@ _carregar_config_empresa() {
     # Verificar se o arquivo de configuracao existe e tem permissao de leitura
     if [[ ! -e "${config_file}" ]]; then
         printf "ERRO: Arquivo de configuracao nao existe no diretorio.\n" >&2
-        printf "ATENCAO: Use o programa .setup.sh que esta na pasta /libs para criar as configuracoes.\n" >&2
+        printf "ATENCAO: Execute './atualiza.sh --setup' para criar as configuracoes.\n" >&2
         if command -v _read_sleep >/dev/null 2>&1; then
             _read_sleep 2 2>/dev/null || true
         fi
