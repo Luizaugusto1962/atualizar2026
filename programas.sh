@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao, instalacao e reversao de programas
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 13/04/2026-00
+# Versao: 14/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"      # Nome do sistema (iscobol, savatu, transpc).
@@ -342,7 +342,6 @@ _mover_arquivos_offline() {
             fi
             _linha
         done
-#    fi
 }
 
 # Processa atualizacao dos programas
@@ -365,7 +364,7 @@ _processar_atualizacao_programas() {
     for arquivo in "${ARQUIVOS_PROGRAMA[@]}"; do
         if [[ ! -f "${arquivo}" ]]; then
             _mensagec "${RED}" "Arquivo nao encontrado: ${arquivo}"
-            return 1
+            return 0
         fi
     done
 
@@ -496,7 +495,7 @@ _processar_atualizacao_pacotes() {
         if [[ ! -f "${arquivo}" ]]; then
             _mensagec "${RED}" "Arquivo nao encontrado: ${arquivo}"
             _read_sleep 2
-            return 1
+            return 0
         fi
 
         if ! "${cmd_unzip}" -o "${arquivo}" >>"${LOG_ATU}" 2>&1; then

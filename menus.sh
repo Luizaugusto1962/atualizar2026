@@ -4,7 +4,7 @@
 # Responsavel pela apresentacao e navegacao dos menus do sistema
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 05/04/2026-01
+# Versao: 14/04/2026-01
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -468,9 +468,11 @@ _menu_backup() {
         printf "\n"
         _mensagec "${GREEN}" "1${NORM} -|: Backup da base de dados       "
         printf "\n"
-        _mensagec "${GREEN}" "2${NORM} -|: Restaurar base de dados       "
+        _mensagec "${GREEN}" "2${NORM} -|: Backup com Multiplos Padroes  "
         printf "\n"
-        _mensagec "${GREEN}" "3${NORM} -|: Backup com Multiplos Padroes  "
+        _mensagec "${GREEN}" "3${NORM} -|: Restaurar base de dados       "
+        printf "\n"
+        _meia_linha "-" "${YELLOW}"
         printf "\n"
         _mensagec "${GREEN}" "4${NORM} -|: Enviar Backup                 "
         printf "\n"
@@ -487,8 +489,8 @@ _menu_backup() {
 
         case "${opcao}" in
             1) _executar_backup ;;
-            2) _restaurar_backup ;;
-            3) _executar_backup_multiplos_padroes;;
+            2) _executar_backup_multiplos_padroes;;
+            3) _restaurar_backup ;;
             4) _enviar_backup_avulso ;;
             9) return ;;
             *)
@@ -845,7 +847,7 @@ _menu_escolha_base() {
                     _read_sleep 1
                 fi
                 ;;
-            9) return 1 ;;
+            9) return ;;
             *)
                 _opinvalida
                 _read_sleep 1

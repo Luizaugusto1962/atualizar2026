@@ -4,7 +4,7 @@
 # Responsavel por operacoes de download/upload via rsync, sftp e ssh
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 13/04/2026-00
+# Versao: 14/04/2026-00
 #
 #---------- CONFIGURACOES DE CONEXAO ----------#
 #
@@ -67,7 +67,7 @@ EOF
     if echo "$sftp_output" | grep -qiE "$regex_erro"; then
         _log_erro "Falha no download SFTP SSH: ${arquivo_remoto}"
         _log_erro "Saida sftp: ${sftp_output}"
-        return 1
+        return 0
     fi
     # 3ª verificacao: confirma que o arquivo existe e nao esta vazio no destino
     local arquivo_destino="${destino_local%/}/${nome_arquivo}"
@@ -112,11 +112,11 @@ _download_scp() {
             return 0
         else
             _log_erro "SCP retornou sucesso mas arquivo ausente ou vazio: ${arquivo_destino}"
-            return 1
+            return 0
         fi
     else
         _log_erro "Falha no download SCP: ${arquivo_remoto}"
-        return 1
+        return 0
     fi
 }
 
@@ -230,12 +230,12 @@ _baixar_programas_vaievem() {
 
                 if ! _download_sftp_ssh "${destino_server}${arquivo}" "."; then
                     _mensagec "${RED}" "Falha no download: $arquivo"
-                    return 1
+                    return 0
                 fi
             else
                 if ! _download_scp "${destino_server}${arquivo}" "."; then
                     _mensagec "${RED}" "Falha no download: $arquivo"
-                    return 1
+                    return 0
                 fi
             fi
 
@@ -245,14 +245,14 @@ _baixar_programas_vaievem() {
             if [[ ! -f "$arquivo" || ! -s "$arquivo" ]]; then
                 _mensagec "${RED}" "ERRO: Falha ao baixar '$arquivo'"
                 _read_sleep 2
-                return 1
+                return 0 
             fi
 
             if ! unzip -t "$arquivo" >/dev/null 2>&1; then
                 _mensagec "${RED}" "ERRO: Arquivo corrompido: $arquivo"
                 rm -f "$arquivo"
                 _read_sleep 2
-                return 1
+                return 0
             fi
 
             _mensagec "${GREEN}" "Download concluido: $arquivo"
@@ -268,13 +268,13 @@ _enviar_arquivo_multi() {
     if [[ -z "$arquivo_enviar" ]]; then
         _mensagec "${RED}" "Erro: Nenhum arquivo especificado para envio"
         _read_sleep 2
-        return 1
+        return 0
     fi
 
     if [[ -z "${destino_remoto:-}" ]]; then
         _mensagec "${RED}" "Erro: Destino remoto nao especificado"
         _read_sleep 2
-        return 1
+        return 0
     fi
 
     # Verificar se esta enviando multiplos arquivos ou apenas um

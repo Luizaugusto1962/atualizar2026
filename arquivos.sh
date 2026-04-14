@@ -3,7 +3,7 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferencia e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 13/04/2026-00
+# Versao: 14/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
@@ -106,6 +106,22 @@ _limpar_base_especifica() {
     local arquivo_lista="$2"
     local arquivos_temp=()
     
+    # Validar parâmetros
+    if [[ -z "$caminho_base" || -z "$arquivo_lista" ]]; then
+        _mensagec "${RED}" "ERRO: Parametros invalidos"
+        return 1  
+    fi
+    
+    if [[ ! -d "$caminho_base" ]]; then
+        _mensagec "${RED}" "ERRO: Diretorio nao existe: $caminho_base"
+        return 1  
+    fi
+    
+    if [[ ! -f "$arquivo_lista" ]]; then
+        _mensagec "${RED}" "ERRO: Arquivo de lista nao existe"
+        return 1  
+    fi
+    
     # Ler lista de arquivos temporarios
     mapfile -t arquivos_temp < "$arquivo_lista"
     
@@ -146,8 +162,9 @@ _limpar_base_especifica() {
             _read_sleep 1
         fi
     done
-        
     _linha
+    _mensagec "${GREEN}" "Limpeza concluida"
+    return 0
 }
 
 # Adiciona arquivo à lista de limpeza

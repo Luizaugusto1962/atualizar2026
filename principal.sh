@@ -13,8 +13,6 @@
 # -u: Trata variáveis não definidas como erro
 # -o pipefail: Faz o pipeline retornar o status do último comando que falhou
 set -eo pipefail
-# Desativa globbing acidental para evitar expansão de curingas
-set +o noglob
 
 # =============================================================================
 # VERSAO DO SISTEMA

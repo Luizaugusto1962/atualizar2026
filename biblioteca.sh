@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao das bibliotecas do sistema (Transpc, Savatu)
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 13/04/2026-00
+# Versao: 14/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                 # Tipo de sistema (iscobol/mf)
@@ -125,7 +125,7 @@ _reverter_biblioteca() {
         _mensagec "${RED}" "Versao nao informada"
         _linha
         _press
-        return 1
+        return 0
     fi
 
     local arquivo_backup="${BIBLIOTECA}/backup_biblioteca_antes_da_versao-${versao_reverter}.zip"
@@ -134,7 +134,7 @@ _reverter_biblioteca() {
         _mensagec "${RED}" "Backup da biblioteca nao encontrado: ${WHITE}${arquivo_backup}"
         _linha
         _press
-        return 1
+        return 0
     fi
 
     # Perguntar se e reversao completa ou especifica
@@ -321,12 +321,7 @@ _executar_atualizacao_biblioteca() {
 
             # Descompactar arquivo em background
             {
-            timeout 300 "${cmd_unzip}" -o "${arquivo}" -d "${principal_local}" >>"${LOG_ATU}" 2>&1
-                local status=$?
-                if [[ $status -eq 124 ]]; then
-                _log_erro "Timeout na descompactação de ${arquivo}"
-                fi
-               return $status
+            "${cmd_unzip}" -o "${arquivo}" -d "${principal_local}" >>"${LOG_ATU}" 2>&1
             } &
             local pid_unzip=$!
             pids+=("$pid_unzip")  # Registrar PID para trap
@@ -353,16 +348,29 @@ _executar_atualizacao_biblioteca() {
     # Ir para o diretório envia para renomear os arquivos
     cd "${down_dir:-}" || return 1
     
-    # Excluir arquivos .zip da atualizacao
+    # Mover arquivos .zip para .bkp
     for arquivo_zip in *_"${VERSAO}".zip; do
         if [[ -f "${arquivo_zip}" ]]; then
-            rm -f "${arquivo_zip}"
+            mv -f "${arquivo_zip}" "${arquivo_zip%.zip}.bkp"
         fi
     done
+    
+    # Mover backups para diretorio
+    local arquivos=(*_"${VERSAO}".bkp)
+    if (( ${#arquivos[@]} )); then
+        mv -- "${arquivos[@]}" "${OLDS}" || {
+        _mensagec "${YELLOW}" "Erro ao mover arquivos de backup."
+        _read_sleep 2
+        return 1
+        }
+    else
+        _mensagec "${YELLOW}" "Nenhum arquivo de backup para mover"
+    fi
 
     # Atualizar mensagens finais
     _linha
-    _mensagec "${YELLOW}" "Arquivos .zip da atualizacao removidos"
+    _mensagec "${YELLOW}" "Alterando a extensao da atualizacao"
+    _mensagec "${YELLOW}" "De *.zip para *.bkp"
     _mensagec "${RED}" "Versao atualizada - ${VERSAO}"
     _linha
 
@@ -458,7 +466,7 @@ _solicitar_versao_biblioteca() {
         _mensagec "${RED}" "Versao a ser atualizada nao foi informada"
         _linha
         _press
-        return 1
+        return 0
     fi
     
     return 0

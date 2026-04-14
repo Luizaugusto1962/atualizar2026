@@ -4,7 +4,7 @@
 # Responsavel por backup completo, incremental e restauracao
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 13/04/2026-00
+# Versao: 14/04/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -40,7 +40,7 @@ _executar_backup() {
         if [[ -z "${base_trabalho}" ]]; then
             _mensagec "${RED}" "Erro: Base de trabalho nao foi selecionada"
             _read_sleep 3
-            return 1
+            return 0
         fi
     else
         base_trabalho="${raiz}${base}"
@@ -50,7 +50,7 @@ _executar_backup() {
     if [[ ! -d "$base_trabalho" ]]; then
         _mensagec "${RED}" "Erro: Diretorio base '$base_trabalho' nao existe"
         _read_sleep 3
-        return 1
+        return 0
     fi
 
     # Exportar para uso em subfuncoes
@@ -60,7 +60,7 @@ _executar_backup() {
     if [[ ! -d "$BASEBACKUP" ]]; then
         _mensagec "$YELLOW" "Diretorio de backups em $BASEBACKUP, nao encontrado ..."
         _read_sleep 3
-        return 1
+        return 0
     fi
 
     # Verificar espaco em disco
@@ -73,7 +73,7 @@ _executar_backup() {
     # Escolher tipo de backup
     _menu_tipo_backup
     if [[ -z "$tipo_backup" ]]; then
-        return 1
+        return 0
     fi
 
     # Gerar nome do arquivo
@@ -86,7 +86,7 @@ _executar_backup() {
         if ! _confirmar "Ja existe backup recente. Deseja continuar?" "N"; then
             _mensagec "$RED" "Operacao cancelada"
             _read_sleep 3
-            return 1
+            return 0
         fi
         _linha
         _mensagec "$YELLOW" "Sera criado backup adicional"
@@ -96,7 +96,7 @@ _executar_backup() {
     if ! _diretorio_trabalho; then
         _mensagec "${RED}" "Erro ao acessar diretorio de trabalho"
         _read_sleep 3
-        return 1
+        return 0
     fi
 
     _linha
@@ -122,14 +122,14 @@ _executar_backup() {
         if ! [[ "$mes" =~ ^(0[1-9]|1[0-2])$ ]] || ! [[ "$ano" =~ ^[0-9]{4}$ ]]; then
             _mensagec "$RED" "Mes ou ano invalido. Use formato MM (01-12) e YYYY."
             _read_sleep 2
-            return 1
+            return 0
         fi
 
         # Validar ano nao seja muito antigo ou futuro
         if (( ano < 1990 || ano > ano_agora )); then
             _mensagec "$RED" "Ano fora do intervalo valido (1990-$ano_agora)"
             _read_sleep 2
-            return 1
+            return 0
         fi
 
         data_referencia="${ano}-${mes}-01"
@@ -139,13 +139,13 @@ _executar_backup() {
         data_input=$(date -d "$data_referencia" +%Y%m%d 2>/dev/null) || {
             _mensagec "$RED" "Data invalida."
             _read_sleep 2
-            return 1
+            return 0
         }
 
         if [[ "$data_input" -gt "$data_atual" ]]; then
             _mensagec "$RED" "A data nao pode ser futura."
             _read_sleep 2
-            return 1
+            return 0
         fi
 
         # Agora sim, executar o backup incremental em background
@@ -167,7 +167,7 @@ _executar_backup() {
     else
         _mensagec "$RED" "Erro ao criar backup"
         _read_sleep 3
-        return 1
+        return 0
     fi
 
     # Perguntar sobre envio
@@ -180,7 +180,7 @@ _executar_backup() {
 _restaurar_backup() {
     # Seleciona o backup usando a rotina unica
     if ! _selecionar_backup; then
-        return 1
+        return 0
     fi
 
     # Prossegue com a lógica de restauracao (completa ou parcial)
@@ -195,7 +195,7 @@ _restaurar_backup() {
 _enviar_backup_avulso() {
     # Seleciona o backup usando a rotina unica
     if ! _selecionar_backup; then
-        return 1
+        return 0
     fi
 if [[ "${Offline}" =~ ^[sn]$ ]]; then
     if [[ "${Offline}" == "s" ]]; then
@@ -215,20 +215,41 @@ fi
 _executar_backup_completo() {
     local arquivo_destino="$1"
     
+    # ✅ Validar parâmetro
+    if [[ -z "$arquivo_destino" ]]; then
+        _mensagec "${RED}" "ERRO: Caminho do backup nao foi informado"
+        return 1  # ✅ Retorna 1 para erro
+    fi
+    
+    # ✅ Validar diretório de trabalho
     if ! _diretorio_trabalho; then
-        return 1
+        _mensagec "${RED}" "ERRO: Falha ao acessar diretorio de trabalho"
+        return 1  # ✅ Retorna 1 para erro
     fi
     
-    "$cmd_zip" "$arquivo_destino" ./*.* -x ./*.zip ./*.tar ./*.gz ./*.log ./*.tmp ./*.old >/dev/null 2>&1
-    local resultado=$?
+    # ✅ Executar backup com tratamento de erro
+    if ! "$cmd_zip" "$arquivo_destino" ./*.* \
+         -x ./*.zip ./*.tar ./*.gz ./*.log ./*.tmp ./*.old >/dev/null 2>&1; then
+        _mensagec "${RED}" "ERRO: Falha ao criar arquivo de backup"
+        return 1  # ✅ Retorna 1 para erro
+    fi
     
-    # Verificar se o backup foi criado
+    # ✅ Validar se o backup foi criado
     if [[ ! -f "$arquivo_destino" ]]; then
-        _mensagec "${RED}" "Erro: Backup nao foi criado"
-        return 1
+        _mensagec "${RED}" "ERRO: Backup nao foi criado"
+        return 1  # ✅ Retorna 1 para erro
     fi
     
-    return $resultado
+    # ✅ Validar tamanho mínimo
+    local tamanho=$(stat -c%s "$arquivo_destino" 2>/dev/null)
+    if [[ -z "$tamanho" || $tamanho -lt 100 ]]; then
+        _mensagec "${RED}" "ERRO: Backup criado mas vazio ou muito pequeno"
+        rm -f "$arquivo_destino"
+        return 1  # ✅ Retorna 1 para erro
+    fi
+    
+    _mensagec "${GREEN}" "Backup criado com sucesso: $arquivo_destino"
+    return 0  # ✅ Retorna 0 para sucesso
 }
 
 # Executa backup incremental (recebe data como parametro)
@@ -238,47 +259,54 @@ _executar_backup_incremental() {
     local arquivos_temp
     local resultado
 
-    # Validar data antes de usar
-    if ! date -d "$data_referencia" >/dev/null 2>&1; then
-        _mensagec "${RED}" "Data invalida: $data_referencia"
-        return 1
+    # Validar parâmetros
+    if [[ -z "$arquivo_destino" || -z "$data_referencia" ]]; then
+        _mensagec "${RED}" "ERRO: Parametros invalidos para backup incremental"
+        return 1  
     fi
 
+    # Validar data
+    if ! date -d "$data_referencia" >/dev/null 2>&1; then
+        _mensagec "${RED}" "ERRO: Data invalida: $data_referencia"
+        return 1  
+    fi
+
+    # Validar diretório de trabalho
     if ! _diretorio_trabalho; then
-        return 1
+        _mensagec "${RED}" "ERRO: Falha ao acessar diretorio de trabalho"
+        return 1  
     fi
 
     # Criar arquivo temporario para lista de arquivos
     arquivos_temp=$(mktemp) || {
-        _mensagec "${RED}" "Erro ao criar arquivo temporario"
-        return 1
+        _mensagec "${RED}" "ERRO: Falha ao criar arquivo temporario"
+        return 1  
     }
 
     # Buscar arquivos modificados
     find . -type f -newermt "$data_referencia" \
-         ! -name "*.zip" ! -name "*.tar" ! -name "*.log" ! -name "*.tmp" ! -name "*.gz" ! -name "*.old" -print0 > "$arquivos_temp"
+         ! -name "*.zip" ! -name "*.tar" ! -name "*.log" ! -name "*.tmp" ! -name "*.gz" ! -name "*.old" \
+         -print0 > "$arquivos_temp"
 
-    # Verificar se encontrou arquivos
+    # Validar se encontrou arquivos (sem erro, apenas informativo)
     if [[ ! -s "$arquivos_temp" ]]; then
         _mensagec "${YELLOW}" "Nenhum arquivo modificado desde $data_referencia"
         rm -f "$arquivos_temp"
-        return 1
+        return 0
     fi
 
     # Executar compactacao
-    xargs -0 "$cmd_zip" "$arquivo_destino" < "$arquivos_temp" >/dev/null 2>&1
-    resultado=$?
+    if ! xargs -0 "$cmd_zip" "$arquivo_destino" < "$arquivos_temp" >/dev/null 2>&1; then
+        _mensagec "${RED}" "ERRO: Falha ao compactar arquivos"
+        rm -f "$arquivos_temp"
+        return 1  
+    fi
     
     # Limpar arquivo temporario
     rm -f "$arquivos_temp"
-
-    # Verificar se o backup foi criado
-    if [[ ! -f "$arquivo_destino" ]]; then
-        _mensagec "${RED}" "Erro: Backup nao foi criado"
-        return 1
-    fi
     
-    return $resultado
+    _mensagec "${GREEN}" "Backup incremental criado com sucesso"
+    return 0  
 }
 
 # Muda para o diretorio de trabalho
@@ -287,12 +315,12 @@ _diretorio_trabalho() {
     
     if [[ ! -d "$base_trabalho" ]]; then
         _mensagec "${RED}" "Erro: Diretorio ${base_trabalho} nao encontrado"
-        return 1
+        return 0
     fi
     
     cd "$base_trabalho" || {
         _mensagec "${RED}" "Erro: Nao foi possivel acessar ${base_trabalho}"
-        return 1
+        return 0
     }
     
     return 0
@@ -311,7 +339,7 @@ _selecionar_backup() {
     if ((${#arquivos_backup[@]} == 0)); then
         _mensagec "${RED}" "Nenhum backup (${empresa}_*.zip) encontrado"
         _press
-        return 1
+        return 0
     fi
 
     # Ordenar o array em ordem reversa para corresponder à exibicao
@@ -332,7 +360,7 @@ _selecionar_backup() {
             backup_selecionado="${arquivos_backup[0]}"
         else
             _mensagec "${YELLOW}" "Operacao cancelada."
-            return 1
+            return 0
         fi
     else
         # Escolha interativa com cancelar explicito (0)
@@ -346,7 +374,7 @@ _selecionar_backup() {
 
             if [[ "$REPLY" == "0" || -z "$REPLY" ]]; then
                 _mensagec "${YELLOW}" "Operacao cancelada."
-                return 1
+                return 0
             fi
 
             if [[ ! "$REPLY" =~ ^[0-9]+$ ]]; then
@@ -384,7 +412,7 @@ _restaurar_backup_completo() {
     if [[ ! -f "$arquivo_backup" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
         _press
-        return 1
+        return 0
     fi
     
     _linha
@@ -394,7 +422,7 @@ _restaurar_backup_completo() {
     if ! "${cmd_unzip:-unzip}" -o "$arquivo_backup" -d "${base_trabalho}" >>"${LOG_ATU}" 2>&1; then
         _mensagec "${RED}" "Erro na restauracao completa"
         _press
-        return 1
+        return 0
     fi
     
     _mensagec "${GREEN}" "Restauracao completa concluida"
@@ -411,7 +439,7 @@ _restaurar_arquivo_especifico() {
     if [[ ! -f "$arquivo_backup" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
         _press
-        return 1
+        return 0
     fi
    
     while true; do
@@ -475,7 +503,7 @@ _enviar_backup_servidor() {
     if [[ ! -f "${BASEBACKUP}/${nome_backup}" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
         _read_sleep 3
-        return 1
+        return 0
     fi
 
     # Determinar destino
@@ -515,7 +543,7 @@ _enviar_backup_servidor() {
         _linha
         _mensagec "${RED}" "Erro ao enviar backup"
         _read_sleep 3
-        return 1
+        return 0
     fi
 }
 
@@ -527,7 +555,7 @@ _mover_backup_offline() {
     if [[ ! -f "${BASEBACKUP}/${nome_backup}" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
         _press
-        return 1
+        return 0
     fi
     
     _linha
@@ -537,7 +565,7 @@ _mover_backup_offline() {
     if [[ -z "${down_dir}" ]]; then
         _mensagec "${RED}" "Diretorio offline nao configurado"
         _press
-        return 1
+        return 0
     fi
 
     # Criar diretorio offline se nao existir
@@ -545,7 +573,7 @@ _mover_backup_offline() {
         if ! mkdir -p "${down_dir}"; then
             _mensagec "${RED}" "Erro ao criar diretorio offline"
             _press
-            return 1
+            return 0
         fi
     fi
     
@@ -555,7 +583,7 @@ _mover_backup_offline() {
     else
         _mensagec "${RED}" "Erro ao mover backup"
         _press
-        return 1
+        return 0
     fi
 }
 
@@ -568,7 +596,7 @@ _enviar_backup_rede() {
     if [[ ! -f "${BASEBACKUP}/${nome_backup}" ]]; then
         _mensagec "${RED}" "Erro: Arquivo de backup nao encontrado"
         _press
-        return 1
+        return 0
     fi
     
     if [[ -n "${enviabackup}" ]]; then
@@ -593,7 +621,7 @@ _enviar_backup_rede() {
         _linha
         _mensagec "${RED}" "Erro ao enviar backup via vaievem"
         _press
-        return 1
+        return 0
     fi
 }
 
@@ -624,7 +652,7 @@ _verificar_backups_recentes() {
         _linha
         return 0
     fi
-    return 1
+    return 0
 }
 
 
@@ -683,34 +711,62 @@ _executar_backup_multiplos_padroes() {
     fi
 
     _linha
-    _mensagec "${CYAN}" "========== BACKUP COM MULTIPLOS PADROES =========="
+    _mensagec "${CYAN}" "BACKUP COM MULTIPLOS PADROES"
     _linha
+
+    # Verificar e mudar para o diretorio de trabalho antes de solicitar os padroes
+    if ! _diretorio_trabalho; then
+        _mensagec "${RED}" "Erro ao acessar diretorio de trabalho"
+        _read_sleep 3
+        return 1
+    fi
 
     # Solicitar padrões de arquivos
     local padroes=()
     local padrao_entrada
     local contador=1
 
-    _mensagec "${YELLOW}" "Informe os padroes de arquivos que deseja fazer backup."
-    _mensagec "${YELLOW}" "Exemplos: aaaa*.*, bbb*.*, cccc*.*"
-    _mensagec "${YELLOW}" "Digite um padrao por linha. Digite [vazio] para finalizar."
+    _mensagec "${YELLOW}" "Informe os arquivos que deseja fazer backup."
+    _mensagec "${YELLOW}" "Digite um por linha. Digite [vazio] para finalizar."
     _linha
 
     while true; do
-        read -rp "${CYAN}Padrao $contador: ${NORM}" padrao_entrada
-
+        read -rp "${CYAN}Arquivo $contador: ${NORM}" padrao_entrada
         if [[ -z "$padrao_entrada" ]]; then
             if (( contador == 1 )); then
-                _mensagec "${RED}" "Nenhum padrao foi informado!"
+                _mensagec "${RED}" "Nenhum arquivo foi informado!"
                 _read_sleep 2
-                return 1
+                return 0
             fi
             break
         fi
 
-        # Validar formato do padrao (basico)
-        if ! [[ "$padrao_entrada" =~ \* ]]; then
-            _mensagec "${YELLOW}" "Aviso: Padrao sem wildcard (*) - sera tratado como nome literal"
+        # Verificar se o arquivo existe e expandir para incluir todos com mesmo nome e extensao
+        # Suporta extensao simples (nome.dat) e dupla (nome.dat.idx)
+        local nome_base extensao padrao_expandido
+        # Remover extensoes: se tiver extensao dupla (ex: .dat.idx), remove as duas
+        if [[ "${padrao_entrada}" =~ ^(.+)(\.[^.]+\.[^.]+)$ ]]; then
+            nome_base="${BASH_REMATCH[1]}"
+            extensao="${BASH_REMATCH[2]}"
+        elif [[ "${padrao_entrada}" =~ ^(.+)(\.[^.]+)$ ]]; then
+            nome_base="${BASH_REMATCH[1]}"
+            extensao="${BASH_REMATCH[2]}"
+        else
+            nome_base="${padrao_entrada}"
+            extensao=""
+        fi
+
+        if [[ -n "${extensao}" ]]; then
+            padrao_expandido="${nome_base}*${extensao}"
+        else
+            padrao_expandido="${nome_base}*"
+        fi
+
+        if [[ ! -f "${padrao_entrada}" ]] && compgen -G "${padrao_expandido}" > /dev/null 2>&1; then
+            _mensagec "${YELLOW}" "Aviso: Arquivo(s), '${padrao_expandido}' incluido(s)."
+            padrao_entrada="${padrao_expandido}"
+        elif [[ ! -f "${padrao_entrada}" ]]; then
+            _mensagec "${YELLOW}" "Aviso: Arquivo '${padrao_entrada}' nao encontrado na Diretorio base '$base_trabalho'"
         fi
 
         padroes+=("$padrao_entrada")
@@ -718,16 +774,9 @@ _executar_backup_multiplos_padroes() {
     done
 
     if (( ${#padroes[@]} == 0 )); then
-        _mensagec "${RED}" "Nenhum padrao foi adicionado"
+        _mensagec "${RED}" "Nenhum arquivo foi adicionado"
         _read_sleep 2
-        return 1
-    fi
-
-    # Verificar se arquivos correspondem aos padrões
-    if ! _diretorio_trabalho; then
-        _mensagec "${RED}" "Erro ao acessar diretorio de trabalho"
-        _read_sleep 3
-        return 1
+        return 0
     fi
 
     local arquivos_encontrados=()
@@ -750,9 +799,9 @@ _executar_backup_multiplos_padroes() {
         shopt -u nullglob
 
         if (( qtd_encontrados == 0 )); then
-            _mensagec "${YELLOW}" "Padrao '$padrao' - nenhum arquivo encontrado"
+            _mensagec "${YELLOW}" "Arquivo '$padrao' - nenhum arquivo encontrado"
         else
-            _mensagec "${GREEN}" "Padrao '$padrao' - $qtd_encontrados arquivo(s) encontrado(s)"
+            _mensagec "${GREEN}" "Arquivo '$padrao' - $qtd_encontrados arquivo(s) encontrado(s)"
         fi
     done
 
@@ -761,7 +810,7 @@ _executar_backup_multiplos_padroes() {
     if (( ${#arquivos_encontrados[@]} == 0 )); then
         _mensagec "${RED}" "Nenhum arquivo encontrado para os padroes informados!"
         _read_sleep 3
-        return 1
+        return 0
     fi
 
     # Exibir lista de arquivos que serao feitos backup
@@ -775,7 +824,7 @@ _executar_backup_multiplos_padroes() {
     if ! _confirmar "Deseja continuar com o backup destes arquivos?" "S"; then
         _mensagec "${RED}" "Operacao cancelada"
         _read_sleep 2
-        return 1
+        return 0
     fi
 
     _linha
