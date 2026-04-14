@@ -25,15 +25,15 @@ declare -a ARQUIVOS_PROGRAMA=()
 
 # Atualizacao de programas via conexao online
 _atualizar_programa_online() {
-if [[ "${Offline}" =~ ^[sn]$ ]]; then    
-    if [[ "${Offline}" == "s" ]]; then
-        _linha
-        _mensagec "${YELLOW}" "Parametro do servidor OFF ativo"
-        _linha
-        _press
-        return 0
-    fi
-fi    
+    if [[ "${Offline}" =~ ^[sn]$ ]]; then    
+        if [[ "${Offline}" == "s" ]]; then
+            _linha
+            _mensagec "${YELLOW}" "Parametro do servidor OFF ativo"
+            _linha
+            _press
+            return 0
+        fi
+    fi    
     # Solicitar programas a serem atualizados
     _solicitar_programas_atualizacao
     
@@ -84,15 +84,15 @@ _atualizar_programa_offline() {
 # Atualizacao de programas em pacotes
 _atualizar_programa_pacote() {
         _solicitar_pacotes_atualizacao
-if [[ "${Offline}" =~ ^[sn]$ ]]; then        
-    if [[ "${Offline}" == "s" ]]; then
-        _linha
-        _mensagec "${YELLOW}" "Parametro do servidor OFF ativo"
-        _mover_arquivos_offline
-    else 
-        _baixar_pacotes_vaievem
+    if [[ "${Offline}" =~ ^[sn]$ ]]; then        
+        if [[ "${Offline}" == "s" ]]; then
+            _linha
+            _mensagec "${YELLOW}" "Parametro do servidor OFF ativo"
+            _mover_arquivos_offline
+        else 
+            _baixar_pacotes_vaievem
+        fi
     fi
-fi
         _processar_atualizacao_pacotes
         _linha
         _press

@@ -423,7 +423,7 @@ _restaurar_arquivo_especifico() {
             _linha
             # Pergunta se deseja continuar mesmo após erro
             if ! _confirmar "Deseja restaurar mais arquivos?" "N"; then
-                return 0  # Sai da funcao se ncao quiser continuar
+                return 0  # Sai da funcao se nao quiser continuar
             fi
             continue  # Volta ao loop para novo nome
         fi
@@ -434,7 +434,7 @@ _restaurar_arquivo_especifico() {
             _linha
             # Pergunta se deseja continuar mesmo após erro
             if ! _confirmar "Deseja restaurar mais arquivos?" "N"; then
-                return 0  # Sai da funcao se ncao quiser continuar
+                return 0  # Sai da funcao se nao quiser continuar
             fi
             continue  # Volta ao loop para novo nome
         fi

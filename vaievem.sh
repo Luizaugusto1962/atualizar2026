@@ -148,7 +148,7 @@ _upload_rsync() {
         return 0
     else
         _log_erro "Falha no upload RSYNC: ${arquivo_local}"
-        return 0
+        return 1
     fi
 }
 
@@ -170,7 +170,7 @@ _baixar_biblioteca_sincroniza() {
                 return 0
             else
                 _log_erro "Falha no download da biblioteca: ${SAVATU}${VERSAO}.zip"
-                return 0
+                return 1
             fi
         else
             _definir_variaveis_biblioteca
@@ -180,7 +180,7 @@ _baixar_biblioteca_sincroniza() {
 
             if [[ ${#arquivos_update[@]} -eq 0 ]]; then
                 _mensagec "${RED}" "Erro: Nenhum arquivo de atualizacao encontrado"
-                return 0
+                return 1
             fi
 
             for arquivo in "${arquivos_update[@]}"; do
@@ -190,7 +190,7 @@ _baixar_biblioteca_sincroniza() {
                     _log_sucesso "Download concluido: ${arquivo}"
                 else
                     _log_erro "Falha no download: ${arquivo}"
-                    return 0
+                    return 1
                 fi
             done
 
