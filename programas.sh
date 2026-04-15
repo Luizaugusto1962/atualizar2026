@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao, instalacao e reversao de programas
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 14/04/2026-00
+# Versao: 15/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"      # Nome do sistema (iscobol, savatu, transpc).
@@ -447,13 +447,13 @@ for extensao in ".class" ".int" ".TEL"; do
                 mv -f "${arquivo}" "${E_EXEC}/" >>"${LOG_ATU}" 2>&1
                 # Verificar se o arquivo foi movido com sucesso
                 if [[ ! -f "${E_EXEC}/${arquivo}" ]]; then
-                    echo "ERRO: Falha ao mover ${arquivo} para ${E_EXEC}/" | tee -a "${LOG_ATU}"
+                    _log_erro "Falha ao mover ${arquivo} para ${E_EXEC}/"
                     echo "ERRO: Arquivo ${arquivo} nao encontrado no diretorio de destino" >&2
                     _mensagec "${RED}" "Arquivo ${arquivo} nao encontrado no diretorio de destino"
                     _mensagec "${YELLOW}" "Verifique o log de atualizacao em ${LOG_ATU} para mais detalhes."
                     _mensagec "${YELLOW}" "Use a opcao 4 de reversao para restaurar o programa anterior."
                 else
-                    echo "Arquivo ${arquivo} movido com sucesso para ${E_EXEC}/" >>"${LOG_ATU}"
+                    _log "Arquivo ${arquivo} movido com sucesso para ${E_EXEC}/"
                     _mensagec "${GREEN}" "Arquivo ${arquivo} movido com sucesso para ${E_EXEC}/"
                     _obter_data_arquivo "${arquivo}"
                 fi
@@ -525,12 +525,12 @@ _processar_atualizacao_pacotes() {
         # Backup dos arquivos antigos
         if [[ "${sistema}" == "iscobol" ]]; then
             if ! find "${E_EXEC}" -name "${progname}*.class" -exec "${cmd_zip}" -j "${arquivo_backup}" {} + 2>>"${LOG_ATU}"; then
-                echo "ERRO: Falha ao fazer backup de ${progname}*.class" >> "${LOG_ATU}"
+                _log_erro "Falha ao fazer backup de ${progname}*.class"
                 return 1
             fi
         else
             if ! find "${E_EXEC}" -name "${progname}*.int" -exec "${cmd_zip}" -j "${arquivo_backup}" {} + 2>>"${LOG_ATU}"; then
-                echo "ERRO: Falha ao fazer backup de ${progname}*.int" >> "${LOG_ATU}"
+                _log_erro "Falha ao fazer backup de ${progname}*.int"
                 return 1
             fi
         fi
@@ -538,7 +538,7 @@ _processar_atualizacao_pacotes() {
         # Backup de arquivos .TEL se existirem
         if [[ -f "${progname}.TEL" ]]; then
             if ! find "${T_TELAS}" -name "${progname}*.TEL" -exec "${cmd_zip}" -j "${arquivo_backup}" {} + 2>>"${LOG_ATU}"; then
-                echo "ERRO: Falha ao fazer backup de ${progname}*.TEL" >> "${LOG_ATU}"
+                _log_erro "Falha ao fazer backup de ${progname}*.TEL"
                 return 1
             fi
         fi
@@ -552,12 +552,12 @@ _processar_atualizacao_pacotes() {
 
         # Mover novos arquivos
         if ! mv -f "${progname}"*.class "${E_EXEC}/" >>"${LOG_ATU}" 2>&1; then
-            echo "ERRO: Falha ao mover ${progname}*.class para ${E_EXEC}" >> "${LOG_ATU}"
+            _log_erro "Falha ao mover ${progname}*.class para ${E_EXEC}"
             return 1
         fi
         if [[ -f "${progname}.TEL" ]]; then
             if ! mv -f "${progname}"*.TEL "${T_TELAS}/" >>"${LOG_ATU}" 2>&1; then
-                echo "ERRO: Falha ao mover ${progname}*.TEL para ${T_TELAS}" >> "${LOG_ATU}"
+                _log_erro "Falha ao mover ${progname}*.TEL para ${T_TELAS}"
                 return 1
             fi
         fi

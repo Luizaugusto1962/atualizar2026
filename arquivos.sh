@@ -3,7 +3,7 @@
 # arquivos.sh - Modulo de Gestao de Arquivos
 # Responsavel por limpeza, recuperacao, transferencia e expurgo de arquivos
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 14/04/2026-00
+# Versao: 15/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"                    # Tipo de sistema (ex: iscobol, outros).
@@ -149,15 +149,15 @@ _limpar_base_especifica() {
         
         # Compactar — $cmd_zip sem aspas para suportar flags (ex: "zip -j")
         if $cmd_zip "${BACKUP}/${zip_temporarios}" "${arquivos_zip[@]}" >>"${LOG_LIMPA}" 2>&1; then
-            _log "Arquivos temporarios compactados: $padrao_arquivo (${qtd_padrao} arquivo(s))"
+            _log "Arquivos temporarios compactados: $padrao_arquivo (${qtd_padrao} arquivo(s))" "${LOG_LIMPA}"
             # Remover usando o mesmo array ja coletado.
             if printf '%s\0' "${arquivos_zip[@]}" | xargs -0 rm -f; then
-                _log "Arquivos removidos: $padrao_arquivo (${qtd_padrao} arquivo(s))"
+                _log "Arquivos removidos: $padrao_arquivo (${qtd_padrao} arquivo(s))" "${LOG_LIMPA}"
             else
-                _log "AVISO: falha ao remover arquivos do padrao: $padrao_arquivo"
+                _log "AVISO: falha ao remover arquivos do padrao: $padrao_arquivo" "${LOG_LIMPA}"
             fi
          else
-            _log "ERRO ao compactar arquivos do padrao: $padrao_arquivo"
+            _log "ERRO ao compactar arquivos do padrao: $padrao_arquivo" "${LOG_LIMPA}"
             _mensagec "${RED}" "  >> ERRO ao compactar padrao: ${padrao_arquivo}"
             _read_sleep 1
         fi

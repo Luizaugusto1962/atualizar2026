@@ -4,7 +4,7 @@
 # Responsavel por backup completo, incremental e restauracao
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 14/04/2026-00
+# Versao: 15/04/2026-00
 # Autor: Luiz Augusto
 #
 # Variaveis globais esperadas
@@ -215,41 +215,41 @@ fi
 _executar_backup_completo() {
     local arquivo_destino="$1"
     
-    # ✅ Validar parâmetro
+    # Validar parâmetro
     if [[ -z "$arquivo_destino" ]]; then
         _mensagec "${RED}" "ERRO: Caminho do backup nao foi informado"
-        return 1  # ✅ Retorna 1 para erro
+        return 1
     fi
     
-    # ✅ Validar diretório de trabalho
+    # Validar diretório de trabalho
     if ! _diretorio_trabalho; then
         _mensagec "${RED}" "ERRO: Falha ao acessar diretorio de trabalho"
-        return 1  # ✅ Retorna 1 para erro
+        return 1
     fi
     
-    # ✅ Executar backup com tratamento de erro
+    # Executar backup com tratamento de erro
     if ! "$cmd_zip" "$arquivo_destino" ./*.* \
          -x ./*.zip ./*.tar ./*.gz ./*.log ./*.tmp ./*.old >/dev/null 2>&1; then
         _mensagec "${RED}" "ERRO: Falha ao criar arquivo de backup"
-        return 1  # ✅ Retorna 1 para erro
+        return 1
     fi
     
-    # ✅ Validar se o backup foi criado
+    # Validar se o backup foi criado
     if [[ ! -f "$arquivo_destino" ]]; then
         _mensagec "${RED}" "ERRO: Backup nao foi criado"
-        return 1  # ✅ Retorna 1 para erro
+        return 1
     fi
     
-    # ✅ Validar tamanho mínimo
+    # Validar tamanho mínimo
     local tamanho=$(stat -c%s "$arquivo_destino" 2>/dev/null)
     if [[ -z "$tamanho" || $tamanho -lt 100 ]]; then
         _mensagec "${RED}" "ERRO: Backup criado mas vazio ou muito pequeno"
         rm -f "$arquivo_destino"
-        return 1  # ✅ Retorna 1 para erro
+        return 1
     fi
     
     _mensagec "${GREEN}" "Backup criado com sucesso: $arquivo_destino"
-    return 0  # ✅ Retorna 0 para sucesso
+    return 0
 }
 
 # Executa backup incremental (recebe data como parametro)
