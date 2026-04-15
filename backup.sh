@@ -652,7 +652,7 @@ _verificar_backups_recentes() {
         _linha
         return 0
     fi
-    return 0
+    return 1
 }
 
 
