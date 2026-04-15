@@ -9,7 +9,7 @@
 #---------- FUNCOES DE FORMATACAO DE TELA ----------#
 # Variaveis globais esperadas
 raiz="${raiz:-}"                                       # Diretorio raiz do sistema.
-LOGS="${LOGS:-$raiz/logs}"                             # Diretorio de logs.
+#LOGS="${LOGS:-$SCRIPT_DIR/logs}"                      # Diretorio de logs.
 
 # Função para limpar tela
 _limpa_tela() {
