@@ -4,7 +4,7 @@
 # Responsavel por carregar configuracoes, validar sistema e definir variaveis globais
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 14/04/2026-02
+# Versao: 16/04/2026-01
 
 # =============================================================================
 # CONFIGURAÇÕES DE SEGURANÇA
@@ -171,10 +171,7 @@ _definir_cores() {
         CYAN=$(tput bold; tput setaf 6 2>/dev/null)         # Ciano
         WHITE=$(tput bold; tput setaf 7 2>/dev/null)        # Branco
         NORM=$(tput sgr0 2>/dev/null)                       # Normal
-
-        local cols
-        cols=$(tput cols 2>/dev/null) || cols=80
-        COLUMNS="$cols"
+        COLUMNS=$(tput cols)                                # Numero de colunas do terminal
 
         # Limpar tela inicial
         tput clear 2>/dev/null || true

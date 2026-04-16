@@ -11,7 +11,7 @@
 raiz="${raiz:-}"                                       # Diretorio raiz do sistema.
 #LOGS="${LOGS:-$SCRIPT_DIR/logs}"                      # Diretorio de logs.
 
-# Função para limpar tela
+# Funcao para limpar tela
 _limpa_tela() {
     clear
 }
