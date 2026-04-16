@@ -235,13 +235,18 @@ _confirmar() {
 
 # Mostra progresso do backup com spinner animado e tempo decorrido
 _mostrar_progresso_backup() {
-    local pid="${1:?PID é obrigatório}"
+    local pid="${1:-}"
     local delay=0.2
     local spin=( "|" "/" "-" "\\" )
     local i=0
     local elapsed=0
     local msg="Processo em andamento"
     local status_proc=0
+
+    if [[ -z "$pid" ]]; then
+        _mensagec "$YELLOW" "Aviso: PID nao informado para _mostrar_progresso_backup"
+        return 0
+    fi
 
     # Verifica se o processo ainda está ativo
     if ! kill -0 "$pid" 2>/dev/null; then
@@ -265,15 +270,15 @@ _mostrar_progresso_backup() {
         sleep "$delay"
         # Incrementa elapsed a cada 5 iterações (aproximadamente 1 segundo)
         if (( i % 5 == 0 )); then
-            ((elapsed++))
+            (( elapsed++ )) || true
         fi
     done
 
     # Mostra o cursor novamente
     tput cnorm 2>/dev/null || true
 
-    # Mensagem final — captura o status do processo
-    wait "$pid" 2>/dev/null || status_proc=$?
+    # Captura o status do processo — sem propagar erro
+    wait "$pid" 2>/dev/null && status_proc=0 || status_proc=$?
 
     if [[ "$status_proc" -eq 0 ]]; then
         printf "\r${GREEN}%s... [Concluido] ${NORM}\n" "$msg"
@@ -283,12 +288,12 @@ _mostrar_progresso_backup() {
     return "$status_proc"
 }
 
-#---------- FUNcoES DE LOG ----------#
+#---------- FUNCOES DE LOG ----------#
 
 # Registra mensagem no log com timestamp
 # Parametros: $1=mensagem $2=arquivo_log(opcional)
 _log() {
-    local mensagem="${1:?Mensagem é obrigatória}"
+    local mensagem="$1"
     local arquivo_log="${2:-$LOG_ATU}"
     local timestamp usuario_log
 
@@ -344,8 +349,8 @@ _log_sucesso() {
 # Remove arquivos antigos de um diretorio
 # Parametros: $1=diretorio $2=dias $3=padrao(opcional)
 _limpar_arquivos_antigos() {
-    local diretorio="${1:?Diretório é obrigatório}"
-    local dias="${2:?Número de dias é obrigatório}"
+    local diretorio="$1"
+    local dias="$2"
     local padrao="${3:-*}"
     local count=0
     local arquivos
