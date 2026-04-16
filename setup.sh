@@ -403,7 +403,7 @@ _configure_ssh_access() {
 
     # Cria os diretórios padrão com permissões corretas
     mkdir -p "${SSH_DIR}" "${CONTROL_PATH_BASE}"
-    chmod 700 "${SSH_DIR}" "${CONTROL_PATH_BASE}"
+    chmod 0755 "${SSH_DIR}" "${CONTROL_PATH_BASE}"
 
     # ====================== CRIAÇÃO / ATUALIZAÇÃO DO ARQUIVO ~/.ssh/config ======================
     if [[ ! -f "${SSH_CONFIG_FILE}" ]] || ! grep -q "^Host sav_servidor" "${SSH_CONFIG_FILE}"; then
@@ -424,7 +424,7 @@ Host sav_servidor
     ServerAliveCountMax 3
     ConnectTimeout 15
 EOF
-        chmod 600 "${SSH_CONFIG_FILE}"
+        chmod 0600 "${SSH_CONFIG_FILE}"
         echo "Configuracao SSH criada/adicionada em ~/.ssh/config"
     else
         echo " Configuracao SSH 'sav_servidor' ja existe em ~/.ssh/config"

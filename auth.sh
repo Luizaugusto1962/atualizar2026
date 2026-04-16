@@ -16,7 +16,7 @@ SENHA_FILE="${cfg_dir}/.senhas"
 
 # Garantir que o arquivo de senhas tenha permissoes restritas
 if [[ -f "$SENHA_FILE" ]]; then
-    chmod 0777 "$SENHA_FILE" 2>/dev/null || true
+    chmod 0755 "$SENHA_FILE" 2>/dev/null || true
 fi
 
 # Variavel global para armazenar o nome do usuario autenticado
@@ -67,7 +67,7 @@ _cadastrar_usuario() {
     echo "${usuario}:${hash_senha}" >> "$SENHA_FILE"
 
     # Restringir permissoes do arquivo de senhas
-    chmod 0777 "$SENHA_FILE" 2>/dev/null || {
+    chmod 0755 "$SENHA_FILE" 2>/dev/null || {
         _mensagec "${YELLOW}" "AVISO: Nao foi possivel restringir permissoes de ${SENHA_FILE}"
         _log "AVISO: Permissoes de ${SENHA_FILE} nao alteradas"
     }

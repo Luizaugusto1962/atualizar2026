@@ -216,7 +216,7 @@ _atualizando() {
             _read_sleep 2
             return 1
         }
-        chmod 0700 "${BACKUP}"
+        chmod 0755 "${BACKUP}"
     fi
 
     # Fazer backup dos arquivos atuais
@@ -309,7 +309,7 @@ _atualizando() {
         if ! mkdir -p "$cfg_target" 2>/dev/null; then
             _mensagec "${RED}" "Erro ao criar diretorio de destino: $cfg_target"
             ((arquivos_erro++)) || true
-            chmod 0700 "$cfg_target" 2>/dev/null || true
+            chmod 0755 "$cfg_target" 2>/dev/null || true
             continue
         fi
 
@@ -351,7 +351,7 @@ _atualizando() {
         if ! mkdir -p "$sh_target" 2>/dev/null; then
             _mensagec "${RED}" "Erro ao criar diretorio: $sh_target"
             ((arquivos_erro++)) || true
-            chmod 0700 "$sh_target" 2>/dev/null || true
+            chmod 0755 "$sh_target" 2>/dev/null || true
             continue
 
         fi
@@ -441,7 +441,7 @@ fi
     mkdir -p "$temp_dir" || {
         _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
         _read_sleep 2
-        chmod 0777 "$temp_dir" 2>/dev/null || true
+        chmod 0755 "$temp_dir" 2>/dev/null || true
         return 1
     }
 
@@ -471,7 +471,7 @@ _atualizar_offline() {
     mkdir -p "$temp_dir" || {
         _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio temporario $temp_dir."
         _read_sleep 2
-        chmod 0777 "$temp_dir" 2>/dev/null || true
+        chmod 0755 "$temp_dir" 2>/dev/null || true
         return 1
     }
 
@@ -509,7 +509,7 @@ if [[ ! -d "${cfg_dir}" ]]; then
         exit 1
     }
 fi
-chmod 0777 "${cfg_dir}" 2>/dev/null || {
+chmod 0755 "${cfg_dir}" 2>/dev/null || {
     _mensagec "${YELLOW}" "Aviso: Nao foi possivel ajustar permissao para ${cfg_dir}"
 }
 
@@ -681,7 +681,7 @@ _manutencao_setup() {
 
         # Cria diretórios padrão com permissões corretas
         mkdir -p "${SSH_DIR}" "${CONTROL_PATH_BASE}"
-        chmod 700 "${SSH_DIR}" "${CONTROL_PATH_BASE}"
+        chmod 0755 "${SSH_DIR}" "${CONTROL_PATH_BASE}"
 
         # Adiciona ou atualiza o bloco no ~/.ssh/config
         if [[ ! -f "${SSH_CONFIG_FILE}" ]] || ! grep -q "^Host sav_servidor" "${SSH_CONFIG_FILE}"; then
@@ -701,7 +701,7 @@ Host sav_servidor
     ServerAliveCountMax 3
     ConnectTimeout 15
 EOF
-            chmod 600 "${SSH_CONFIG_FILE}"
+            chmod 0600 "${SSH_CONFIG_FILE}"
             _mensagec "${GREEN}" "Configuracao SSH adicionada em ~/.ssh/config"
         else
             _mensagec "${YELLOW}" "Configuracao 'sav_servidor' ja existe em ~/.ssh/config"

@@ -413,7 +413,7 @@ _executar_jutil() {
             if "${jut}" -rebuild "$arquivo" -a -f; then
                 _log_sucesso "Rebuild executado: $(basename "$arquivo")"
                 # garantir permissões máximas após o rebuild
-                chmod 0777 "$arquivo" 2>/dev/null || \
+                chmod 0755 "$arquivo" 2>/dev/null || \
                     _mensagec "${YELLOW}" "Aviso: nao foi possivel alterar permissoes de $arquivo"
                 # garantir permissões máximas nos arquivos .idx gerados pelo jutil
                 local dir_arquivo base_arquivo arquivo_idx
@@ -421,7 +421,7 @@ _executar_jutil() {
                 base_arquivo="$(basename "$arquivo" .dat)"
                 for arquivo_idx in "${dir_arquivo}/${base_arquivo}"*.idx; do
                     if [[ -f "$arquivo_idx" ]]; then
-                        chmod 0777 "$arquivo_idx" 2>/dev/null || \
+                        chmod 0755 "$arquivo_idx" 2>/dev/null || \
                             _mensagec "${YELLOW}" "Aviso: nao foi possivel alterar permissoes de $arquivo_idx"
                     fi
                 done

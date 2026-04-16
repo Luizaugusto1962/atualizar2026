@@ -17,7 +17,7 @@ if [[ ! -d "${cfg_dir}" ]]; then
         exit 1
     }
 fi
-chmod 0777 "${cfg_dir}" 2>/dev/null || {
+chmod 0755 "${cfg_dir}" 2>/dev/null || {
     printf '%s\n' "AVISO: Nao foi possivel ajustar permissao em '${cfg_dir}'."
 }
 
