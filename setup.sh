@@ -9,7 +9,7 @@
 #   ./atualiza.sh --setup --edit   - Edicao das configuracoes existentes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 10/04/2026-02
+# Versao: 16/04/2026-02
 
 #---------- FUNCAO DE LOGICA DE NEGOCIO ----------#
 # Variaveis globais esperadas
@@ -91,7 +91,7 @@ _edit_setup() {
         echo "Arquivos de configuracao nao encontrados. Execute o setup inicial primeiro."
         exit 1
     fi
-
+    clear 
     echo "=================================================="
     echo "Carregando parametros para edicao..."
     echo "=================================================="

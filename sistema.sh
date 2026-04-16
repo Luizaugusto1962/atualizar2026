@@ -4,7 +4,7 @@
 # Responsavel por informacoes do IsCOBOL, Linux, parametros e atualizacoes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 13/04/2026-01
+# Versao: 16/04/2026-01
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"      # Caminho do diretorio de configuracao do programa.
@@ -596,140 +596,17 @@ editar_variavel() {
 }
 
 #===================================================================
-# _manutencao_setup - Versão FINAL com SSH no diretório padrão ~/.ssh
+# _manutencao_setup - Delega para setup.sh --edit via atualiza.sh
 #===================================================================
 _manutencao_setup() {
-    local tracejada="#-------------------------------------------------------------------#"
-    local SSH_DIR="${HOME}/.ssh"
-    local SSH_CONFIG_FILE="${SSH_DIR}/config"
-    local CONTROL_PATH_BASE="${SSH_DIR}/control"
+    local atualiza="${SCRIPT_DIR}/atualiza.sh"
 
-    # Posiciona no diretório de configuração do SAV
-    cd "${cfg_dir}" || {
-        _mensagec "${RED}" "Erro: Diretório ${cfg_dir} nao encontrado"
+    if [[ ! -f "${atualiza}" ]]; then
+        _mensagec "${RED}" "Erro: atualiza.sh nao encontrado em ${SCRIPT_DIR}"
         _read_sleep 2
         return 1
-    }
-
-
-    # Carrega configurações existentes (se houver)
-    if [[ -f ".config" ]]; then
-        echo "=================================================="
-        echo "Carregando parametros existentes para edicao..."
-        echo "=================================================="
-        # shellcheck source=/dev/null
-        . ".config" || {
-            _mensagec "${RED}" "Erro ao carregar .config"
-            _read_sleep 2
-            return 1
-        }
-
-        # Cria backup antes de editar
-        cp .config .config.bkp 2>/dev/null && \
-            _mensagec "${GREEN}" "Backup criado: .config.bkp"
-    else
-        _mensagec "${YELLOW}" "Arquivo .config nao encontrado."
     fi
 
-    _limpa_tela
-
-    # === Edição interativa das variáveis ===
-    editar_variavel sistema
-    editar_variavel verclass
-    editar_variavel dbmaker
-    editar_variavel acessossh
-    editar_variavel ipserver
-    editar_variavel Offline
-    editar_variavel enviabackup
-    editar_variavel empresa
-    editar_variavel base
-    editar_variavel base2
-    editar_variavel base3
-
-    # Recria o arquivo .config
-    {
-        echo "sistema=${sistema}"
-        [[ -n "${verclass}" ]] && echo "verclass=${verclass}"
-        [[ -n "${dbmaker}" ]] && echo "dbmaker=${dbmaker}"
-        [[ -n "${acessossh}" ]] && echo "acessossh=${acessossh}"
-        [[ -n "${ipserver}" ]] && echo "ipserver=${ipserver}"
-        [[ -n "${Offline}" ]] && echo "Offline=${Offline}"
-        [[ -n "${enviabackup}" ]] && echo "enviabackup=${enviabackup}"
-        [[ -n "${empresa}" ]] && echo "empresa=${empresa}"
-        [[ -n "${base}" ]] && echo "base=${base}"
-        [[ -n "${base2}" ]] && echo "base2=${base2}" || echo "#base2="
-        [[ -n "${base3}" ]] && echo "base3=${base3}" || echo "#base3="
-    } > .config
-
-    _mensagec "${GREEN}" "Arquivo .config atualizado com sucesso!"
-    echo "${tracejada}"
-
-        # ====================== CONFIGURAÇÃO SSH (padrão ~/.ssh) ======================
-    if [[ "${acessossh}" == "s" ]]; then
-        echo
-        _mensagec "${GREEN}" "Configurando acesso SSH facilitado (sav_servidor)..."
-
-        local SERVER_IP="${ipserver}"
-        local SERVER_PORTA="${SERVER_PORTA:-41122}"
-        local SERVER_USER="${USUARIO:-atualiza}"
-
-        if [[ -z "${SERVER_IP}" ]]; then
-            _mensagec "${RED}" "Erro: ipserver nao foi definido!"
-            _read_sleep 2
-            return 1
-        fi
-
-        # Cria diretórios padrão com permissões corretas
-        mkdir -p "${SSH_DIR}" "${CONTROL_PATH_BASE}"
-        chmod 0755 "${SSH_DIR}" "${CONTROL_PATH_BASE}"
-
-        # Adiciona ou atualiza o bloco no ~/.ssh/config
-        if [[ ! -f "${SSH_CONFIG_FILE}" ]] || ! grep -q "^Host sav_servidor" "${SSH_CONFIG_FILE}"; then
-            cat >> "${SSH_CONFIG_FILE}" << EOF
-
-# ================================================
-# Configuração SAV - Gerada automaticamente
-# ================================================
-Host sav_servidor
-    HostName ${SERVER_IP}
-    Port ${SERVER_PORTA}
-    User ${SERVER_USER}
-    ControlMaster auto
-    ControlPath ${CONTROL_PATH_BASE}/%r@%h:%p
-    ControlPersist 10m
-    ServerAliveInterval 30
-    ServerAliveCountMax 3
-    ConnectTimeout 15
-EOF
-            chmod 0600 "${SSH_CONFIG_FILE}"
-            _mensagec "${GREEN}" "Configuracao SSH adicionada em ~/.ssh/config"
-        else
-            _mensagec "${YELLOW}" "Configuracao 'sav_servidor' ja existe em ~/.ssh/config"
-        fi
-
-        # Teste de conexão
-        echo
-        echo " Testando conexao com sav_servidor (${SERVER_IP})..."
-
-        if ssh -o BatchMode=yes sav_servidor exit 2>/dev/null; then
-            _mensagec "${GREEN}" "Conexao SSH estabelecida com sucesso!"
-        else
-            echo "Primeira conexao: digite 'yes' quando aparecer a mensagem de fingerprint."
-            echo
-            if ssh sav_servidor exit; then
-                _mensagec "${GREEN}" "Servidor autenticado com sucesso."
-            else
-                _mensagec "${RED}" "Falha na conexao. Verifique IP, porta e usuario."
-            fi
-        fi
-
-    else
-        echo
-        _mensagec "${YELLOW}" "Acesso SSH esta desativado (acessossh = n)."
-        _mensagec "${YELLOW}" "Para ativar, altere para acessossh=s e rode a manutencao novamente."
-    fi
-
-    echo "${tracejada}"
-    _press
+    "${atualiza}" --setup --edit
 }
 
