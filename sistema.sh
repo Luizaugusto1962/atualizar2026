@@ -4,7 +4,7 @@
 # Responsavel por informacoes do IsCOBOL, Linux, parametros e atualizacoes
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 16/04/2026-01
+# Versao: 17/04/2026-02
 #
 # Variaveis globais esperadas
 cfg_dir="${cfg_dir:-}"      # Caminho do diretorio de configuracao do programa.
@@ -149,8 +149,8 @@ _mostrar_parametros() {
     printf "${GREEN}Diretorio raiz: ${NORM}${raiz}${NORM}%*s\n"
     printf "${GREEN}Diretorio do atualiza.sh: ${NORM}${SCRIPT_DIR}${NORM}%*s\n"
     printf "${GREEN}Diretorio da base principal: ${NORM}${raiz}${base}${NORM}%*s\n"
-    printf "${GREEN}Diretorio da segunda base: ${NORM}${raiz}${base2}${NORM}%*s\n"
-    printf "${GREEN}Diretorio da terceira base: ${NORM}${raiz}${base3}${NORM}%*s\n"
+    [[ -n "${base2}" ]] && printf "${GREEN}Diretorio da segunda base: ${NORM}${raiz}${base2}${NORM}%*s\n"
+    [[ -n "${base3}" ]] && printf "${GREEN}Diretorio da terceira base: ${NORM}${raiz}${base3}${NORM}%*s\n"
     printf "${GREEN}Diretorio dos executaveis: ${NORM}${E_EXEC}${NORM}%*s\n"
     printf "${GREEN}Diretorio das telas: ${NORM}${T_TELAS}${NORM}%*s\n"
     printf "${GREEN}Diretorio dos xmls: ${NORM}${X_XML}${NORM}%*s\n"
