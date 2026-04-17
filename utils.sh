@@ -17,32 +17,15 @@ _limpa_tela() {
 }
 
 # Posiciona o cursor no meio da tela
-_meio_da_tela() {
+_meio_da_tela2() {
     local linhas 
     local colunas
 
-# Pega o tamanho do terminal
-linhas=$(tput lines)
-colunas=$(tput cols)
+    linhas=$(tput lines 2>/dev/null || echo "${LINES:-24}")
+    colunas=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
 
-# Calcula o centro
-meio_linha=$((linhas / 2))
-meio_coluna=$((colunas / 2))
-
-# Limpa a tela e posiciona o cursor no centro
-printf "\033[2J\033[%d;%dH" "$meio_linha" "$meio_coluna"
-
+    printf "\033[2J\033[%d;1H" $((linhas / 2))
 }
-
-#_meio_da_tela2() {
-#    local linhas 
-#    local colunas
-#
-#    linhas=$(tput lines 2>/dev/null || echo "${LINES:-24}")
-#    colunas=$(tput cols 2>/dev/null || echo "${COLUMNS:-80}")
-#
-#    printf "\033[2J\033[%d;1H" $((linhas / 2))
-#}
 # Exibe mensagem centralizada com cor
 _mensagec() {
     local cor="${1}"
