@@ -383,7 +383,7 @@ _menu_temporarios() {
         printf "\n"
         _mensagec "${GREEN}" "1${NORM} -|: Limpeza dos Arquivos Temporarios "
         printf "\n"
-        _mensagec "${GREEN}" "2${NORM} -|: Adicionar Arquivos no limpetmp2  "
+        _mensagec "${GREEN}" "2${NORM} -|: Adicionar Arquivos Temporarios   "
         printf "\n"
         _mensagec "${GREEN}" "3${NORM} -|: Listar os registros dos Arquivos "
         printf "\n"
