@@ -169,12 +169,12 @@ _mostrar_parametros() {
     _press
     _limpa_tela
     _linha "=" "${GREEN}"
-    printf "${GREEN}Servidor OFF: ${NORM}${Offline}${NORM}%*s\n"
     printf "${GREEN}Diretorio de configuracoes em OFF: ${NORM}${down_dir}${NORM}%*s\n"
     printf "${GREEN}Diretorio para envio de backup: ${NORM}${enviabackup}${NORM}%*s\n"
     printf "${GREEN}Diretorio do backup de base: ${NORM}${BASEBACKUP}${NORM}%*s\n"
     printf "${GREEN}Diretorio do backup da biblioteca: ${NORM}${BIBLIOTECA}${NORM}%*s\n"
     printf "${GREEN}Versao da biblioteca atual: ${NORM}${VERSAOANT}${NORM}%*s\n"
+    printf "${GREEN}Servidor OFF: ${NORM}${Offline}${NORM}%*s\n"
     printf "${GREEN}Variavel da classe: ${NORM}${class}${NORM}%*s\n"
     printf "${GREEN}Variavel da mclass: ${NORM}${mclass}${NORM}%*s\n"
     printf "${GREEN}Porta de conexao: ${NORM}${SERVER_PORTA}${NORM}%*s\n"
