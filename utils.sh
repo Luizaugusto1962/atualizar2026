@@ -17,7 +17,7 @@ _limpa_tela() {
 }
 
 # Posiciona o cursor no meio da tela
-_meio_da_tela2() {
+_meio_da_tela() {
     local linhas 
     local colunas
 
