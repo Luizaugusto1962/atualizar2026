@@ -4,7 +4,7 @@
 # Funcoes basicas para formatacao, mensagens, validacao e controle de fluxo
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 13/04/2026-00
+# Versao: 17/04/2026-00
 
 #---------- FUNCOES DE FORMATACAO DE TELA ----------#
 # Variaveis globais esperadas
@@ -26,6 +26,7 @@ _meio_da_tela() {
 
     printf "\033[2J\033[%d;1H" $((linhas / 2))
 }
+
 # Exibe mensagem centralizada com cor
 _mensagec() {
     local cor="${1}"
@@ -44,7 +45,6 @@ _mensagec() {
         printf "%s%*s%s%s\n" "${cor}" "$margem" "" "${mensagem}" "${NORM}"
     fi
 }
-
 
 # Exibe mensagem alinhada à direita
 # Parametros: $1=cor $2=mensagem  

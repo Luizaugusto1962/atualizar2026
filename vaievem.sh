@@ -243,8 +243,8 @@ _baixar_programas_vaievem() {
 
             # Verificar se arquivo foi baixado
             if [[ ! -f "$arquivo" || ! -s "$arquivo" ]]; then
-                _mensagec "${RED}" "ERRO: Falha ao baixar '$arquivo'"
-                _read_sleep 2
+                _mensagec "${RED}" "ERRO: Falha ao baixar verificar se existe no servidor: $arquivo"
+                _read_sleep 0
                 return 0 
             fi
 

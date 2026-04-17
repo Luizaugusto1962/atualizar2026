@@ -4,7 +4,7 @@
 # Responsavel pela atualizacao, instalacao e reversao de programas
 #
 # SISTEMA SAV - Script de Atualizacao Modular
-# Versao: 15/04/2026-00
+# Versao: 17/04/2026-00
 #
 # Variaveis globais esperadas
 sistema="${sistema:-}"      # Nome do sistema (iscobol, savatu, transpc).
@@ -19,7 +19,6 @@ mclass="${mclass:-}"        # Sufixo para arquivos de classe de depuracao
 # Arrays para armazenar programas e arquivos
 declare -a PROGRAMAS_SELECIONADOS=()
 declare -a ARQUIVOS_PROGRAMA=()
-
 
 #---------- FUNCOES DE ATUALIZACAO ONLINE ----------#
 
@@ -250,8 +249,14 @@ _coletar_artefatos_atualizacao() {
         if [[ -z "${item}" ]]; then
             if (( ${#PROGRAMAS_SELECIONADOS[@]} > 0 )); then
                 _mensagec "${CYAN}" "Programas informados:"
-                for prog in "${PROGRAMAS_SELECIONADOS[@]}"; do
-                    _mensagec "${GREEN}" "  -> ${prog}"
+                for idx in "${!PROGRAMAS_SELECIONADOS[@]}"; do
+                    local prog="${PROGRAMAS_SELECIONADOS[$idx]}"
+                    local arq="${ARQUIVOS_PROGRAMA[$idx]}"
+                    if [[ "$arq" == *"${mclass}"* ]]; then
+                        _mensagec "${GREEN}" "  -> ${prog} - Depuracao"
+                    else
+                        _mensagec "${GREEN}" "  -> ${prog} - Normal"
+                    fi
                 done
                 _linha
                 if ! _confirmar "${WHITE}"" Confirma a selecao do(s) programa(s) acima?" "S"; then
