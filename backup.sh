@@ -211,10 +211,24 @@ fi
 
 #---------- FUNCOES DE EXECUCAO DE BACKUP ----------#
 
+# Valida se o backup foi criado corretamente
+_validar_backup_criado() {
+    local arquivo_destino="$1"
+
+    # Validar se o backup foi criado e tamanho mínimo
+    if [[ ! -f "$arquivo_destino" ]] || (( $(wc -c < "$arquivo_destino" 2>/dev/null || echo 0) < 100 )); then
+        _mensagec "${RED}" "ERRO: Backup criado mas vazio ou muito pequeno"
+        rm -f "$arquivo_destino"
+        return 1
+    fi
+
+    return 0
+}
+
 # Executa backup completo
 _executar_backup_completo() {
     local arquivo_destino="$1"
-    
+
     # Validar parâmetro
     if [[ -z "$arquivo_destino" ]]; then
         _mensagec "${RED}" "ERRO: Caminho do backup nao foi informado"
@@ -234,20 +248,11 @@ _executar_backup_completo() {
         return 1
     fi
     
-    # Validar se o backup foi criado
-    if [[ ! -f "$arquivo_destino" ]]; then
-        _mensagec "${RED}" "ERRO: Backup nao foi criado"
+    # Validar backup criado
+    if ! _validar_backup_criado "$arquivo_destino"; then
         return 1
     fi
-    
-    # Validar tamanho mínimo
-    local tamanho=$(stat -c%s "$arquivo_destino" 2>/dev/null)
-    if [[ -z "$tamanho" || $tamanho -lt 100 ]]; then
-        _mensagec "${RED}" "ERRO: Backup criado mas vazio ou muito pequeno"
-        rm -f "$arquivo_destino"
-        return 1
-    fi
-    
+
     _mensagec "${GREEN}" "Backup criado com sucesso: $arquivo_destino"
     return 0
 }
@@ -300,6 +305,12 @@ _executar_backup_incremental() {
         _mensagec "${RED}" "ERRO: Falha ao compactar arquivos"
         rm -f "$arquivos_temp"
         return 1  
+    fi
+    
+    # Validar backup criado
+    if ! _validar_backup_criado "$arquivo_destino"; then
+        rm -f "$arquivos_temp"
+        return 1
     fi
     
     # Limpar arquivo temporario

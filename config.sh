@@ -73,7 +73,7 @@ VERSAO="${VERSAO:-}"                             # Variavel que define a versao 
 INI="${INI:-}"                                   # Variavel que define o caminho do arquivo de configuracao do sistema.
 Offline="${Offline:-}"                           # Variavel que define se o sistema esta em modo offline.
 down_dir="${down_dir:-}"                         # Variavel que define o caminho do diretorio do servidor off.
-acesssoff="${acesssoff:-}"                       # Variavel que define o caminho do diretorio do servidor off.
+acessoff="${acessoff:-}"                       # Variavel que define o caminho do diretorio do servidor off.
 acessossh="${acessossh:-}"                       # Variavel que define o caminho do diretorio do servidor off.
 VERSAOANT="${VERSAOANT:-}"                       # Variavel que define a versao do programa anterior.
 cmd_unzip="${cmd_unzip:-}"                       # Comando para descompactar arquivos.
@@ -330,7 +330,7 @@ _configurar_variaveis_sistema() {
 
     # Caminho completo do jutil
     jut="${SAVISC}${JUTIL}"
-    export SAVISC ISCCLIENT jut
+    export SAVISC SAVISCC ISCCLIENT jut
 
     # Configurar porta e acesso
     if [[ -z "${SERVER_PORTA}" ]]; then

@@ -22,7 +22,9 @@ enviabackup="${enviabackup:-}"  # Variavel do diretorio para envio de backup.
 ipserver="${ipserver:-}"    # Variavel do IP do servidor.
 Offline="${Offline:-}"      # Variavel do status de conexao (s/n).
 verclass="${verclass:-}"    # Variavel da versao da classe.
-   
+down_dir="${down_dir:-}"    # Variavel do diretorio de download para atualizacao offline.
+
+
 #---------- FUNCOES DE VERSAO ----------#
 # Mostra versao do IsCOBOL
 _mostrar_versao_iscobol() {
@@ -200,16 +202,13 @@ _mostrar_parametros() {
 _executar_update() {
     local temp_dir="${RECEBE}/temp_update/"
     local zipfile="atualiza.zip"
-    local down_dir="${down_dir}"
  
     _configurar_acessos
     if [[ "${Offline}" =~ ^[sn]$ ]]; then
         if [[ "${Offline}" == "n" ]]; then
             _atualizar_online
-            export tipo_online
         else
             _atualizar_offline
-            export tipo_offline
         fi
     fi    
     _press
@@ -438,8 +437,9 @@ fi
 }
 
 _atualizar_online() {
-# URL do arquivo zip de atualizacao no GitHub
     local link="https://github.com/Luizaugusto1962/atualizar2026/archive/master/atualiza.zip"
+    local temp_dir="${RECEBE}/temp_update/"
+    local zipfile="atualiza.zip"
 
     _mensagec "${GREEN}" "Atualizando script via GitHub..."
 if ! cd "${RECEBE}"; then

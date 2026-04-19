@@ -139,7 +139,7 @@ _apagar_aviso_entrada() {
         else
             _mensagec "${RED}" "Erro ao excluir mensagem"
         fi
-        _read__read_sleep 2
+        _read_sleep 2
     fi
 }
 

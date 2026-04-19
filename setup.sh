@@ -18,7 +18,7 @@ verclass="${verclass:-}"
 # Variáveis globais
 declare -l sistema base base2 base3 dbmaker enviabackup
 declare -u empresa
-ip_do_server="179.94.20.40"
+ip_do_server="{ip_do_server:-179.94.20.40}"
 # Limpar tela
 _limpa_tela() {
     clear
@@ -35,14 +35,14 @@ _initial_setup() {
 
     # Header inicial
     echo "$traco"
-    echo ${traco} >.config
     echo "###      ( Parametros para serem usados no atualiza.sh )          ###"
     echo "$traco"
-    echo ${traco} >.config
-    # Criar arquivos de configuracao
-    echo "$traco" > .config
-    echo "###      ( Parametros para serem usados no atualiza.sh )          ###" >> .config
-    echo "$traco" >> .config
+    # Criar arquivo de configuracao
+    {
+        echo "$traco"
+        echo "###      ( Parametros para serem usados no atualiza.sh )          ###"
+        echo "$traco"
+    } > .config
 
     # Selecionar sistema (IsCobol ou Microfocus)
     echo "Em qual sistema o SAV esta rodando?"

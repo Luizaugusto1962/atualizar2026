@@ -43,7 +43,7 @@ export SCRIPT_DIR lib_dir cfg_dir
 # Retorna: 0 se criado/existente, 1 se erro
 # -----------------------------------------------------------------------------
 _criar_diretorio_seguro() {
-    local caminho="${1:}"
+    local caminho="${1:-}"
     local permissao="${2:-0755}"  # PERMISSAO SEGURA: 0755 ao inves de 0777
 
     if [[ -z "$caminho" ]]; then
