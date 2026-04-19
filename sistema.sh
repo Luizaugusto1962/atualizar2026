@@ -12,7 +12,17 @@ lib_dir="${lib_dir:-}"      # Diretorio dos modulos de biblioteca.
 cmd_unzip="${cmd_unzip:-}"  # Comando de descompactacao (unzip).
 class="${class:-}"          # Variavel da classe.
 mclass="${mclass:-}"        # Variavel da mclass.
-
+base="${base:-}"            # Variavel do nome da base principal.
+base2="${base2:-}"          # Variavel do nome da segunda base (opcional).
+base3="${base3:-}"          # Variavel do nome da terceira base (opcional).
+sistema="${sistema:-}"      # Variavel do sistema em uso (ex: iscobol, linux).
+dbmaker="${dbmaker:-}"      # Variavel do banco de dados em uso (ex: dbase, mysql).
+raiz="${raiz:-}"            # Variavel do diretorio raiz do sistema.
+enviabackup="${enviabackup:-}"  # Variavel do diretorio para envio de backup.
+ipserver="${ipserver:-}"    # Variavel do IP do servidor.
+Offline="${Offline:-}"      # Variavel do status de conexao (s/n).
+verclass="${verclass:-}"    # Variavel da versao da classe.
+   
 #---------- FUNCOES DE VERSAO ----------#
 # Mostra versao do IsCOBOL
 _mostrar_versao_iscobol() {
@@ -389,21 +399,21 @@ _atualizando() {
 if [[ ! -d "${RECEBE}" ]]; then
     _mensagec "${RED}" "ERRO: Diretorio '${RECEBE}' nao encontrado."
     _read_sleep 2
-    exit 1
+    return 1
 fi
 
 # Mudar para o diretório RECEBE com verificação
 if ! cd "${RECEBE}"; then
    _mensagec "${RED}" "ERRO: Nao foi possivel acessar o diretorio '${RECEBE}'."
     _read_sleep 2
-    exit 1
+    return 1
 fi
 
 # Confirmar que estamos no diretório correto antes de deletar
 if [[ "$(pwd)" != "${RECEBE}" ]]; then
     _mensagec "${RED}" "ERRO: Falha na verificacao de seguranca do diretorio."
     _read_sleep 2
-    exit 1
+    return 1
 fi
 
 # Verificar se há arquivos para remover
@@ -424,7 +434,7 @@ fi
     _mensagec "${GREEN}" "Ao terminar, entre novamente no sistema"
     _linha
 
-    exit 0
+    return 0
 }
 
 _atualizar_online() {
@@ -435,7 +445,7 @@ _atualizar_online() {
 if ! cd "${RECEBE}"; then
    _mensagec "${RED}" "ERRO: Nao foi possivel acessar o diretorio '${RECEBE}'."
     _read_sleep 2
-    exit 1
+    return 1
 fi
     # Criar e acessar diretorio temporario
     mkdir -p "$temp_dir" || {
@@ -491,111 +501,6 @@ _atualizar_offline() {
 }
 
 
-######################################################
-#---------- FUNCOES DE MANUTENCAO DO SETUP ----------#
-######################################################
-
-# Constantes
-readonly tracejada="#-------------------------------------------------------------------#"
-
-# Variaveis globais
-declare -l sistema base base2 base3 dbmaker raiz Offline enviabackup
-declare -u empresa
-# Posiciona o script no diretorio cfg_dir.
-if [[ ! -d "${cfg_dir}" ]]; then
-    mkdir -p "${cfg_dir}" || {
-        _mensagec "${RED}" "Erro: Nao foi possivel criar o diretorio ${cfg_dir}"
-        _read_sleep 2
-        exit 1
-    }
-fi
-chmod 0755 "${cfg_dir}" 2>/dev/null || {
-    _mensagec "${YELLOW}" "Aviso: Nao foi possivel ajustar permissao para ${cfg_dir}"
-}
-
-cd "${cfg_dir}" || {
-    _mensagec "${RED}" "Erro: Diretorio ${cfg_dir} nao encontrado"
-    _read_sleep 2
-    exit 1
-}
-
-editar_variavel() {
-    local nome="$1"
-    local valor_atual="${!nome}"
-
-    # Funcao para editar variavel com prompt
-    if _confirmar "Deseja alterar ${nome} (valor atual: ${valor_atual})?" "N"; then
-        if [[ "$nome" == "sistema" ]]; then
-            printf "\n"
-            printf "%s\n" "Escolha o sistema:"
-            printf "%s\n" "1) IsCobol"
-            printf "%s\n" "2) Micro Focus Cobol"
-            read -rp "Opcao [1-2]: " opcao
-            case "$opcao" in
-            1) sistema="iscobol" ;;
-            2) sistema="cobol" ;;
-            *) echo "Opcao invalida. Mantendo valor anterior: $valor_atual" ;;
-            esac
-
-        elif [[ "$nome" == "dbmaker" ]]; then
-            printf "\n"
-            printf "%s\n" "${tracejada}"
-            printf "%s\n" "O sistema usa banco de dados?"
-            printf "%s\n" "1) Sim"
-            printf "%s\n" "2) Nao"
-            read -rp "Opcao [1-2]: " opcao
-            case "$opcao" in
-            1) dbmaker="s" ;;
-            2) dbmaker="n" ;;
-            *) echo "Opcao invalida. Mantendo valor anterior: $valor_atual" ;;
-            esac
-
-        elif [[ "$nome" == "acessossh" ]]; then
-            printf "\n"
-            printf "%s\n" "${tracejada}"
-            printf "%s\n" "Metodo de acesso facil?"
-            printf "%s\n" "1) Sim"
-            printf "%s\n" "2) Nao"
-            read -rp "Opcao [1-2]: " opcao
-            case "$opcao" in
-            1) acessossh="s" ;;
-            2) acessossh="n" ;;
-            *) echo "Opcao invalida. Mantendo valor anterior: $valor_atual" ;;
-            esac
-
-        elif [[ "$nome" == "ipserver" ]]; then
-            printf "\n"
-            printf "%s\n" "${tracejada}"
-            read -rp "Digite o IP do Servidor SAV (ou pressione Enter para manter $valor_atual): " novo_ip
-        if [[ -n "$novo_ip" ]]; then
-            ipserver="$novo_ip"
-        else
-            ipserver="$valor_atual"
-            echo "Mantendo valor anterior: $valor_atual"
-        fi    
-
-        elif [[ "$nome" == "Offline" ]]; then
-            printf "\n"
-            printf "%s\n" "${tracejada}"
-            printf "%s\n" "O sistema em modo Offline ?"
-            printf "%s\n" "1) Sim"
-            printf "%s\n" "2) Nao"
-            read -rp "Opcao [1-2]: " opcao
-            case "$opcao" in
-            1) Offline="s" ;;
-            2) Offline="n" ;;
-            *) printf "%s\n" "Opcao invalida. Mantendo valor anterior: $valor_atual" ;;
-            esac
-        else
-            read -rp "Novo valor para ${nome}: " novo_valor
-            # Usar declare em vez de eval para seguranca
-            declare -g "$nome"="$novo_valor"
-        fi
-    fi
-    printf "%s\n" "${tracejada}"
-}
-
-#===================================================================
 # _manutencao_setup - Delega para setup.sh --edit via atualiza.sh
 #===================================================================
 _manutencao_setup() {

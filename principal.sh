@@ -92,7 +92,7 @@ for dir in "${AUX_DIRS[@]}"; do
     # Verificar se a variável está definida
     if [[ -z "${dir}" ]]; then
         printf "ERRO: Variavel de diretorio nao definida.\n" >&2
-        exit 1
+        return 1
     fi
 
     # Criar diretório caso não exista com permissões seguras
