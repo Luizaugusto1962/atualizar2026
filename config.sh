@@ -744,5 +744,5 @@ _resetando() {
 _encerrar_programa() {
     local status="${1:-0}"
     _limpar_estado_variaveis
-    exit "$status"
+    return "$status"
 }

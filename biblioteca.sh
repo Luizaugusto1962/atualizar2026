@@ -383,7 +383,7 @@ _executar_atualizacao_biblioteca() {
         if ! printf "VERSAOANT=%s\n" "${VERSAO}" >> "${cfg_dir}/.versao"; then
             _mensagec "${RED}" "Erro ao gravar arquivo de versao atualizada"
             _press
-            exit
+            return 1
         fi
     fi
 

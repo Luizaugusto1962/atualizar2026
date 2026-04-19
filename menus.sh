@@ -14,7 +14,7 @@ cfg_dir="${cfg_dir:-${SCRIPT_DIR}/cfg}"    # Diretorio de configuracoes
 if [[ ! -d "${cfg_dir}" ]]; then
     mkdir -p "${cfg_dir}" || {
         printf '%s\n' "ERRO: Nao foi possivel criar o diretorio de configuracao '${cfg_dir}'."
-        exit 1
+        return 1
     }
 fi
 chmod 0755 "${cfg_dir}" 2>/dev/null || {
